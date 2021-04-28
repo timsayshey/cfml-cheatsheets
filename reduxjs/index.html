@@ -63,14 +63,14 @@
           <p><strong>Updated</strong> 23 April 2020</p>
 <h1 id="installation">Installation</h1>
 <p><code>npm install redux</code></p>
-<p>If you work into a React App, react-redux provides an easy integration. <a target='_blank' href='https://react-redux.js.org'>Take a look.</a>
+<p>If you work into a React App, react-redux provides an easy integration.
 <code>npm install react-redux</code></p>
 <h1 id="creating-a-new-store">Creating a new store</h1>
 <div class='alert-message'>
     <span class='icon'>!</span>The store is always a global var
 </div>
 
-<pre><code class="language-js">import { createStore } from &#39;redux&#39;; 
+<pre><code class="language-js">import { createStore } from &#39;redux&#39;;
 const store = createStore();</code></pre>
 <h1 id="creating-reducers-and-state">Creating reducers and state</h1>
 <p>The reducer will validate the action&#39;s type and then will return the new state</p>
@@ -130,26 +130,6 @@ store.subscribe(() =&gt; console.log(store.getState())) //our new data -&gt; SII
           <h1 id="api---createstore">API - createStore()</h1>
 <p><strong>Why</strong>: it&#39;s the base method <br/>
 <strong>Return</strong>: a store object</p>
-<table>
-<thead>
-<tr>
-<th>Argument</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>Reducer</strong></td>
-<td>your reducer function / combineReducers</td>
-</tr>
-<tr>
-<td><strong>[state]</strong></td>
-<td>your initial state, if you don&#39;t set it here, you must set it as a default value into your reducer declaration (optional)</td>
-</tr>
-<tr>
-<td><strong>[enhancer]</strong></td>
-<td>a middleware function (optional)</td>
-</tr>
-</tbody></table>
 <pre><code class="language-js">const store = createStore(reducer,state,enhancer)</code></pre>
 <h1 id="api---combinereducers">API - combineReducers()</h1>
 <p><strong>Why</strong>: to combine various reducers <br/>
@@ -160,7 +140,7 @@ store.subscribe(() =&gt; console.log(store.getState())) //our new data -&gt; SII
 <p><strong>Why</strong>: to be able to deal with async data<br/>
 <strong>Arguments</strong>: a middleWare function <br/>
 <strong>Return</strong>: a store enhancer</p>
-<!-- * We can create a custom middleware to keep it simple. <a target='_blank' href='https://redux.js.org/api/applymiddleware#example-custom-logger-middleware'> Exemple</a> -->
+<!-- * We can create a custom middleware to keep it simple.  -->
 
 <pre><code class="language-js">const store = createStore(reducer,state, applyMiddleware(yourMiddleware))</code></pre>
 <h1 id="api---bindactioncreators">API - bindActionCreators()</h1>

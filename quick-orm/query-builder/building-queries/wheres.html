@@ -1,0 +1,140 @@
+<h1 id="wheres">Wheres</h1>
+<h2 id="where-methods">Where Methods</h2>
+<h3 id="where">where</h3>
+<p>Adds a where clause to a query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .where( &quot;active&quot;, &quot;=&quot;, 1 );</code></pre>
+<p>Using the where method will parameterize the value passed.  If you want to constrain a column to another column, use the <a href="wheres.md#wherecolumn">whereColumn</a> method.</p>
+<p>You can also pass an <a href="raw-expressions.md">Expression</a> as the value.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .where( &quot;last_logged_in&quot;, &quot;&gt;&quot;, query.raw( &quot;NOW()&quot; ) );</code></pre>
+<p>Any of the following operators can be used in a where clause.</p>
+<p>When using the &quot;=&quot; constraint, you can use a shortcut and define the value as the second argument.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .where( &quot;active&quot;, 1 );</code></pre>
+<p>You may also use <a href="wheres.md#dynamic-where-methods">dynamic where{Column}</a> statements to simplify this further.</p>
+<p>To group where statements together, pass a function to the where clause as the only parameter.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .where( function( q ) {
+        q.where( &quot;active&quot;, 1 )
+            .where( &quot;last_logged_in&quot;, &quot;&gt;&quot;, dateAdd( &quot;ww&quot;, -1, now() ) )
+    } );</code></pre>
+<p>This grouping can be nested as many levels as you require.</p>
+<p>A Function or QueryBuilder can be used as a subselect expression when passed to value.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .where( &quot;email&quot;, &quot;foo&quot; )
+    .orWhere( &quot;id&quot;, &quot;=&quot;, function( q ) {
+        q.select( q.raw( &quot;MAX(id)&quot; ) )
+            .from( &quot;users&quot; )
+            .where( &quot;email&quot;, &quot;bar&quot; );
+    } );</code></pre>
+<h3 id="andwhere">andWhere</h3>
+<p>This method is simply an alias for <a href="wheres.md#where">where</a> with the combinator set to &quot;and&quot;.</p>
+<h3 id="orwhere">orWhere</h3>
+<p>This method is simply an alias for <a href="wheres.md#where">where</a> with the combinator set to &quot;or&quot;.</p>
+<h3 id="wherebetween">whereBetween</h3>
+<p>Adds a where between clause to the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereBetween( &quot;id&quot;, 1, 2 );</code></pre>
+<p>If a function or QueryBuilder is passed it is used as a subselect expression.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereBetween(
+        &quot;id&quot;,
+        function( q ) {
+            q.select( q.raw( &quot;MIN(id)&quot; ) )
+                .from( &quot;users&quot; )
+                .where( &quot;email&quot;, &quot;bar&quot; );
+        },
+        builder.newQuery()
+            .select( builder.raw( &quot;MAX(id)&quot; ) )
+            .from( &quot;users&quot; )
+            .where( &quot;email&quot;, &quot;bar&quot; )
+    );</code></pre>
+<h3 id="wherenotbetween">whereNotBetween</h3>
+<p>Adds a where not in clause to the query.  This behaves identically to the <a href="wheres.md#wherebetween">whereBetween</a> method with the negate`flag set to true.  See the documentation for <a href="wheres.md#wherebetween">whereBetween</a> for usage and examples.</p>
+<h3 id="wherecolumn">whereColumn</h3>
+<p>Adds a where clause to a query that compares two columns.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereColumn( &quot;first_name&quot;, &quot;=&quot;, &quot;last_name&quot; );</code></pre>
+<p>Just as with where, when using &quot;=&quot; as the operator you can use a shorthand passing the second column in as the operator and leaving the second column null.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereColumn( &quot;first_name&quot;, &quot;last_name&quot; );</code></pre>
+<p>`Expressions can be passed in place of either column.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereColumn( &quot;first_name&quot;, query.raw( &quot;LOWER(first_name)&quot; ) );</code></pre>
+<h3 id="whereexists">whereExists</h3>
+<p>Adds a where exists clause to the query.</p>
+<p>It can be configured with a function.</p>
+<pre><code class="language-javascript">query.from( &quot;orders&quot; )
+    .whereExists( function( q ) {
+        q.select( q.raw( 1 ) )
+            .from( &quot;products&quot; )
+            .whereColumn( &quot;products.id&quot;, &quot;orders.id&quot; );
+    } );</code></pre>
+<p>It can also be configured with a QueryBuilder instance.</p>
+<pre><code class="language-javascript">var existsQuery = query.newQuery()
+    .select( q.raw( 1 ) )
+    .from( &quot;products&quot; )
+    .whereColumn( &quot;products.id&quot;, &quot;orders.id&quot; );
+
+query.from( &quot;orders&quot; )
+    .whereExists( existsQuery );</code></pre>
+<h3 id="wherenotexists">whereNotExists</h3>
+<p>Adds a where not in clause to the query.  This behaves identically to the <a href="wheres.md#whereexists">whereExists</a> method with the negate`flag set to true.  See the documentation for <a href="wheres.md#whereexists">whereExists</a> for usage and examples.</p>
+<h3 id="wherelike">whereLike</h3>
+<p>A shortcut for calling <a href="wheres.md#where">where</a> with &quot;like&quot; set as the operator.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereLike( &quot;username&quot;, &quot;J%&quot; );</code></pre>
+<h3 id="wherein">whereIn</h3>
+<p>Adds a where in clause to the query.</p>
+<p>The values passed to whereIn can be a single value, a list of values, or an array of values.</p>
+<pre><code class="language-javascript">query.from( &quot;orders&quot; )
+    .whereIn( &quot;id&quot;, [ 1, 4, 66 ] );</code></pre>
+<p>Some database grammars have a hard limit on the number of parameters passed to a SQL statement.  Keep this in mind while writing your queries.</p>
+<p>If a list of values is passed in, it is converted to an array of values using a single comma  &quot;,&quot;  delimiter.</p>
+<pre><code class="language-javascript">query.from( &quot;orders&quot; )
+    .whereIn( &quot;id&quot;, &quot;1,4,66&quot; );</code></pre>
+<p>Any value in the list or array can also be passed using a <a href="parameters-and-bindings.md#custom-parameter-types">custom parameter type</a> to have more control over the parameter settings.</p>
+<pre><code class="language-javascript">query.from( &quot;orders&quot; )
+    .whereIn( &quot;id&quot;, [ 1, 4, { value = &quot;66&quot;, cfsqltype = &quot;CF_SQL_VARCHAR&quot; } ] );</code></pre>
+<p>`Expressions can be freely mixed in with other values.</p>
+<pre><code class="language-javascript">query.from( &quot;orders&quot; )
+    .whereIn( &quot;id&quot;, [ query.raw( &quot;MAX(id)&quot; ), 4, 66 ] );</code></pre>
+<p>A function or QueryBuilder instance can be passed to be used as a subquery expression instead of a list of values.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereIn( &quot;id&quot;, function( q ) {
+        q.select( &quot;id&quot; )
+            .from( &quot;users&quot; )
+            .where( &quot;age&quot;, &quot;&gt;&quot;, 25 );
+    } );</code></pre>
+<p>You may find a whereExists method performs better for you than a whereIn with a subquery.</p>
+<h3 id="wherenotin">whereNotIn</h3>
+<p>Adds a where not in clause to the query.</p>
+<h3 id="whereraw">whereRaw</h3>
+<p>Shorthand to add a raw SQL statement to the where clauses.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereRaw(
+        &quot;id = ? OR email = ? OR is_admin = 1&quot;,
+        [ 1, &quot;foo&quot; ]
+    );</code></pre>
+<h3 id="wherenull">whereNull</h3>
+<p>Adds a where null clause to the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereNull( &quot;id&quot; );</code></pre>
+<h3 id="wherenotnull">whereNotNull</h3>
+<p>Adds a where not in clause to the query.</p>
+<h2 id="dynamic-where-methods">Dynamic Where Methods</h2>
+<p>qb uses onMissingMethod to provide a few different helpers when working with where... methods.</p>
+<h3 id="andwhere-and-orwhere">andWhere... and orWhere...</h3>
+<p>Every where... method in qb can be called prefixed with either and or or.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .where( &quot;username&quot;, &quot;like&quot;, &quot;j%&quot; )
+    .andWhere( function( q ) {
+        q.where( &quot;isSubscribed&quot;, 1 )
+            .orWhere( &quot;isOnFreeTrial&quot;, 1 );
+     } );</code></pre>
+<h3 id="wherecolumn-1">where{Column}</h3>
+<p>If you call a method starting with where that does not match an existing qb method, qb will instead call the where method using the rest of the method name as the first column name.  (The rest of the arguments will be shifted to account for this.)  This also applies to andWhere{Column} and orWhere{Column} method signatures.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereUsername( &quot;like&quot;, &quot;j%&quot; )
+    .whereActive( 1 );</code></pre>

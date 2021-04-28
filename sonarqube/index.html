@@ -120,7 +120,7 @@ Issue severities:</p>
 <li class="limetrics"> <span class="concept">Reliability</span> : Number of bugs, number of new bugs, etc... Reliability rating: A = 0 bug, B = at least **1 Minor** bug,
    C = at least 1 **Major** bug, D = at least **1 critical** bug, E = at least **1 Blocker** bug</li>
 <li class="limetrics"> <span class="concept">Security</span> : Number of vulnerabilities, number of new vulnerabilities, etc... Reliability rating same as Reliability rating</li>
-<li class="limetrics"> <span class="concept">Complexity</span> Cyclomatic complexity is used up to version 6.3. 
+<li class="limetrics"> <span class="concept">Complexity</span> Cyclomatic complexity is used up to version 6.3.
 It's measured on choices and branches i.e. numbers of if, else, while, switch/case
 It is recommended to have at least a cyclomatic complexity of 12 in a method. Each method add 1 to the complexity.</li>
 </ul>
@@ -135,7 +135,7 @@ String getMonth (int monthNumber) {//+1
     return "Error";
   }
 }
-``` 
+```
 <ul>
 <li class="limetrics"> <span class="concept">Metric</span> : Number of classes, files, lines, lines of code,methods, projects, statements ....</li>
 <li class="limetrics"> <span class="concept">Duplications</span> : duplicated blocks, files, lines</li>
@@ -148,41 +148,13 @@ boolean a = false;
 boolean b = true;
 boolean c = false;
 
-if(a &amp;&amp; (b || c) ){ ...}
+if(a &amp;&amp; (b  c) ){ ...}
 
-Condition coverage =  (2 + 1) / (2*3) = 0.5 </code></pre>
+Condition coverage =  (2 + 1) / (2*3) = 0.5</code></pre>
         </div>
         <div class="column2">
           <h1 id="analysis-parameters">Analysis parameters</h1>
 <p>df = default value</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>sonar.host.url</td>
-<td>Server URL,  df = <a href="http://SONAR_SERVER_IP:9000">http://SONAR_SERVER_IP:9000</a></td>
-</tr>
-<tr>
-<td>sonar.project.key</td>
-<td>The project key that is unique for each project.  When using maven df = &lt;groupId&gt;:&lt;artifactId&gt;</td>
-</tr>
-<tr>
-<td>sonar.login</td>
-<td>The login of a SonarQube user with Execute Analysis permission.</td>
-</tr>
-<tr>
-<td>sonar.password</td>
-<td>The password that goes with sonar.login.</td>
-</tr>
-<tr>
-<td>sonar.language</td>
-<td>Set the language of the source code to analyse. If not set multi-language analysis will be triggered</td>
-</tr>
-</tbody></table>
 <h1 id="tools">Tools</h1>
 <ul>
 <li>  <span class="concept">Sonarlint:</span></li>
@@ -194,7 +166,7 @@ Condition coverage =  (2 + 1) / (2*3) = 0.5 </code></pre>
     <br/>
 <li>  <span class="concept">EclEmma:</span> </li>
   <ul>
-    <li>Allows to check coverage code by unit tests. It's based on JaCoCo library 
+    <li>Allows to check coverage code by unit tests. It's based on JaCoCo library
     <li>Available as a plugin for Eclipse IDE</li>
     <li>[EclEmma web site](http://www.eclemma.org/)</li>
   </ul>

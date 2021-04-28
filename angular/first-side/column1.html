@@ -11,9 +11,9 @@ platformBrowserDynamic()
 
 @NgModule({
     declarations: [
-        MyRootComponent, 
-        MyComponent, 
-        MyDirective, 
+        MyRootComponent,
+        MyComponent,
+        MyDirective,
         MyPipe],
     imports: [MyModule, NpmModule],
     exports: [MyComponent],
@@ -21,32 +21,4 @@ platformBrowserDynamic()
     bootstrap: [MyRootComponent] // Only root module
 })
 class MyModule {}</code></pre>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Function</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>declarations</strong></td>
-<td>Components to this module</td>
-</tr>
-<tr>
-<td><strong>imports</strong></td>
-<td>Modules to import into this module</td>
-</tr>
-<tr>
-<td><strong>exports</strong></td>
-<td>Components visible to another module</td>
-</tr>
-<tr>
-<td><strong>providers</strong></td>
-<td>Dependency injection providers</td>
-</tr>
-<tr>
-<td><strong>bootstrap</strong></td>
-<td>The root component of module</td>
-</tr>
-</tbody></table>
 <p>The <strong>pipes</strong> and <strong>directive</strong> is declared as <strong>components</strong></p>

@@ -1,0 +1,146 @@
+<h1 id="joins">Joins</h1>
+<p>Join clauses range from simple to complex including joining complete subqueries on multiple conditions. qb has your back with all of these use cases.</p>
+<h2 id="join">join</h2>
+<p>Applies a join to the query. The simplest join is to a table based on two columns:</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .join( &quot;posts&quot;, &quot;users.id&quot;, &quot;=&quot;, &quot;posts.author_id&quot; );</code></pre>
+<p>When doing a simple join using = as the operator, you can omit it and pass just the column names:</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .join( &quot;posts&quot;, &quot;users.id&quot;, &quot;posts.author_id&quot; );</code></pre>
+<p>Expressions are also supported as the table argument:</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .join( query.raw( &quot;posts (nolock)&quot; ), &quot;users.id&quot;, &quot;=&quot;, &quot;posts.author_id&quot; );</code></pre>
+<p>Using raw will most likely tie your code to a specific database, so think carefully before using the raw method if you want your project to be database agnostic.</p>
+<p>When you need to specify more clauses to join, you can pass a function as the second argument:</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .join( &quot;posts&quot;, function( j ) {
+        j.on( &quot;users.id&quot;, &quot;=&quot;, &quot;posts.author_id&quot; );
+        j.on( &quot;users.prefix&quot;, &quot;=&quot;, &quot;posts.prefix&quot; );
+    } );</code></pre>
+<p>You can specify where clauses in your joins as well.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .join( &quot;posts&quot;, function( j ) {
+        j.on( &quot;users.id&quot;, &quot;=&quot;, &quot;posts.author_id&quot; );
+        j.whereNotNull( &quot;posts.published_date&quot; );
+    } );</code></pre>
+<p>Conditions inside a join clause can be grouped using a function.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .join( &quot;posts&quot;, function( j ) {
+        j.on( function( j1 ) {
+            j1.on( &quot;users.id&quot;, &quot;posts.author_id&quot; )
+                .orOn( &quot;users.id&quot;, &quot;posts.reviewer_id&quot; );
+        } );
+        j.whereNotNull( &quot;posts.published_date&quot; );
+    } );</code></pre>
+<p>A preconfigured JoinClause can also be passed to the join function.</p>
+<pre><code class="language-javascript">var j = query.newJoin( &quot;contacts&quot; )
+    .on( &quot;users.id&quot;, &quot;posts.author_id&quot; );
+    query.from( &quot;users&quot; ).join( j );</code></pre>
+<h2 id="joinwhere">joinWhere</h2>
+<p>Adds a join to another table based on a WHERE clause instead of an ON clause.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .joinWhere( &quot;contacts&quot;, &quot;contacts.balance&quot;, &quot;&lt;&quot;, 100 );</code></pre>
+<p>For complex joins, a function can be passed to first.</p>
+<h2 id="joinraw">joinRaw</h2>
+<p>Uses the raw SQL provided to as the table for the join clause.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .joinRaw( &quot;posts (nolock)&quot;, &quot;users.id&quot;, &quot;posts.author_id&quot; );</code></pre>
+<p>Using joinRaw will most likely tie your code to a specific database</p>
+<h2 id="joinsub">joinSub</h2>
+<p>Adds a join to a derived table. All the functionality of the join method applies to constrain the query.</p>
+<pre><code class="language-javascript">var sub = query.newQuery()
+    .select( &quot;id&quot; )
+    .from( &quot;contacts&quot; )
+    .whereNotIn( &quot;id&quot;, [ 1, 2, 3 ] );
+    query.from( &quot;users as u&quot; )
+    .joinSub( &quot;c&quot;, sub, &quot;u.id&quot;, &quot;=&quot;, &quot;c.id&quot; );</code></pre>
+<p>Alternatively, a function may be used to define the derived table:</p>
+<pre><code class="language-javascript">query.from( &quot;users as u&quot; )
+    .joinSub( &quot;c&quot;, function ( q ) {
+        q.select( &quot;id&quot; )
+            .from( &quot;contacts&quot; )
+            .whereNotIn( &quot;id&quot;, [ 1, 2, 3 ] );
+    }, &quot;u.id&quot;, &quot;=&quot;, &quot;c.id&quot; );</code></pre>
+<p>Complex join conditions are also possible by passing a function as the third parameter:</p>
+<pre><code class="language-javascript">query.from( &quot;users as u&quot; )
+    .joinSub( &quot;c&quot;, function ( q ) {
+        q.select( &quot;id&quot; )
+            .from( &quot;contacts&quot; )
+            .whereNotIn( &quot;id&quot;, [ 1, 2, 3 ] );
+    }, function( j ) {
+        j.on( &quot;u.id&quot;, &quot;c.id&quot; );
+        j.on( &quot;u.type&quot;, &quot;c.type&quot; );
+    } );</code></pre>
+<h2 id="leftjoin">leftJoin</h2>
+<pre><code class="language-javascript">query.from( &quot;posts&quot; )
+    .leftJoin( &quot;users&quot;, &quot;users.id&quot;, &quot;posts.author_id&quot; );</code></pre>
+<h2 id="leftjoinraw">leftJoinRaw</h2>
+<p>Uses the raw SQL provided to as the table for the left join clause. All the other functionality of leftJoinRaw matches the join method.</p>
+<pre><code class="language-javascript">query.from( &quot;posts&quot; )
+    .leftJoinRaw( &quot;users (nolock)&quot;, &quot;users.id&quot;, &quot;posts.author_id&quot; );</code></pre>
+<h2 id="leftjoinsub">leftJoinSub</h2>
+<p>Adds a left join to a derived table.</p>
+<pre><code class="language-javascript">var sub = query.newQuery()
+    .select( &quot;id&quot; )
+    .from( &quot;contacts&quot; )
+    .whereNotIn( &quot;id&quot;, [ 1, 2, 3 ] );
+    query.from( &quot;users as u&quot; )
+    .leftJoinSub( &quot;c&quot;, sub, &quot;u.id&quot;, &quot;=&quot;, &quot;c.id&quot; );</code></pre>
+<h2 id="rightjoin">rightJoin</h2>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .rightJoin( &quot;posts&quot;, &quot;users.id&quot;, &quot;posts.author_id&quot; );</code></pre>
+<h2 id="rightjoinraw">rightJoinRaw</h2>
+<p>Uses the raw SQL provided to as the table for the right join clause.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .rightJoinRaw( &quot;posts (nolock)&quot;, &quot;users.id&quot;, &quot;posts.author_id&quot; );</code></pre>
+<p>Using rightJoinRaw will most likely tie your code to a specific database.</p>
+<h2 id="rightjoinsub">rightJoinSub</h2>
+<p>Adds a right join to a derived table.</p>
+<pre><code class="language-javascript">var sub = query.newQuery()
+    .select( &quot;id&quot; )
+    .from( &quot;contacts&quot; )
+    .whereNotIn( &quot;id&quot;, [ 1, 2, 3 ] );
+    query.from( &quot;users as u&quot; )
+    .rightJoinSub( &quot;c&quot;, sub, &quot;u.id&quot;, &quot;=&quot;, &quot;c.id&quot; );</code></pre>
+<h2 id="crossjoin">crossJoin</h2>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).crossJoin( &quot;posts&quot; );</code></pre>
+<h2 id="crossjoinraw">crossJoinRaw</h2>
+<p>Uses the raw SQL provided to as the table for the cross join clause. Cross joins cannot be further constrained with on or where clauses.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).crossJoinRaw( &quot;posts (nolock)&quot; );</code></pre>
+<p>Using crossJoinRaw will most likely tie your code to a specific database, so think carefully before using the crossJoinRaw method if you want your project to be database agnostic.</p>
+<h2 id="crossjoinsub">crossJoinSub</h2>
+<p>Adds a cross join to a derived table. The derived table can be defined using a QueryBuilder instance or a function just as with <a href="https://qb.ortusbooks.com/query-builder/building-queries/joins#joinsub">joinSub</a>. Cross joins cannot be constrained, however.</p>
+<pre><code class="language-javascript">var sub = query.newQuery()
+    .select( &quot;id&quot; )
+    .from( &quot;contacts&quot; )
+    .whereNotIn( &quot;id&quot;, [ 1, 2, 3 ] );
+    query.from( &quot;users as u&quot; ).crossJoinSub( &quot;c&quot;, sub );</code></pre>
+<h2 id="newjoin">newJoin</h2>
+<pre><code class="language-javascript">var j = query.newJoin( &quot;contacts&quot; )
+    .on( &quot;users.id&quot;, &quot;posts.author_id&quot; );
+    query.from( &quot;users&quot; ).join( j );</code></pre>
+<pre><code class="language-javascript">// This is still an inner join because
+// the JoinClause is an inner join
+var j = query.newJoin( &quot;contacts&quot;, &quot;inner&quot; )
+    .on( &quot;users.id&quot;, &quot;posts.author_id&quot; );
+    query.from( &quot;users&quot; ).leftJoin( j );</code></pre>
+<h2 id="joinclause">JoinClause</h2>
+<p>A JoinClause is a specialized version of a QueryBuilder. You may call on or orOn to constrain the JoinClause. You may also call any <a href="wheres.md">where</a> methods.</p>
+<h3 id="on">on</h3>
+<p>Applies a join condition to the JoinClause. An alias for whereColumn.</p>
+<pre><code class="language-javascript">var j = query.newJoin( &quot;contacts&quot; )
+    .on( &quot;users.id&quot;, &quot;posts.author_id&quot; );
+    query.from( &quot;users&quot; ).join( j );</code></pre>
+<h3 id="oron">orOn</h3>
+<p>Applies a join condition to the JoinClause using an or combinator. An alias for orWhereColumn.</p>
+<pre><code class="language-javascript">var j = query.newJoin( &quot;contacts&quot; )
+    .on( &quot;users.id&quot;, &quot;posts.author_id&quot; )
+    .orOn( &quot;users.id&quot;, &quot;posts.reviewer_id&quot; );
+    query.from( &quot;users&quot; ).join( j );</code></pre>
+<h2 id="preventing-duplicate-joins">Preventing Duplicate Joins</h2>
+<p>You can optionally configure qb to ignore duplicate joins.</p>
+<pre><code class="language-javascript">moduleSettings = {
+    &quot;qb&quot;: {
+         &quot;preventDuplicateJoins&quot;: true
+    }
+};</code></pre>

@@ -1,11 +1,11 @@
 <h1 id="module-tfdata">Module tf.data</h1>
 <p>This module contains different class used to manipulate data. Different files format are supported. It also introduces special classes fitted to TensorFlow for encoding/decoding data.</p>
-<pre><code class="language-python"># Load the training data into two NumPy arrays, for example using `np.load()`.
+<pre><code class="language-python"># Load the training data into two NumPy arrays, for example using `np.load().
 with np.load(&quot;/var/data/training_data.npy&quot;) as data:
   features = data[&quot;features&quot;]
   labels = data[&quot;labels&quot;]
 
-# Assume that each row of `features` corresponds to the same row as `labels`.
+# Assume that each row of `features` corresponds to the same row as `labels.
 assert features.shape[0] == labels.shape[0]
 
 dataset = tf.data.Dataset.from_tensor_slices((features, labels))</code></pre>
@@ -14,7 +14,7 @@ dataset = tf.data.Dataset.from_tensor_slices((features, labels))</code></pre>
 filenames = [&quot;/var/data/file1.tfrecord&quot;, &quot;/var/data/file2.tfrecord&quot;]
 dataset = tf.data.TFRecordDataset(filenames)
 #Apply a transformation function to your data
-dataset = dataset.map(func) </code></pre>
+dataset = dataset.map(func)</code></pre>
 <p>If your data is contained in text files, you can use the following way to read (parse) it:</p>
 <pre><code class="language-python"># It accepts one or more filenames.
 filenames = [&quot;/var/data/file1.txt&quot;, &quot;/var/data/file2.txt&quot;]

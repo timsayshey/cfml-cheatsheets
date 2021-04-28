@@ -1,0 +1,113 @@
+<h1 id="inserts-updates-and-deletes">Inserts, Updates, and Deletes</h1>
+<h2 id="insert">insert</h2>
+<p>This call must come after setting the query&#39;s table using <a href="../building-queries/from.md#get">from</a> or <a href="../building-queries/from.md#get-1">table</a>.</p>
+<p>You can insert a single record by passing a struct:</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .insert( {
+        &quot;name&quot; = &quot;Robert&quot;,
+        &quot;email&quot; = &quot;robert@test.com&quot;,
+        &quot;age&quot; = 55
+    } );</code></pre>
+<p>You can specify any <a href="../building-queries/parameters-and-bindings.md#custom-parameter-types">query param</a> options such as the SQL type by passing a struct with the parameters you would pass to <a href="https://cfdocs.org/cfqueryparam">cfqueryparam</a>.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .insert( {
+        &quot;name&quot; = &quot;Robert&quot;,
+        &quot;email&quot; = &quot;robert@test.com&quot;,
+        &quot;age&quot; = { value = 55, cfsqltype = &quot;CF_SQL_INTEGER&quot; }
+    } );</code></pre>
+<p>Raw values can be supplied to an insert statement.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .insert( {
+        &quot;name&quot; = &quot;Robert&quot;,
+        &quot;email&quot; = &quot;robert@test.com&quot;,
+        &quot;updatedDate&quot; = query.raw( &quot;NOW()&quot; )
+    } );</code></pre>
+<p>Multiple rows can be inserted in a batch by passing an array of structs to `insert.</p>
+<p>This is not the same as looping over and array and calling <code>insert</code> in the loop.  Using an array with <code>insert</code> will batch the inserts in one SQL call.  Looping over an array and calling <code>insert</code> each time will create a SQL request for each item in the array.  Bottom line, pass your array to <code>insert</code>!</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).insert( [
+    { &quot;email&quot; = &quot;john@example.com&quot;, &quot;name&quot; = &quot;John Doe&quot; },
+    { &quot;email&quot; = &quot;jane@example.com&quot;, &quot;name&quot; = &quot;Jane Doe&quot; }
+] );</code></pre>
+<h2 id="returning">returning</h2>
+<p><code>returning</code> is only supported in <code>PostgresGrammar</code> and <code>SqlServerGrammar.  Using this method on unsupported grammars will result in an</code>UnsupportedOperation` exception.  Be aware that using this method constrains your grammar choices.</p>
+<p>Specifies columns to be returned from the insert query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .returning( &quot;id&quot; )
+    .insert( {
+        &quot;email&quot; = &quot;foo&quot;,
+        &quot;name&quot; = &quot;bar&quot;
+    } );</code></pre>
+<h2 id="update">update</h2>
+<p>This call must come after setting the query&#39;s table using <a href="../building-queries/from.md#get">from</a> or <a href="../building-queries/from.md#get-1">table</a>.</p>
+<p>Updates a table with a struct of column and value pairs.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .update( {
+        &quot;email&quot; = &quot;foo&quot;,
+        &quot;name&quot; = &quot;bar&quot;
+    } );</code></pre>
+<p>You can specify any <a href="../building-queries/parameters-and-bindings.md#custom-parameter-types">query param</a> options such as the SQL type by passing a struct with the parameters you would pass to <a href="https://cfdocs.org/cfqueryparam">cfqueryparam</a>.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .update( {
+        &quot;email&quot; = &quot;foo&quot;,
+        &quot;name&quot; = &quot;bar&quot;,
+        &quot;updatedDate&quot; = { value = now(), cfsqltype = &quot;CF_SQL_TIMESTAMP&quot; }
+    } );</code></pre>
+<p>Any constraining of the update query should be done using the appropriate <a href="../building-queries/wheres.md">WHERE</a> statement before calling `update.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereId( 1 )
+    .update( {
+        &quot;email&quot; = &quot;foo&quot;,
+        &quot;name&quot; = &quot;bar&quot;
+    } );</code></pre>
+<p>You can update a column based on another column using a raw expression.</p>
+<pre><code class="language-javascript">query.from( &quot;hits&quot; )
+    .where( &quot;page&quot;, &quot;someUrl&quot; )
+    .update( {
+        &quot;count&quot; = query.raw( &quot;count + 1&quot; )
+    } );</code></pre>
+<h3 id="updating-null-values">Updating Null values</h3>
+<p>Null values can be inserted by using queryparam syntax:</p>
+<p>if you are using Lucee with full null support the following (easier) syntax is also allowed:</p>
+<h2 id="addupdate">addUpdate</h2>
+<p>Adds values to a later <a href="inserts-updates-deletes.md#update">update</a>, similar to <a href="../building-queries/selects.md#get-2">addSelect</a>.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .whereId( 1 )
+    .addUpdate( {
+        &quot;email&quot; = &quot;foo&quot;,
+        &quot;name&quot; = &quot;bar&quot;
+    } )
+    .when( true, function( q ) {
+        q.addUpdate( {
+            &quot;foo&quot;: &quot;yes&quot;
+        } );
+    } )
+    .when( false, function( q ) {
+        q.addUpdate( {
+            &quot;bar&quot;: &quot;no&quot;
+        } );
+    } )
+    .update();</code></pre>
+<h2 id="updateorinsert">updateOrInsert</h2>
+<p>Performs an update statement if the configured query returns <code>true</code> for `exists.  Otherwise, performs an insert statement.</p>
+<p>If an update statement is performed qb applies a <code>limit( 1 )</code> to the update statement.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .where( &quot;email&quot;, &quot;foo&quot; )
+    .updateOrInsert( {
+        &quot;email&quot; = &quot;foo&quot;,
+        &quot;name&quot; = &quot;baz&quot;
+    } );</code></pre>
+<p>If the configured query returns 0 records, then an insert statement is performed.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .where( &quot;email&quot;, &quot;foo&quot; )
+    .updateOrInsert( {
+        &quot;email&quot; = &quot;foo&quot;,
+        &quot;name&quot; = &quot;baz&quot;
+    } );</code></pre>
+<h2 id="delete">delete</h2>
+<p>Deletes all records that the query returns.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .where( &quot;email&quot;, &quot;foo&quot; )
+    .delete();</code></pre>
+<p>The <code>id</code> argument is a convenience to delete a single record by id.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .delete( 1 );</code></pre>

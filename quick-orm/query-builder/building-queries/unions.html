@@ -1,0 +1,82 @@
+<h1 id="unions">Unions</h1>
+<p>The query builder also lets you create union statements on your queries using either UNION or UNION ALL strategies.</p>
+<h2 id="union">union</h2>
+<p>Adds a UNION statement to the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 1 )
+    .union( function ( q ) {
+        q.from( &quot;users&quot; )
+            .select( &quot;name&quot; )
+            .where( &quot;id&quot;, 2 );
+    } );</code></pre>
+<p>Adding multiple union statements will append it to the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 1 )
+    .union( function ( q ) {
+        q.from( &quot;users&quot; )
+            .select( &quot;name&quot; )
+            .where( &quot;id&quot;, 2 );
+    } )
+    .union( function ( q ) {
+        q.from( &quot;users&quot; )
+            .select(&quot;name&quot;)
+            .where( &quot;id&quot;, 3 );
+    } );</code></pre>
+<p>It can also add union queries as QueryBuilder instances.</p>
+<pre><code class="language-javascript">var q1 = query.newQuery()
+    .from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 2 );
+
+var q2 = query.newQuery()
+    .from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 3 );
+
+query.from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 1 )
+    .union( q1 )
+    .union( q2 );</code></pre>
+<h2 id="unionall">unionAll</h2>
+<p>Adds a UNION ALL statement to the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 1 )
+    .unionAll( function( q ) {
+        q.from( &quot;users&quot; )
+            .select( &quot;name&quot; )
+            .where( &quot;id&quot;, 2 );
+     } );</code></pre>
+<p>Adding multiple unionAll statements will append it to the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 1 )
+    .unionAll( function( q ) {
+        q.from( &quot;users&quot; )
+            .select( &quot;name&quot; )
+            .where( &quot;id&quot;, 2 );
+     } )
+    .unionAll( function( q ) {
+        q.from( &quot;users&quot; )
+            .select( &quot;name&quot; )
+            .where( &quot;id&quot;, 3 );
+     } );</code></pre>
+<p>It can also add union queries as QueryBuilder instances.</p>
+<pre><code class="language-javascript">var q1 = query.newQuery()
+    .from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 2 );
+
+var q2 = query.newQuery()
+    .from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 3 );
+
+query.from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 1 )
+    .unionAll( q1 )
+    .unionAll( q2 );</code></pre>

@@ -1,0 +1,46 @@
+<h1 id="order-by">Order By</h1>
+<p>The orderBy method seems simple but has a lot of depth depending on the type of arguments you pass in.</p>
+<p>Calling orderBy multiple times appends to the order list.</p>
+<h2 id="order-by-string">Order By (String)</h2>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderBy( &quot;email&quot; );</code></pre>
+<p>Calling orderBy multiple times will append to the order list.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderBy( &quot;email&quot; )
+    .orderBy( &quot;username&quot;, &quot;desc&quot; );</code></pre>
+<p>You can also provide an <a href="raw-expressions.md">Expression</a>.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderBy( query.raw( &quot;DATE(created_at)&quot; ) );</code></pre>
+<h2 id="order-by-list">Order By (List)</h2>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderBy( &quot;email|asc,username&quot;, &quot;desc&quot; );</code></pre>
+<h2 id="order-by-array-of-strings">Order By (Array of Strings)</h2>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderBy( [ &quot;email|asc&quot;, &quot;username&quot; ], &quot;desc&quot; );</code></pre>
+<h2 id="order-by-array-of-structs">Order By (Array of Structs)</h2>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderBy( [
+        { &quot;column&quot;: &quot;email&quot;, &quot;direction&quot;: &quot;asc&quot; },
+        &quot;username&quot;
+    ], &quot;desc&quot; );</code></pre>
+<h2 id="order-by-subquery">Order By (Subquery)</h2>
+<p>You can order with a subquery using either a function or a QueryBuilder instance.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderBy( function( q ) {
+        q.selectRaw( &quot;MAX(created_date)&quot; )
+            .from( &quot;logins&quot; )
+            .whereColumn( &quot;users.id&quot;, &quot;logins.user_id&quot; );
+    } );</code></pre>
+<h2 id="order-by-raw">Order By Raw</h2>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderByRaw( &quot;CASE WHEN status = ? THEN 1 ELSE 0 END DESC&quot;, [ 1 ] );</code></pre>
+<h2 id="clearorders">clearOrders</h2>
+<p>Clears the currently configured orders for the query.  Usually used by downstream libraries like <a href="https://quick.ortusbooks.com/">Quick</a>.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderBy( &quot;email&quot; )
+    .clearOrders();</code></pre>
+<h2 id="reorder">reorder</h2>
+<p>Clears the currently configured orders for the query and sets the new orders passed in.  Any valid argument to <a href="ordering-grouping-and-limit.md">orderBy</a> can be passed here.  Usually used by downstream libraries like <a href="https://quick.ortusbooks.com/">Quick</a>.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .orderBy( &quot;email&quot; )
+    .reorder( &quot;username&quot; );</code></pre>

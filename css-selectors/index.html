@@ -46,7 +46,7 @@
 span { } /*targets all &lt;span&gt; elements*/
 input { } /*targets all &lt;input&gt; elements*/</code></pre>
 <h1 id="class">Class</h1>
-<p><code>.</code> is a <strong>class</strong> selector. It targets every element with a specific class attribute :</p>
+<p>.` is a <strong>class</strong> selector. It targets every element with a specific class attribute :</p>
 <pre><code class="language-css">.my-class { } /*targets every element with the &quot;my-class&quot; class*/
 div.my-class { } /*targets every div with &quot;my-class&quot; class*/</code></pre>
 <h1 id="id">Id</h1>
@@ -71,7 +71,7 @@ a[href~=&quot;example&quot;] { } /*targets every &lt;a&gt; element where &quot;h
 a[href|=&quot;example&quot;] { } /*targets every &lt;a&gt; element where &quot;href&quot; attribute value is a dash-separated list beginning with the word &quot;example&quot;*/
 </code></pre>
 <h1 id="pseudo-class">Pseudo-class</h1>
-<p>A <strong>pseudo-class</strong> selector is a selector preceded by <code>:</code> or <code>::</code>. </p>
+<p>A <strong>pseudo-class</strong> selector is a selector preceded by <code>:</code> or `::.</p>
 <p>Some are used to apply style on a specific <strong>state</strong> of an element.</p>
 <pre><code class="language-css">button:hover { } /*the style will apply on a button when the user&#39;s mouse hovers it*/
 button:disabled { } /*the style will apply on every button with &quot;disabled&quot; attribute*/
@@ -120,18 +120,6 @@ input:not([type=&quot;checkbox&quot;]) { } /*targets all &lt;input&gt; elements 
 <p><code>*</code> is used to apply style on <strong>EVERY</strong> element. He is called <strong>universal selector</strong>.</p>
 <pre><code class="language-css">* { } /*targets every element in the DOM*/
 div * { } /*targets every element inside a &lt;div&gt; element*/</code></pre>
-<table>
-<thead>
-<tr>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody><tr>
-<td><span class="inline-img"><img src="../assets/images/warning-icon.png" alt="WARNING : "></span></td>
-<td><small><em>Don&#39;t use it too much, your browser and collegues will thank you...</em></small></td>
-</tr>
-</tbody></table>
 <h1 id="combinators">Combinators</h1>
 <h2 id="multiple-selectors">Multiple selectors</h2>
 <p>Using multiple selectors without space, you target every element that fullfills all the conditions.</p>
@@ -170,18 +158,6 @@ Two classes with a combinator are more specific than a single class, but a singl
 <h2 id="chronology">Chronology</h2>
 <p>If a property is defined twice for the same element and with equal specificity, the last occurence in the stylesheet will override the first.</p>
 <h2 id="but">But...</h2>
-<table>
-<thead>
-<tr>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody><tr>
-<td><span class="inline-img"><img src="../assets/images/warning-icon.png" alt="WARNING : "></span></td>
-<td><small><em>Don&#39;t use <code>!important</code> it will break everything said above</em></small></td>
-</tr>
-</tbody></table>
 
         </div>
       </main>

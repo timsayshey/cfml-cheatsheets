@@ -1,0 +1,28 @@
+<h1 id="from">From</h1>
+<h2 id="from-1">from</h2>
+<p>Used to set the base table for the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; );</code></pre>
+<p>You can optionally specify an alias for the table.</p>
+<pre><code class="language-javascript">query.from( &quot;users as u&quot; );</code></pre>
+<h2 id="table">table</h2>
+<p>An alias for from where you like how calling table looks.</p>
+<pre><code class="language-javascript">query.table( &quot;users&quot; ).insert( { &quot;name&quot; = &quot;jon&quot; } );</code></pre>
+<h2 id="fromraw">fromRaw</h2>
+<p>Sometimes you need more control over your from clause in order to add grammar specific instructions, such as adding SQL Server table hints to your queries.</p>
+<pre><code class="language-javascript">query.fromRaw( &quot;[users] u (nolock)&quot; ).get();</code></pre>
+<p>Failure to properly escape your table names may result in SQL errors.</p>
+<pre><code class="language-javascript">query.fromRaw(
+    &quot;dbo.generateDateTable(?, ?, ?) as dt&quot;,
+    [ &quot;2017-01-01&quot;, &quot;2017-12-31&quot;, &quot;m&quot; ]
+).get();</code></pre>
+<h2 id="fromsub">fromSub</h2>
+<p>Complex queries often contain derived tables. Derived tables are essentially a temporal table defined as a subquery in the from statement.</p>
+<pre><code class="language-javascript">query.select( [ &quot;firstName&quot;, &quot;lastName&quot; ] )
+    .fromSub( &quot;legalUsers&quot;, function ( q ) {
+        q.select( [ &quot;lName as lastName&quot;, &quot;fName as firstName&quot; ] )
+            .from( &quot;users&quot; )
+            .where( &quot;age&quot;, &quot;&gt;=&quot;, 21 )
+        ;
+    } )
+    .orderBy( &quot;lastName&quot; )
+    .get()</code></pre>

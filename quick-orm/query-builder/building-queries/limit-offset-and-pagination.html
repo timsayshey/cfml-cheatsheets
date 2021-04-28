@@ -1,0 +1,19 @@
+<h1 id="limit-offset-and-pagination">Limit, Offset, and Pagination</h1>
+<h2 id="limit">limit</h2>
+<p>Sets the limit value for the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .limit( 5 );</code></pre>
+<h2 id="take">take</h2>
+<p>Sets the limit value for the query.  Alias for <a href="limit-offset-and-pagination.md#limit">limit</a>.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .take( 5 );</code></pre>
+<h2 id="offset">offset</h2>
+<p>Sets the offset value for the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .offset( 25 );</code></pre>
+<h2 id="forpage">forPage</h2>
+<p>Helper method to calculate the limit and offset given a page number and count per page.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .forPage( 3, 15 );</code></pre>
+<h2 id="simplepaginate--paginate">simplePaginate &amp; paginate</h2>
+<p>This method combines forPage, count, and get to create a pagination struct alongside the results. Information on the simplePaginate or paginate methods, including custom pagination collectors, can be found in the <a href="../executing-queries/retrieving-results.md#paginate">Retreiving Results</a> section of the documentation.</p>

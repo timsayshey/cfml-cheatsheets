@@ -52,9 +52,9 @@ platformBrowserDynamic()
 
 @NgModule({
     declarations: [
-        MyRootComponent, 
-        MyComponent, 
-        MyDirective, 
+        MyRootComponent,
+        MyComponent,
+        MyDirective,
         MyPipe],
     imports: [MyModule, NpmModule],
     exports: [MyComponent],
@@ -62,34 +62,6 @@ platformBrowserDynamic()
     bootstrap: [MyRootComponent] // Only root module
 })
 class MyModule {}</code></pre>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Function</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>declarations</strong></td>
-<td>Components to this module</td>
-</tr>
-<tr>
-<td><strong>imports</strong></td>
-<td>Modules to import into this module</td>
-</tr>
-<tr>
-<td><strong>exports</strong></td>
-<td>Components visible to another module</td>
-</tr>
-<tr>
-<td><strong>providers</strong></td>
-<td>Dependency injection providers</td>
-</tr>
-<tr>
-<td><strong>bootstrap</strong></td>
-<td>The root component of module</td>
-</tr>
-</tbody></table>
 <p>The <strong>pipes</strong> and <strong>directive</strong> is declared as <strong>components</strong></p>
 
         </div>
@@ -162,30 +134,6 @@ class MyService() {}</code></pre>
       <main>
         <div class="column1">
           <h1 id="template-syntax">Template syntax</h1>
-<table>
-<thead>
-<tr>
-<th>Data direction</th>
-<th>Syntax</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>DataSource =&gt; Target</strong></td>
-<td>{{<em>expression</em>}}</td>
-</tr>
-<tr>
-<td><strong>DataSource =&gt; Target</strong></td>
-<td>[target]=&quot;<em>expression</em>&quot;</td>
-</tr>
-<tr>
-<td><strong>Target =&gt; DataSource</strong></td>
-<td>(target)=&quot;<em>statement</em>&quot;</td>
-</tr>
-<tr>
-<td><strong>Two-way</strong></td>
-<td>[(target)]=&quot;<em>expression</em>&quot;</td>
-</tr>
-</tbody></table>
 <h2 id="ngif"><a href="https://angular.io/api/common/NgIf">ngIf</a></h2>
 <pre><code class="language-html">
 &lt;span *ngIf=&quot;hero&quot;&gt;{{ hero.name }} exists !&lt;/span&gt;
@@ -213,30 +161,6 @@ this.http.post(environment.apiAddress + &quot;/api-method&quot;, myJsonData)
         </div>
         <div class="column2">
           <h1 id="observable">Observable</h1>
-<table>
-<thead>
-<tr>
-<th>Function</th>
-<th>Effect</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>take</strong>(fn(Int))</td>
-<td>Event only if int value result</td>
-</tr>
-<tr>
-<td><strong>map</strong>(fn(value))</td>
-<td>Affect value on each event</td>
-</tr>
-<tr>
-<td><strong>filter</strong>(fn(value))</td>
-<td>Ignore event when return false</td>
-</tr>
-<tr>
-<td><strong>reduce</strong>(fn(oldValue), value)</td>
-<td>Compact event</td>
-</tr>
-</tbody></table>
 <h2 id="simple-observable-with-external-observer">Simple observable with external observer</h2>
 <pre><code class="language-js">const myObservable = Observable.of(1, 2, 3);
 
@@ -265,7 +189,7 @@ sequence.subscribe({next: ...});</code></pre>
 <h1 id="sources">Sources</h1>
 <p><strong>Complete docs RxJS</strong> <a href="https://www.learnrxjs.io/">https://www.learnrxjs.io/</a></p>
 <p><strong>Angular RXJS</strong> <a href="https://angular.io/guide/observables">https://angular.io/guide/observables</a></p>
-<!-- 
+<!--
 **For ES5 component syntax** https://blog.thoughtram.io/angular/2015/05/09/writing-angular-2-code-in-es5.html -->
 
         </div>

@@ -1,0 +1,19 @@
+<h1 id="aggregates">Aggregates</h1>
+<p>The query builder also provides a variety of aggregate methods such as <code>count,</code>max, <code>min, and</code>sum. These methods take the headache out of setting up these common aggregate functions.</p>
+<p>When executing any of the aggregate functions, any <code>where</code> restrictions on your query will still be applied.</p>
+<p>Instead of returning a query, these methods return a simple value.</p>
+<h2 id="exists">exists</h2>
+<p>Returns <code>true</code> if the query returns any rows.  Returns <code>false</code> otherwise.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).where( &quot;username&quot;, &quot;like&quot;, &quot;jon%&quot; ).exists();</code></pre>
+<h2 id="count">count</h2>
+<p>Returns an integer number of rows returned by the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).count();</code></pre>
+<h2 id="max">max</h2>
+<p>Returns the maximum value for the given column.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).max( &quot;age&quot; );</code></pre>
+<h2 id="min">min</h2>
+<p>Returns the minimum value for the given column.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).min( &quot;age&quot; );</code></pre>
+<h2 id="sum">sum</h2>
+<p>Returns the sum of all returned rows for the given column.</p>
+<pre><code class="language-javascript">query.from( &quot;employees&quot; ).sum( &quot;salary&quot; );</code></pre>
