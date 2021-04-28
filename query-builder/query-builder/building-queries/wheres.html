@@ -5,7 +5,6 @@
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .where( &quot;active&quot;, &quot;=&quot;, 1 );</code></pre>
 <p>Using the where method will parameterize the value passed.  If you want to constrain a column to another column, use the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#wherecolumn">whereColumn</a> method.</p>
-<p>You can also pass an <a href="https://qb.ortusbooks.com/query-builder/building-queries/raw-expressions.md">Expression</a> as the value.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .where( &quot;last_logged_in&quot;, &quot;&gt;&quot;, query.raw( &quot;NOW()&quot; ) );</code></pre>
 <p>Any of the following operators can be used in a where clause.</p>
@@ -13,7 +12,6 @@
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .where( &quot;active&quot;, 1 );</code></pre>
 <p>You may also use <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#dynamic-where-methods">dynamic where{Column}</a> statements to simplify this further.</p>
-<p>To group where statements together, pass a function to the where clause as the only parameter.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .where( function( q ) {
         q.where( &quot;active&quot;, 1 )
@@ -51,7 +49,7 @@
             .where( &quot;email&quot;, &quot;bar&quot; )
     );</code></pre>
 <h3 id="wherenotbetween">whereNotBetween</h3>
-<p>Adds a where not in clause to the query.  This behaves identically to the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#wherebetween">whereBetween</a> method with the negate`flag set to true.  See the documentation for <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#wherebetween">whereBetween</a> for usage and examples.</p>
+<p>Adds a where not in clause to the query.  This behaves identically to the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#wherebetween">whereBetween</a> method with the negate`flag set to true.</p>
 <h3 id="wherecolumn">whereColumn</h3>
 <p>Adds a where clause to a query that compares two columns.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
@@ -80,7 +78,7 @@
 query.from( &quot;orders&quot; )
     .whereExists( existsQuery );</code></pre>
 <h3 id="wherenotexists">whereNotExists</h3>
-<p>Adds a where not in clause to the query.  This behaves identically to the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#whereexists">whereExists</a> method with the negate`flag set to true.  See the documentation for <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#whereexists">whereExists</a> for usage and examples.</p>
+<p>Adds a where not in clause to the query.  This behaves identically to the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#whereexists">whereExists</a> method with the negate`flag set to true.</p>
 <h3 id="wherelike">whereLike</h3>
 <p>A shortcut for calling <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#where">where</a> with &quot;like&quot; set as the operator.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
@@ -116,7 +114,7 @@ query.from( &quot;orders&quot; )
             .orWhere( &quot;isOnFreeTrial&quot;, 1 );
      } );</code></pre>
 <h3 id="wherecolumn-1">where{Column}</h3>
-<p>If you call a method starting with where that does not match an existing qb method, qb will instead call the where method using the rest of the method name as the first column name.  (The rest of the arguments will be shifted to account for this.)  This also applies to andWhere{Column} and orWhere{Column} method signatures.</p>
+<p>If you call a method starting with where that does not match an existing qb method, qb will instead call the where method using the rest of the method name as the first column name.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .whereUsername( &quot;like&quot;, &quot;j%&quot; )
     .whereActive( 1 );</code></pre>

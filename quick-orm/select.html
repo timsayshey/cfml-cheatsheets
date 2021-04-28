@@ -1,0 +1,50 @@
+<p>var user = getInstance( &quot;User&quot; )
+    .where( &quot;active&quot;, 1 )
+    .whereActive( 1 ); // dynamic
+    .whereBetween( &quot;id&quot;, 1, 2 );
+    .whereColumn( &quot;products.id&quot;, &quot;orders.id&quot; );
+    .whereExists( existsQuery );
+    .whereIn( &quot;id&quot;, [ 1, 4, 66 ] );
+    .whereLike( &quot;username&quot;, &quot;J%&quot; );
+    .whereNotNull( &quot;publishedDate&quot; )
+    .whereNull( &quot;id&quot; );
+    .orWhere( &quot;email&quot;, &quot;LIKE&quot;, q &amp; &quot;%&quot; );</p>
+<hr>
+<pre><code>.orderByDesc( &quot;username&quot; )
+.orderBy( &quot;modified_date&quot;, &quot;desc&quot; );
+.orderByRaw( &quot;CASE WHEN status = ? THEN 1 ELSE 0 END DESC&quot;, [ 1 ] );
+.orderByActive() // dynamic</code></pre><hr>
+<pre><code>.take( 5 );
+.offset( 25 );
+.limit( 10 )
+.asMemento()
+.asTransient()
+.select( &quot;name&quot;, &quot;email&quot;, &quot;createdDate&quot; );
+.addSelect( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] ).from( &quot;users&quot; );
+.selectRaw( &quot;YEAR(birthdate) AS birth_year&quot; ).from( &quot;users&quot; );</code></pre><hr>
+<pre><code>.all();
+.existsOrFail( rc.userID );
+.existsOrFail( rc.userID );
+.find( rc.userID );
+.findOrCreate( rc.id, { &quot;name&quot; : &quot;nada&quot; });
+.findOrFail( rc.userID );
+.findOrNew( rc.id, { &quot;name&quot; : &quot;nada&quot; });
+.first();
+.firstOrCreate( { &quot;username&quot;: rc.username } );
+.firstOrFail();
+.firstOrNew( { &quot;username&quot;: rc.username } );
+.firstWhere( &quot;username&quot;, rc.username );
+.forPage( 3, 15 );
+.get();
+.getMemento();
+.paginate( rc.page, rc.maxrows );
+.simplePaginate( rc.page, rc.maxrows );
+.toList( chr( 10 ) );
+.toSQL( showBindings = true ) );</code></pre><hr>
+<pre><code>.updateAll();
+.update();
+.save();
+.deleteAll( [ 4, 10, 22 ] );</code></pre><hr>
+<p>Hydration
+    .hydrate({ &quot;id&quot;: 4, &quot;name&quot;: &quot;JaneDoe&quot; }); r.isLoaded(); // true
+    .hydrateAll([{ &quot;id&quot;: 4, &quot;name&quot;: &quot;JaneDoe&quot; },{ &quot;id&quot;: 5, &quot;name&quot;: &quot;BobDoe&quot; }]);</p>
