@@ -9,26 +9,82 @@
   <body>
     <input type="checkbox" id="showPreview"/>
     <div class="first-side">
-      @@include('../../dist/common/first-side/header.html', {"title": "quick-orm cheat sheet", "subtitle": "sous titre, une description.", "imageName": "@@folder"})
+      @@include('../../dist/common/first-side/header.html', {"title": "Quick ORM Cheat Sheet", "subtitle": "Library for Coldfusion / Lucee / CFML", "imageName": "quick"})
 
+      <div class="menu">
+        <a href="#creating-new-entities">Creating New Entities</a>
+        <a href="#deleting-entities">Deleting Entities</a>
+        <a href="#query-scopes-and-subselects">Query Scopes And Subselects</a>
+        <a href="#retrieving-entities">Retrieving Entities</a>
+        <a href="#updating-existing-entities">Updating Existing Entities</a>
+        <a href="#working-with-entities">Working With Entities</a>
+        <a href="#cookbook-introduction">Cookbook Introduction</a>
+        <a href="#eager-loading">Eager Loading</a>
+        <a href="#ordering-by-relationships">Ordering By Relationships</a>
+        <a href="#querying-relationships">Querying Relationships</a>
+        <a href="#relationship-counts">Relationship Counts</a>
+        <a href="#retrieving-relationships">Retrieving Relationships</a>
+        <a href="#collections">Collections</a>
+        <a href="#custom-getters-and-setters">Custom Getters And Setters</a>
+        <a href="#debugging">Debugging</a>
+        <a href="#interception-points">Interception Points</a>
+        <a href="#serialization">Serialization</a>
+      </div>
+      <br><br>
       <main>
         <div class="column1">
-          @@include('../../dist/@@folder/first-side/column1.html')
+          <a id="creating-new-entities"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/getting-started/creating-new-entities.html')
+          <a id="deleting-entities"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/getting-started/deleting-entities.html')
+
+          <a id="updating-existing-entities"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/getting-started/updating-existing-entities.html')
+          <a id="working-with-entities"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/getting-started/working-with-entities.html')
+          <a id="cookbook-introduction"></a>
+          @@include('../../dist/@@folder/quick-docs/cookbook-1/cookbook-introduction.html')
+          <a id="ordering-by-relationships"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/relationships/ordering-by-relationships.html')
+          <a id="querying-relationships"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/relationships/querying-relationships.html')
+          <a id="relationship-counts"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/relationships/relationship-counts.html')
+          <a id="retrieving-relationships"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/relationships/retrieving-relationships.html')
+          <a id="collections"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/collections.html')
         </div>
         <div class="column2">
-          @@include('../../dist/@@folder/first-side/column2.html')
+
+          <a id="query-scopes-and-subselects"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/getting-started/query-scopes-and-subselects.html')
+          <a id="retrieving-entities"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/getting-started/retrieving-entities.html')
+
+
+
+
+        </div>
+        <div class="column2">
+          <a id="eager-loading"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/relationships/eager-loading.html')
+          <a id="custom-getters-and-setters"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/custom-getters-and-setters.html')
+          <a id="debugging"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/debugging.html')
+          <a id="interception-points"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/interception-points.html')
+          <a id="serialization"></a>
+          @@include('../../dist/@@folder/quick-docs/guide-1/serialization.html')
         </div>
       </main>
-
-      @@include('../../dist/common/footer.html', {"class": "print-only"})
 
 
     </div>
 
-    <hr class="no-print"/>
-
     <div class="reverse">
-      @@include('../../dist/common/reverse/header.html', {"title": "quick-orm cheat sheet", "imageName": "@@folder"})
+      @@include('../../dist/common/reverse/header.html', {"title": " query-builder cheat sheet", "imageName": "@@folder"})
 
       <main>
         <div class="column1">
@@ -38,8 +94,6 @@
           @@include('../../dist/@@folder/reverse/column2.html')
         </div>
       </main>
-
-      @@include('../../dist/common/footer.html')
     </div>
 
     <script src="../common/lib/highlight.pack.js"></script>

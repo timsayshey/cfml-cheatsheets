@@ -11,11 +11,11 @@
 com
   + example
   |  + project
-  |  |  - MyApp.java
-  |  |  |
-  |  |  + player
-  |  |  |  - Player.java
-  |  |  |  - PlayerService.java
+    - MyApp.java
+
+    + player
+    - Player.java
+    - PlayerService.java
 ```
 
 ## Configuration

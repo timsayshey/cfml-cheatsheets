@@ -19,9 +19,9 @@ import { NgModule } from '@angular/core';
 
 @NgModule({
     declarations: [
-        MyRootComponent, 
-        MyComponent, 
-        MyDirective, 
+        MyRootComponent,
+        MyComponent,
+        MyDirective,
         MyPipe],
     imports: [MyModule, NpmModule],
     exports: [MyComponent],
@@ -30,12 +30,12 @@ import { NgModule } from '@angular/core';
 })
 class MyModule {}
 ```
-| Parameter | Function |
-|--------------------|-------------------------------------------------------------------------------|
-| **declarations** |  Components to this module |
-| **imports** |  Modules to import into this module |
-| **exports** |  Components visible to another module |
-| **providers** |  Dependency injection providers |
-| **bootstrap** | The root component of module |
+
+
+
+
+
+
+
 
 The **pipes** and **directive** is declared as **components**

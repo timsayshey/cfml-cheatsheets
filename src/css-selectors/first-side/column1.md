@@ -11,7 +11,7 @@ input { } /*targets all <input> elements*/
 ```
 # Class
 
-`.` is a __class__ selector. It targets every element with a specific class attribute :
+.` is a __class__ selector. It targets every element with a specific class attribute :
 
 ```css
 .my-class { } /*targets every element with the "my-class" class*/

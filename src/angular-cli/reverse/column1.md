@@ -13,11 +13,11 @@ Angular CLI supports all major CSS preprocessors: __sass/css__, __less__, __styl
 
 When generating a new project you can also define which extension you want for style files:
 
-`ng new <project> --style=<scss|sass|less|stylus>`
+`ng new <project> --style=<scssstylus>`
 
 Or set default style on existing project:
 
-`ng set defaults.styleExt <scss|sass|less|stylus>`
+`ng set defaults.styleExt <scssstylus>`
 
 # Deploying the app via GitHub Pages
 

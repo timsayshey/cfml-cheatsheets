@@ -11,7 +11,7 @@ a[href|="example"] { } /*targets every <a> element where "href" attribute value 
 
 # Pseudo-class
 
-A __pseudo-class__ selector is a selector preceded by `:` or `::`. 
+A __pseudo-class__ selector is a selector preceded by `:` or `::.
 
 Some are used to apply style on a specific __state__ of an element.
 

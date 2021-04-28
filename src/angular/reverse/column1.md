@@ -1,12 +1,12 @@
 # Template syntax
 
 
-| Data direction | Syntax | 
-| ----------|-------------|
-| **DataSource => Target**   | {{*expression*}} |
-| **DataSource => Target**   | [target]="*expression*" |
-| **Target => DataSource**   | (target)="*statement*" |
-| **Two-way**                | [(target)]="*expression*" |
+
+
+
+
+
+
 
 ## [ngIf](https://angular.io/api/common/NgIf)
 

@@ -3,7 +3,7 @@ __Updated__ 23 April 2020
 # Installation
 `npm install redux`
 
-If you work into a React App, react-redux provides an easy integration. <a target='_blank' href='https://react-redux.js.org'>Take a look.</a>
+If you work into a React App, react-redux provides an easy integration.
 `npm install react-redux`
 
 # Creating a new store
@@ -12,7 +12,7 @@ If you work into a React App, react-redux provides an easy integration. <a targe
 </div>
 
 ```js
-import { createStore } from 'redux'; 
+import { createStore } from 'redux';
 const store = createStore();
 ```
 

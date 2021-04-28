@@ -24,7 +24,7 @@ Handlers by default get executed at the end of the playbook.
 ```
 
 **Template** : Jinja Templating
-- **{% ... %}** for control statements
+- **** for control statements
 - **{{ ... }}** for expressions
 - **{# ... #}** for comments
 

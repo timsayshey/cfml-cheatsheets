@@ -2,7 +2,7 @@ Retrieves information about host services
 `Get-VMHostService <host>`
 
 Restart a specific host service
-`Get-VMHostService <host> | ? {($_.Key ‑eq "TSM-ssh")} | Restart-VMHostService`
+`Get-VMHostService <host>  Restart-VMHostService`
 
 # Cluster management
 

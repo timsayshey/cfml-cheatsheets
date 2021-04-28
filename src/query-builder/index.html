@@ -1,0 +1,90 @@
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Droid+Sans:700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="../common.css">
+    <link rel="stylesheet" href="../common/lib/atom-one-light.css">
+    <link rel="stylesheet" href="./@@folder.css">
+  </head>
+  <body>
+    <input type="checkbox" id="showPreview"/>
+    <div class="first-side">
+      @@include('../../dist/common/first-side/header.html', {"title": "QB Query Builder Cheat Sheet", "subtitle": "Library for Coldfusion / Lucee / CFML", "imageName": "qb"})
+
+      <div class="menu">
+        <a href="#wheres">Wheres</a>
+        <a href="#by-and-having">By And Having</a>
+        <a href="#offset-and-pagination">Offset And Pagination</a>
+        <a href="#common-table-expressions">Common Table Expressions</a>
+        <a href="#from">From</a>
+        <a href="#grouping-and-limit">Grouping And Limit</a>
+        <a href="#unions">Unions</a>
+        <a href="#selects">Selects</a>
+        <a href="#when">When</a>
+        <a href="#joins">Joins</a>
+        <a href="#parameters-and-bindings">Parameters And Bindings</a>
+        <a href="#raw-expressions">Raw Expressions</a>
+        <a href="#retrieving-results">Retrieving Results</a>
+        <a href="#aggregates">Aggregates</a>
+        <a href="#inserts-updates-deletes">Inserts Updates Deletes</a>
+      </div>
+      <br><br>
+      <main>
+        <div class="column1">
+          <a id="wheres"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/wheres.html')
+          <a id="when"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/when.html')
+          <a id="selects"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/selects.html')
+          <a id="by-and-having"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/group-by-and-having.html')
+          <a id="offset-and-pagination"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/limit-offset-and-pagination.html')
+        </div>
+        <div class="column2">
+          <a id="from"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/from.html')
+          <a id="grouping-and-limit"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/ordering-grouping-and-limit.html')
+          <a id="common-table-expressions"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/common-table-expressions.html')
+          <a id="unions"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/unions.html')
+          <a id="joins"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/joins.html')
+        </div>
+        <div class="column2">
+          <a id="retrieving-results"></a>
+          @@include('../../dist/@@folder/query-builder/executing-queries/retrieving-results.html')
+          <a id="inserts-updates-deletes"></a>
+          @@include('../../dist/@@folder/query-builder/executing-queries/inserts-updates-deletes.html')
+          <a id="aggregates"></a>
+          @@include('../../dist/@@folder/query-builder/executing-queries/aggregates.html')
+          <a id="parameters-and-bindings"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/parameters-and-bindings.html')
+          <a id="raw-expressions"></a>
+          @@include('../../dist/@@folder/query-builder/building-queries/raw-expressions.html')
+        </div>
+      </main>
+
+
+    </div>
+
+    <div class="reverse">
+      @@include('../../dist/common/reverse/header.html', {"title": " query-builder cheat sheet", "imageName": "@@folder"})
+
+      <main>
+        <div class="column1">
+          @@include('../../dist/@@folder/reverse/column1.html')
+        </div>
+        <div class="column2">
+          @@include('../../dist/@@folder/reverse/column2.html')
+        </div>
+      </main>
+    </div>
+
+    <script src="../common/lib/highlight.pack.js"></script>
+    <script src="../common/script.js"></script>
+  </body>
+</html>

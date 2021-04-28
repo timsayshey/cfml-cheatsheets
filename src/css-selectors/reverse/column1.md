@@ -5,9 +5,9 @@
 * { } /*targets every element in the DOM*/
 div * { } /*targets every element inside a <div> element*/
 ```
-|         |         |
-|---------|---------|
-|<span class="inline-img">![WARNING : ](../assets/images/warning-icon.png)</span> | <small>*Don't use it too much, your browser and collegues will thank you...*</small>|
+
+
+
 
 # Combinators
 

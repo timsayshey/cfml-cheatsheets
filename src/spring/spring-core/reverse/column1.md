@@ -1,13 +1,13 @@
 # Beans scopes
 
-| Scope | Description | 
-| ----------|-------------|
-| **singleton**   | (default)  A single bean instance |
-| **prototype**   | A bean instance per usage |
-| **request**     | A bean instance per **HTTP request** |
-| **session**     | A bean instance per **HTTP session** |
-| **application** | A bean instance per Servlet Context |
-| **websocket**   | A bean instance per WebSocket |
+
+
+
+
+
+
+
+
 
 # Customizing a bean
 
@@ -29,14 +29,14 @@
 private String defaultHome;
 ```
 
-## Access a bean property 
+## Access a bean property
 
 ```Java
 @Value("#{myBean.myValue}")
 private String myValue;
 ```
 
-## Parse a string 
+## Parse a string
 
 ```Java
 @Value("#{myBean.myValue.substring(0,1)}")

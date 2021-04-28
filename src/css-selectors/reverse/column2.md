@@ -32,7 +32,7 @@ If a property is defined twice for the same element and with equal specificity, 
 
 ## But...
 
-|         |         |
-|---------|---------|
-|<span class="inline-img">![WARNING : ](../assets/images/warning-icon.png)</span> | <small>*Don't use `!important` it will break everything said above*</small>|
+
+
+
 

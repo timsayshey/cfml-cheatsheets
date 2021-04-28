@@ -2,11 +2,11 @@
 **Why**: it's the base method <br/>
 **Return**: a store object
 
-| Argument | Description | 
-| ----------|-------------|
-| **Reducer**   | your reducer function / combineReducers |
-| **[state]**   | your initial state, if you don't set it here, you must set it as a default value into your reducer declaration (optional) |
-| **[enhancer]**     | a middleware function (optional) |
+
+
+
+
+
 
 ```js
 const store = createStore(reducer,state,enhancer)
@@ -27,7 +27,7 @@ const rootReducer = combineReducers({reducerA, reducerB, reducerC})
 **Why**: to be able to deal with async data<br/>
 **Arguments**: a middleWare function <br/>
 **Return**: a store enhancer
-<!-- * We can create a custom middleware to keep it simple. <a target='_blank' href='https://redux.js.org/api/applymiddleware#example-custom-logger-middleware'> Exemple</a> -->
+<!-- * We can create a custom middleware to keep it simple.  -->
 
 ```js
 const store = createStore(reducer,state, applyMiddleware(yourMiddleware))
