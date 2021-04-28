@@ -1,0 +1,15 @@
+<h1 id="deleting-entities">Deleting Entities</h1>
+<h2 id="delete">delete</h2>
+<p>You can delete an entity by calling the &#39;delete&#39; method on it.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.delete();</code></pre>
+<blockquote>
+<p><strong>Note:</strong> The entity will still exist in any variables you have stored it in, even though it has been deleted from the database.</p>
+</blockquote>
+<h2 id="deleteall">deleteAll</h2>
+<p>Just like &#39;updateAll`, you can delete many records from the database by specifying a query with constraints and then calling the &#39;deleteAll&#39; method.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereActive( false )
+    .deleteAll();</code></pre>
+<p>Additionally, you can pass in an array of ids to &#39;deleteAll&#39; to delete only those ids.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).deleteAll( [ 4, 10, 22 ] );</code></pre>

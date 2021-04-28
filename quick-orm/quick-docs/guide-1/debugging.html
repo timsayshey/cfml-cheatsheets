@@ -1,0 +1,34 @@
+<h1 id="debugging">Debugging</h1>
+<h2 id="debugging-a-single-query">Debugging a Single Query</h2>
+<h3 id="tosql">toSQL</h3>
+<p>Returns the SQL that would be executed for the current query.</p>
+<pre><code class="language-javascript">var userQuery = getInstance( &quot;User&quot; )
+    .where( &quot;active&quot;, &quot;=&quot;, 1 );
+
+writeOutput( userQuery.toSQL() );</code></pre>
+<p>The bindings for the query are represented by question marks (&#39;?&#39;) just as when using &#39;queryExecute<code>.  qb can replace each question mark with the corresponding &#39;cfqueryparam</code>-compatible struct by passing &#39;showBindings = true&#39; to the method.</p>
+<pre><code class="language-javascript">var userQuery = getInstance( &quot;User&quot; )
+    .where( &quot;active&quot;, &quot;=&quot;, 1 );
+
+writeOutput( userQuery.toSQL( showBindings = true ) );</code></pre>
+<h3 id="tap">tap</h3>
+<p>Executes a callback with the current entity passed to it.  The return value from &#39;tap&#39; is ignored and the current entity is returned.</p>
+<p>While not strictly a debugging method, &#39;tap&#39; makes it easy to see the changes to an entity after each call without introducing temporary variables.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .tap( function( e ) {
+        writeOutput( e.toSQL() &amp; &quot;&lt;br&gt;&quot; );
+    } )
+    .where( &quot;active&quot;, &quot;=&quot;, 1 )
+    .tap( function( e ) {
+        writeOutput( e.toSQL() &amp; &quot;&lt;br&gt;&quot; );
+    } );</code></pre>
+<h2 id="debugging-all-queries">Debugging All Queries</h2>
+<h3 id="cbdebugger">cbDebugger</h3>
+<p>Starting in <a href="https://forgebox.io/view/cbdebugger">cbDebugger</a> 2.0.0 you can view all your Quick and qb  queries for a request.  This is the same output as using qb standalone.  This is enabled by default if you have qb installed.  Make sure your debug output is configured correctly and scroll to the bottom of the page to find the debug output.</p>
+<p>Additionally, with Quick installed you will see number of loaded entities for the request.  This can help identify places that are missing pagination or relationships that could be tuned or converted to a subselect.</p>
+<p><img src="../.gitbook/assets/2020-05-04_12-40.png" alt=""></p>
+<h3 id="logbox-appender">LogBox Appender</h3>
+<p>Quick is set to log all queries to a debug log out of the box via qb.  To enable this behavior, configure LogBox to allow debug logging from qb&#39;s grammar classes.</p>
+<p>qb can be quite chatty when executing many database queries.  Make sure that this logging is only enabled for your development environments using <a href="https://coldbox.ortusbooks.com/getting-started/configuration/coldbox.cfc/configuration-directives/environments">ColdBox&#39;s environment controls</a>.</p>
+<h3 id="interception-points">Interception Points</h3>
+<p>ColdBox Interception Points can also be used for logging, though you may find it easier to use LogBox.  See the documentation for <a href="https://qb.ortusbooks.com/query-builder/options-and-utilities/interception-points">qb&#39;s Interception Points</a>  or Quick&#39;s <a href="interception-points.md">own interception points</a> for more information.</p>

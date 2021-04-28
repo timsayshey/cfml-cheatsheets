@@ -1,0 +1,179 @@
+<h1 id="whats-new">What&#39;s New?</h1>
+<h2 id="420">4.2.0</h2>
+<ul>
+<li>Add a <a href="guide-1/getting-started/retrieving-entities.md#simplepaginate">&#39;simplePaginate&#39;</a> pagination method for quicker performance when total records or total pages are not needed or too slow.</li>
+</ul>
+<h2 id="416">4.1.6</h2>
+<ul>
+<li>Configure columns are no longer cleared when setting up a &#39;BelongsToMany&#39; relationship.</li>
+</ul>
+<h2 id="415">4.1.5</h2>
+<ul>
+<li>Provide &#39;initialThroughConstraints&#39; for &#39;hasOne&#39; relationships (used in &#39;*Through&#39; relationships).</li>
+</ul>
+<h2 id="414">4.1.4</h2>
+<ul>
+<li>Ignore orders when retrieving a relationship count.</li>
+</ul>
+<h2 id="411-412">4.1.1, 4.1.2</h2>
+<ul>
+<li>Preserve casted value after saving an entity.</li>
+</ul>
+<h2 id="410">4.1.0</h2>
+<ul>
+<li>Allow for <a href="guide-1/getting-started/defining-an-entity/subclass-entities.md">child entities,</a> including <a href="guide-1/getting-started/defining-an-entity/subclass-entities.md#discriminated-entities">discriminated entities.</a></li>
+<li>Look up returning values by column name not by alias in the &#39;ReturningKeyType`.</li>
+</ul>
+<h2 id="402">4.0.2</h2>
+<ul>
+<li>Skip eager loading database call when no keys are found.</li>
+<li>Only apply &#39;CONCAT&#39; when needed in &#39;*Through&#39; relationships.</li>
+</ul>
+<h2 id="401">4.0.1</h2>
+<ul>
+<li>Use &#39;WHERE EXISTS&#39; over &#39;DISTINCT&#39; when fetching relationships.  &#39;DISTINCT&#39; restricts some of the queries that can be run.</li>
+</ul>
+<h2 id="400">4.0.0</h2>
+<p>📹  <a href="https://cfcasts.com/series/whats-new-in-quick-4">Watch a walkthrough of these changes on CFCasts.</a></p>
+<h4 id="breaking-changes">BREAKING CHANGES</h4>
+<ul>
+<li><a href="guide-1/getting-started/query-scopes-and-subselects.md">Scopes</a>, <a href="guide-1/relationships/querying-relationships.md#wherehas">&#39;whereHas&#39;</a>, and <a href="guide-1/relationships/querying-relationships.md#wheredoesnthave">&#39;whereDoesntHave&#39;</a> callbacks now automatically group where clauses when an &#39;OR&#39; combinator is detected.</li>
+</ul>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>Dynamically add <a href="guide-1/relationships/relationship-counts.md">relationship counts</a> to a parent entity without loading all of the relationship.</li>
+<li>Give a helpful error message when trying to set relationship values before saving an entity, where applicable.</li>
+<li>Multiple bug fixes related to <a href="guide-1/getting-started/query-scopes-and-subselects.md#subselects">subselects</a> and <a href="guide-1/relationships/querying-relationships.md">querying relationships </a>when using &#39;belongsToThrough<code>, &#39;hasOneThrough</code>, or &#39;hasManyThrough`.</li>
+</ul>
+<h2 id="317">3.1.7</h2>
+<ul>
+<li>Correct jQuery link in test runner.</li>
+</ul>
+<h2 id="316">3.1.6</h2>
+<ul>
+<li>Allow expressions in basic where clauses.</li>
+<li>Fix &#39;delete&#39; naming collision.</li>
+</ul>
+<h2 id="315">3.1.5</h2>
+<ul>
+<li>Add an alias to &#39;with&#39; to QuickBuilder.</li>
+</ul>
+<h2 id="314">3.1.4</h2>
+<ul>
+<li>Fix a stack overflow on nested relationship checks.</li>
+</ul>
+<h2 id="313">3.1.3</h2>
+<ul>
+<li>Configured tables (&#39;.from&#39;) are now used for qualifying columns.</li>
+</ul>
+<h2 id="312">3.1.2</h2>
+<ul>
+<li>Remove unnecessary nesting in compare queries.</li>
+</ul>
+<h2 id="311">3.1.1</h2>
+<ul>
+<li>Fix <a href="guide-1/relationships/querying-relationships.md">querying relationship methods</a> when using &quot;OR&quot; combinators.</li>
+</ul>
+<h2 id="310">3.1.0</h2>
+<ul>
+<li>Add support for JSON <a href="guide-1/getting-started/defining-an-entity/#casts">casting</a> using a new &#39;JsonCast@quick&#39; component.</li>
+</ul>
+<h2 id="304">3.0.4</h2>
+<ul>
+<li>Compatibility updates for ColdBox 6</li>
+</ul>
+<h2 id="303">3.0.3</h2>
+<ul>
+<li>Optimize <a href="guide-1/getting-started/defining-an-entity/#casts">cast </a>caching</li>
+</ul>
+<h2 id="302">3.0.2</h2>
+<ul>
+<li>Apply <a href="guide-1/getting-started/defining-an-entity/#sql-type">custom sqltypes </a>during <a href="guide-1/relationships/eager-loading.md">eager loading</a>.</li>
+</ul>
+<h2 id="301">3.0.1</h2>
+<ul>
+<li>Account for null values in <a href="guide-1/getting-started/creating-new-entities.md#fill">&#39;fill&#39;</a>.</li>
+<li>Swap structAppend order for a Lucee bug in mementifier integration.</li>
+</ul>
+<h2 id="300">3.0.0</h2>
+<h4 id="breaking-changes-a-idbreaking-changesa"><strong>BREAKING CHANGES</strong> <a id="breaking-changes"></a></h4>
+<p><em>Please see the</em> <a href="upgrade-guide.md#3-0-0"><em>Upgrade Guide</em></a> <em>for more information on these changes.</em></p>
+<ul>
+<li>Drop support for Lucee 4.5 and Adobe ColdFusion 11.</li>
+<li>Virtual Inheritance (using a &#39;quick&#39; annotation instead of extending &#39;quick.models.BaseEntity&#39;) has been removed.  It was hardly used, and removing it allows us to simplify some of the code paths.</li>
+<li>&#39;accessors=&quot;true&quot;&#39; is now required on every entity.  This is similar to above where requiring it allows us to simplify the codebase immensely.  A helpful error message will be thrown if &#39;accessors=&quot;true&quot;&#39; is not present on your entity.</li>
+<li>The &#39;defaultGrammar&#39; mapping needs to be the full WireBox mapping, including the &#39;@qb`, if needed.<ul>
+<li>For instance, &#39;MSSQLGrammar&#39; would become &#39;MSSQLGrammar@qb`.</li>
+<li>This will allow for other grammars to be more easily contributed via third party modules.</li>
+</ul>
+</li>
+<li>&#39;`<a href="guide-1/relationships/relationship-types/hasmanythrough.md">&#39;HasManyThrough&#39; relationships</a> now only accept a &#39;relationships&#39; parameter of relationship methods to walk to get to the intended entity.</li>
+<li>Attributes using &#39;casts=&quot;boolean&quot;&#39; need to be updated to <a href="guide-1/getting-started/defining-an-entity/#casts">&#39;casts=&quot;BooleanCast@quick&quot;&#39;</a>.</li>
+<li>Some method and parameter names have been changed to support composite keys.  <strong>The majority of changes will only affect you if you have extended base Quick components.</strong> The full list can be found in the Upgrade Guide.</li>
+</ul>
+<h4 id="other-changes-a-idother-changesa"><strong>Other Changes</strong> <a id="other-changes"></a></h4>
+<ul>
+<li><a href="guide-1/serialization.md">Bundle Mementifier</a> for memento transformations.</li>
+<li>Use <a href="guide-1/serialization.md#asmemento">asMemento</a> to automatically convert queries to mementos.</li>
+<li>Automatically-generated <a href="https://apidocs.ortussolutions.com/#/coldbox-modules/quick/">API docs</a>.</li>
+<li>Add error message for defaulting key values.</li>
+<li>Update to <a href="https://qb.ortusbooks.com/">qb 7.0.0</a>.</li>
+<li>Add a <a href="guide-1/relationships/relationship-types/belongstothrough.md">belongsToThrough relationship</a>.</li>
+<li>Add a <a href="guide-1/relationships/relationship-types/hasonethrough.md">HasOneThrough relationship</a>.</li>
+<li><a href="guide-1/getting-started/defining-an-entity/#casts">Custom Casts</a> - using custom components to represent one or more attributes.</li>
+<li><a href="guide-1/relationships/ordering-by-relationships.md">Ordering by relationship attributes</a>.</li>
+<li><a href="guide-1/getting-started/query-scopes-and-subselects.md#subselects">addSubselect</a> <a href="guide-1/getting-started/query-scopes-and-subselects.md#using-relationships-in-subselects">improvements</a>.</li>
+<li>Add a new QuickBuilder to better handle interop with qb.</li>
+<li><a href="guide-1/getting-started/retrieving-entities.md#existsorfail">Add &#39;exists&#39; and &#39;existsOrFail&#39; methods</a>.</li>
+<li>Allow <a href="guide-1/getting-started/retrieving-entities.md#existsorfail">custom</a> <a href="guide-1/getting-started/retrieving-entities.md#firstorfail">error</a> <a href="guide-1/getting-started/retrieving-entities.md#findorfail">messages</a> for &#39;orFail&#39; methods.</li>
+<li>Ensure &#39;loadRelationship&#39; doesn&#39;t reload existing relationships.</li>
+<li>Add multiple retrieve or new/create methods - <a href="guide-1/getting-started/retrieving-entities.md#firstwhere">&#39;firstWhere&#39;</a>, <a href="guide-1/getting-started/retrieving-entities.md#firstornew">&#39;firstOrNew&#39;</a>, <a href="guide-1/getting-started/retrieving-entities.md#firstorcreate">&#39;firstOrCreate&#39;</a>, <a href="guide-1/getting-started/retrieving-entities.md#findornew">&#39;findOrNew&#39;</a>, and <a href="guide-1/getting-started/retrieving-entities.md#findorcreate">&#39;findOrCreate&#39;</a>.</li>
+<li>Add <a href="guide-1/getting-started/retrieving-entities.md#paginate">&#39;paginate&#39;</a> to Quick.</li>
+<li>Add <a href="guide-1/getting-started/defining-an-entity/#comparing-entities">&#39;is&#39; and &#39;isNot&#39;</a> to compare entities.</li>
+<li>Allow <a href="guide-1/getting-started/retrieving-entities.md#hydrate">hydrating entities</a> from serialized data.</li>
+<li>Allow returning default entities for null relations on <a href="guide-1/relationships/relationship-types/hasone.md#withdefault">&#39;HasOne&#39;</a>, <a href="guide-1/relationships/relationship-types/belongsto.md#withdefault">&#39;BelongsTo&#39;</a>, <a href="guide-1/relationships/relationship-types/hasonethrough.md#withdefault">&#39;HasOneThrough&#39;</a>, and <a href="guide-1/relationships/relationship-types/belongstothrough.md#withdefault">&#39;BelongsToThrough&#39;</a> relationships.</li>
+<li>Query relations using <a href="guide-1/relationships/querying-relationships.md#has">&#39;has&#39;</a>, <a href="guide-1/relationships/querying-relationships.md#doesnthave">&#39;doesntHave&#39;</a>, <a href="guide-1/relationships/querying-relationships.md#wherehas">&#39;whereHas&#39;</a>, and <a href="guide-1/relationships/querying-relationships.md#wheredoesnthave">&#39;whereDoesntHave&#39;</a>.</li>
+<li>Split &#39;reset&#39; into &#39;reset&#39; and &#39;resetToNew&#39; methods.</li>
+<li>Store the original attributes for later resetting.</li>
+<li>Use &#39;parameterLimits&#39; to eager load.</li>
+<li>Use a new entity each time on BaseService.</li>
+<li>Apply sql types for columns to &#39;wheres`.</li>
+<li>Apply global scopes more consistently</li>
+<li>Correctly ignore key column when updating.</li>
+<li>Fix &#39;hasRelationship&#39; method to only return true for exact matches.</li>
+<li>Better handling of constrained relationships when eager loading.</li>
+<li>Convert aliases when qualifying columns.</li>
+<li>Add a better error message if &#39;onMissingMethod&#39; fails.</li>
+<li>Only retrieve columns for defined attributes.</li>
+<li>Cache entity metadata in CacheBox.</li>
+<li>Use attribute hash for checking &#39;isDirty`.</li>
+</ul>
+<h2 id="250">2.5.0</h2>
+<ul>
+<li>Define <a href="guide-1/collections.md">custom collections</a> per entity.</li>
+</ul>
+<h2 id="240">2.4.0</h2>
+<ul>
+<li><del>Apply custom setters when hydrating from the database.</del> (Reverted in &#39;2.5.3&#39; for unintended consequences with things like password hashing.)</li>
+<li><a href="guide-1/getting-started/query-scopes-and-subselects.md#scopes-that-return-values">Query scopes can return any value.</a>  This allows you to use scopes to perform query functions and return values.  (If you do not want to return a custom value, return the &#39;QueryBuilder&#39; instance or nothing.)</li>
+<li>Improve error messages for not loaded entities.</li>
+<li>Return the correct memento with accessors on.</li>
+</ul>
+<h2 id="230">2.3.0</h2>
+<ul>
+<li><a href="guide-1/getting-started/updating-existing-entities.md#update">Option to ignore non-existent attributes</a></li>
+</ul>
+<h2 id="220">2.2.0</h2>
+<ul>
+<li><a href="guide-1/relationships/retrieving-relationships.md">Relationship Fetch Methods</a> (&#39;first&#39; and &#39;find&#39; methods)</li>
+</ul>
+<h2 id="210">2.1.0</h2>
+<ul>
+<li><a href="guide-1/getting-started/query-scopes-and-subselects.md#subselects">Subselect Helper</a></li>
+<li><a href="guide-1/getting-started/query-scopes-and-subselects.md#global-scopes">Global Scopes</a></li>
+<li><a href="guide-1/relationships/relationship-types/hasmany.md#saveMany">saveMany</a></li>
+<li>Mapping foreign keys for relationships is now optional</li>
+<li>Either entities or primary key values can be passed to relationship persistance methods</li>
+<li>Relationships can also be saved by calling &#39;&quot;set&quot; &amp; relationshipName`</li>
+<li><a href="guide-1/getting-started/defining-an-entity/">Virtual Inheritance</a> works on ColdBox 5.2+</li>
+</ul>

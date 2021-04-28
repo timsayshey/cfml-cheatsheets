@@ -1,0 +1,189 @@
+<h1 id="belongstomany">belongsToMany</h1>
+<h2 id="usage">Usage</h2>
+<p>A &#39;belongsToMany&#39; relationship is a &#39;many-to-many&#39; relationship. For instance, a &#39;User&#39; may have multiple &#39;Permissions&#39; while a &#39;Permission&#39; can belong to multiple &#39;Users`.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function permissions() {
+       return belongsToMany( &quot;Permission&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Permission.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function users() {
+       return belongsToMany( &quot;User&quot; );
+    }
+
+}</code></pre>
+<p>The first value passed to &#39;belongsToMany&#39; is a WireBox mapping to the related entity.</p>
+<p>`belongsToMany&#39; makes some assumptions about your table structure. To support a &#39;many-to-many&#39; relationship, you need a pivot table. This is, at its simplest, a table with each of the foreign keys as columns.</p>
+<pre><code class="language-text">permissions_users
+- permissionId
+- userId</code></pre>
+<p>As you can see, Quick uses a convention of combining the entity table names in alphabetical order with an underscore (&#39;_&#39;) to create the new pivot table name. If you want to override this convention, you can do so by passing the desired table name as the second parameter or the &#39;table&#39; parameter.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function permissions() {
+       return belongsToMany( &quot;Permission&quot;, &quot;user_permission_map&quot; );
+    }
+
+}</code></pre>
+<p>Quick determines the foreign key of the relationship based on the entity name and key values. In this case, the &#39;User&#39; entity is assumed to have a &#39;userId&#39; foreign key and the &#39;Permission&#39; entity a &#39;permissionId&#39; foreign key. You can override this by passing a &#39;foreignKey&#39; in as the third argument and a &#39;relatedKey&#39; as the fourth argument:</p>
+<pre><code class="language-javascript">return belongsToMany(
+    &quot;Permission&quot;,
+    &quot;user_permission_map&quot;,
+    &quot;FK_UserId&quot;,
+    &quot;FK_PermissionID&quot;
+);</code></pre>
+<p>Finally, if you are not joining on the primary keys of the current entity or the related entity, you can specify those keys using the last two parameters:</p>
+<pre><code class="language-javascript">return belongsToMany(
+    &quot;Permission&quot;,
+    &quot;user_permission_map&quot;,
+    &quot;FK_UserId&quot;,
+    &quot;FK_PermissionID&quot;,
+    &quot;user_id&quot;,
+    &quot;permission_id&quot;
+);</code></pre>
+<p>The inverse of &#39;belongsToMany&#39; is also &#39;belongsToMany`. The &#39;foreignKey&#39; and &#39;relatedKey&#39; arguments are swapped on the inverse side of the relationship.</p>
+<pre><code class="language-javascript">// Permission.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function user() {
+        belongsToMany( &quot;User&quot;, &quot;user_permission_map&quot;, &quot;FK_PermissionID&quot;, &quot;FK_UserId&quot; );
+    }
+
+}</code></pre>
+<p>If you find yourself needing to interact with the pivot table (&#39;permissions_users&#39;) in the example above, you can create an intermediate entity, like &#39;UserPermission`. You will still be able to access the end of the relationship chain using the &#39;hasManyThrough&#39; relationship type.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function userPermissions() {
+        return hasMany( &quot;UserPermission&quot; );
+    }
+
+    function permissions() {
+        return hasManyThrough( [ &quot;UserPermissions&quot;, &quot;Permission&quot; ] );
+    }
+
+}</code></pre>
+<h2 id="attach">attach</h2>
+<p>Use the &#39;attach&#39; method to relate two &#39;belongsToMany&#39; entities together. &#39;attach&#39; can take a single id, a single entity, or an array of ids or entities (even mixed and matched) to associate.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; ).findOrFail( 1 );
+var tag = getInstance( &quot;Tag&quot; ).create( { &quot;name&quot;: &quot;miscellaneous&quot; });
+
+// pass an id
+post.tags().attach( tag.getId() );
+// or pass an entity
+post.tags().attach( tag );</code></pre>
+<h2 id="detach">detach</h2>
+<p>Use the &#39;detach&#39; method to remove an existing entity from a &#39;belongsToMany&#39; relationship. &#39;detatch&#39; can also take a single id, a single entity, or an array of ids or entities (even mixed and matched) to remove.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; ).findOrFail( 1 );
+var tag = getInstance(&quot;Tag&quot;).firstWhere( &quot;name&quot;, &quot;miscellaneous&quot; );
+
+// pass an id
+post.tags().detach( tag.getId() );
+// or pass an entity
+post.tags().detach( tag );</code></pre>
+<h2 id="sync">sync</h2>
+<p>Sometimes you just want the related entities to be a list you give it. For these situations, use the &#39;sync&#39; method.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; ).findOrFail( 1 );
+
+post.tags().sync( [ 2, 3, 6 ] );</code></pre>
+<p>Now, no matter what relationships existed before, this &#39;Post&#39; will only have three tags associated with it.</p>
+<h2 id="relationship-setter">Relationship Setter</h2>
+<p>You can also influence the associated entities by calling &#39;&quot;set&quot; &amp; relationshipName&#39; and passing in an entity or key value.</p>
+<pre><code class="language-javascript">var someTag = getInstance( &quot;Tag&quot; ).findOrFail( 2 );
+var post = getInstance( &quot;Post&quot; ).first();
+post.setTags( [ 4, 12, someTag );</code></pre>
+<p>This code calls &#39;sync&#39; on the relationship. After executing this code, the post would be updated in the database to be associated with the tags passed in (&#39;4<code>, &#39;12</code>, and &#39;2&#39;). Any tags that were previously associated with this post would no longer be and only the tags passed in would be associated now.</p>
+<h2 id="signature">Signature</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">Name</th>
+      <th style="text-align:left">Type</th>
+      <th style="text-align:left">Required</th>
+      <th style="text-align:left">Default</th>
+      <th style="text-align:left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left">relationName</td>
+      <td style="text-align:left">string</td>
+      <td style="text-align:left"><code>true</code>
+      </td>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">The WireBox mapping for the related entity.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">table</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left">Table names in alphabetical order separated by an underscore.</td>
+      <td
+      style="text-align:left">The table name used as the pivot table for the relationship. A pivot table
+        is a table that stores, at a minimum, the primary key values of each side
+        of the relationship as foreign keys.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">foreignPivotKey</td>
+      <td style="text-align:left">String | [String]</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left"><code>keyNames()</code>
+      </td>
+      <td style="text-align:left">The name of the column on the pivot <code>table</code> that holds the value
+        of the <code>parentKey</code> of the <code>parent</code> entity.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">relatedPivotKey</td>
+      <td style="text-align:left">String | [String]</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">The name of the column on the pivot <code>table</code> that holds the value
+        of the <code>relatedKey</code> of the <code>ralated</code> entity.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">parentKey</td>
+      <td style="text-align:left">String | [String]</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">The name of the column on the <code>parent</code> entity that is stored
+        in the <code>foreignPivotKey</code> column on <code>table</code>.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">relatedKey</td>
+      <td style="text-align:left">String | [String]</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">The name of the column on the <code>related</code> entity that is stored
+        in the <code>relatedPivotKey</code> column on <code>table</code>.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">relationMethodName</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left">The method name called on the entity to produce this relationship.</td>
+      <td
+      style="text-align:left">
+        <p>The method name called to retrieve this relationship. Uses a stack backtrace
+          to determine by default.</p>
+        <p>&lt;b&gt;&lt;/b&gt;</p>
+        <p><b>DO NOT PASS A VALUE HERE UNLESS YOU KNOW WHAT YOU ARE DOING.</b>
+        </p>
+        </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Returns a BelongsToMany relationship between this entity and the entity defined by &#39;relationName`.</p>
+<h2 id="visualizer">Visualizer</h2>

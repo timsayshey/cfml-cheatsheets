@@ -1,0 +1,57 @@
+<h1 id="querying-relationships">Querying Relationships</h1>
+<p>When querying an entity, you may want to restrict the query based on the existence or absence of a related entity.  You can do that using the following four methods:</p>
+<h2 id="has">has</h2>
+<p>Checks for the existence of a relationship when executing the query.</p>
+<p>By default, a &#39;has&#39; constraint will only return entities that have one or more of the related entity.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).has( &quot;posts&quot; ).get();</code></pre>
+<p>An optional operator and count can be added to the call.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).has( &quot;posts&quot;, &quot;&gt;&quot;, 2 ).get();</code></pre>
+<p>Nested relationships can be checked by passing a dot-delimited string of relationships.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).has( &quot;posts.comments&quot; ).get();</code></pre>
+<h2 id="doesnthave">doesntHave</h2>
+<p>Checks for the absence of a relationship when executing the query.</p>
+<p>By default, a &#39;doesntHave&#39; constraint will only return entities that have zero of the related entity.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).doesntHave( &quot;posts&quot; ).get();</code></pre>
+<p>An optional operator and count can be added to the call.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).doesntHave( &quot;posts&quot;, &quot;&lt;=&quot;, 1 ).get();</code></pre>
+<p>Nested relationships can be checked by passing a dot-delimited string of relationships.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).doesntHave( &quot;posts.comments&quot; ).get();</code></pre>
+<h2 id="wherehas">whereHas</h2>
+<p>When you need to have more control over the relationship constraint, you can use &#39;whereHas`.  This method operates similarly to &#39;has&#39; but also accepts a callback to configure the relationship constraint.</p>
+<p>The &#39;whereHas&#39; callback is passed a builder instance configured according to the relationship.  You may call any entity or query builder methods on it as usual.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereHas( &quot;posts&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%different%&quot; );
+    } )
+        .get();</code></pre>
+<p>When you specify a nested relationship, the builder instance is configured for the last relationship specified.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereHas( &quot;posts.comments&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%great%&quot; );
+      } )
+      .get();</code></pre>
+<p>An optional operator and count can be added to the call, as well.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereHas( &quot;posts.comments&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%great%&quot; );
+      }, &quot;&gt;&quot;, 2 )
+      .get();</code></pre>
+<h2 id="wheredoesnthave">whereDoesntHave</h2>
+<p>The &#39;whereDoesntHave&#39; callback is passed a builder instance configured according to the relationship.  You may call any entity or query builder methods on it as usual.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereDoesntHave( &quot;posts&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%different%&quot; );
+    } )
+        .get();</code></pre>
+<p>When you specify a nested relationship, the builder instance is configured for the last relationship specified.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereDoesntHave( &quot;posts.comments&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%great%&quot; );
+      } )
+      .get();</code></pre>
+<p>An optional operator and count can be added to the call, as well.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereDoesntHave( &quot;posts.comments&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%great%&quot; );
+      }, &quot;&gt;&quot;, 2 )
+      .get();</code></pre>

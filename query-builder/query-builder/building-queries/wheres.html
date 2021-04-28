@@ -4,28 +4,8 @@
 <p>Adds a where clause to a query.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .where( &quot;active&quot;, &quot;=&quot;, 1 );</code></pre>
-<p>Using the where method will parameterize the value passed.  If you want to constrain a column to another column, use the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#wherecolumn">whereColumn</a> method.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( &quot;last_logged_in&quot;, &quot;&gt;&quot;, query.raw( &quot;NOW()&quot; ) );</code></pre>
-<p>Any of the following operators can be used in a where clause.</p>
-<p>When using the &quot;=&quot; constraint, you can use a shortcut and define the value as the second argument.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( &quot;active&quot;, 1 );</code></pre>
-<p>You may also use <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#dynamic-where-methods">dynamic where{Column}</a> statements to simplify this further.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( function( q ) {
-        q.where( &quot;active&quot;, 1 )
-            .where( &quot;last_logged_in&quot;, &quot;&gt;&quot;, dateAdd( &quot;ww&quot;, -1, now() ) )
-    } );</code></pre>
-<p>This grouping can be nested as many levels as you require.</p>
-<p>A Function or QueryBuilder can be used as a subselect expression when passed to value.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( &quot;email&quot;, &quot;foo&quot; )
-    .orWhere( &quot;id&quot;, &quot;=&quot;, function( q ) {
-        q.select( q.raw( &quot;MAX(id)&quot; ) )
-            .from( &quot;users&quot; )
-            .where( &quot;email&quot;, &quot;bar&quot; );
-    } );</code></pre>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).where( &quot;last_logged_in&quot;, &quot;&gt;&quot;, query.raw( &quot;NOW()&quot; ) );</code></pre>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).where( &quot;active&quot;, 1 );</code></pre>
 <h3 id="andwhere">andWhere</h3>
 <p>This method is simply an alias for <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#where">where</a> with the combinator set to &quot;and&quot;.</p>
 <h3 id="orwhere">orWhere</h3>
@@ -54,29 +34,17 @@
 <p>Adds a where clause to a query that compares two columns.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .whereColumn( &quot;first_name&quot;, &quot;=&quot;, &quot;last_name&quot; );</code></pre>
-<p>Just as with where, when using &quot;=&quot; as the operator you can use a shorthand passing the second column in as the operator and leaving the second column null.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .whereColumn( &quot;first_name&quot;, &quot;last_name&quot; );</code></pre>
-<p>`Expressions can be passed in place of either column.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .whereColumn( &quot;first_name&quot;, query.raw( &quot;LOWER(first_name)&quot; ) );</code></pre>
 <h3 id="whereexists">whereExists</h3>
-<p>Adds a where exists clause to the query.</p>
-<p>It can be configured with a function.</p>
 <pre><code class="language-javascript">query.from( &quot;orders&quot; )
     .whereExists( function( q ) {
         q.select( q.raw( 1 ) )
             .from( &quot;products&quot; )
             .whereColumn( &quot;products.id&quot;, &quot;orders.id&quot; );
     } );</code></pre>
-<p>It can also be configured with a QueryBuilder instance.</p>
-<pre><code class="language-javascript">var existsQuery = query.newQuery()
-    .select( q.raw( 1 ) )
-    .from( &quot;products&quot; )
-    .whereColumn( &quot;products.id&quot;, &quot;orders.id&quot; );
-
-query.from( &quot;orders&quot; )
-    .whereExists( existsQuery );</code></pre>
 <h3 id="wherenotexists">whereNotExists</h3>
 <p>Adds a where not in clause to the query.  This behaves identically to the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#whereexists">whereExists</a> method with the negate`flag set to true.</p>
 <h3 id="wherelike">whereLike</h3>
@@ -114,7 +82,6 @@ query.from( &quot;orders&quot; )
             .orWhere( &quot;isOnFreeTrial&quot;, 1 );
      } );</code></pre>
 <h3 id="wherecolumn-1">where{Column}</h3>
-<p>If you call a method starting with where that does not match an existing qb method, qb will instead call the where method using the rest of the method name as the first column name.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .whereUsername( &quot;like&quot;, &quot;j%&quot; )
     .whereActive( 1 );</code></pre>

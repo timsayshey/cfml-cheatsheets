@@ -1,0 +1,52 @@
+<h1 id="hasmany">hasMany</h1>
+<h2 id="defining">Defining</h2>
+<p>A &#39;hasMany&#39; relationship is a &#39;one-to-many&#39; relationship. For instance, a &#39;User&#39; may have multiple &#39;Posts`.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function posts() {
+       return hasMany( &quot;Post&quot; );
+    }
+
+}</code></pre>
+<p>The first value passed to &#39;hasMany&#39; is a WireBox mapping to the related entity.</p>
+<p>Quick determines the foreign key of the relationship based on the entity name and key values. In this case, the &#39;Post&#39; entity is assumed to have a &#39;userId&#39; foreign key. You can override this by passing a foreign key in as the second argument:</p>
+<pre><code class="language-javascript">return hasMany(&quot;Post&quot;, &quot;FK_userID&quot;);</code></pre>
+<p>If your parent entity does not use &#39;id&#39; as its primary key, or you wish to join the child entity to a different column, you may pass a third argument to the &#39;belongsTo&#39; method specifying your parent table&#39;s custom key.</p>
+<pre><code class="language-javascript">return hasMany(&quot;Post&quot;, &quot;FK_userID&quot;, &quot;relatedPostId&quot;);</code></pre>
+<p>The inverse of &#39;hasMany&#39; is also <a href="belongsto.md">&#39;belongsTo&#39;</a>.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function user() {
+        return belongsTo( &quot;User&quot; );
+    }
+
+}</code></pre>
+<h2 id="inserting--updating">Inserting &amp; Updating</h2>
+<p>There are two ways to add an entity to a &#39;hasMany&#39; relationship. Both mirror the <a href="../../getting-started/creating-new-entities.md">insert API</a> for entities.</p>
+<h3 id="save">save</h3>
+<p>You can call the &#39;save&#39; method on the relationship passing in an entity to relate.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; ).fill( {
+    &quot;title&quot; = &quot;My Post&quot;,
+    &quot;body&quot; = &quot;Hello, world!&quot;
+} );
+
+var user = getInstance( &quot;User&quot; ).findOrFail( 1 );
+
+user.posts().save( post );</code></pre>
+<p>This will add the &#39;User&#39; entity&#39;s id as a foreign key in the &#39;Post&#39; and save the &#39;Post&#39; to the database.</p>
+<blockquote>
+<p><strong>Note:</strong> the &#39;save&#39; method is called on the &#39;posts&#39; relationship, not the &#39;getPosts&#39; collection.</p>
+</blockquote>
+<h3 id="create">create</h3>
+<p>Use the &#39;create&#39; method to create and save a related entity directly through the relationship.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrFail( 1 );
+
+user.posts().create( {
+    &quot;title&quot; = &quot;My Post&quot;,
+    &quot;body&quot; = &quot;Hello, world!&quot;
+} );</code></pre>
+<p>This example will have the same effect as the previous example.</p>
+<h2 id="removing">Removing</h2>
+<p>Removing a &#39;hasMany&#39; relationship is handled in two ways: either by using the &#39;dissociate&#39; method on the <a href="belongsto.md">&#39;belongsTo&#39;</a> side of the relationship or by deleting the <a href="belongsto.md">&#39;belongsTo&#39;</a> side of the relationship.</p>

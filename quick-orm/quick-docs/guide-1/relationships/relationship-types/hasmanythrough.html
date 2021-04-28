@@ -1,0 +1,188 @@
+<h1 id="hasmanythrough">hasManyThrough</h1>
+<h2 id="usage">Usage</h2>
+<p>A &#39;hasManyThrough&#39; relationship is either a &#39;one-to-many&#39; or a &#39;many-to-many&#39; relationship. It is used when you want to access related entities through one or more intermediate entities. The most common example for this is through a pivot table. For instance, a &#39;User&#39; may have multiple &#39;Permissions&#39; via a &#39;UserPermission&#39; entity. This allows you to store additional data on the &#39;UserPermission&#39; entity, like a &#39;createdDate&#39; .</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function permissions() {
+        return hasManyThrough( [ &quot;userPermissions&quot;, &quot;permission&quot; ] );
+    }
+
+    function userPermissions() {
+        return hasMany( &quot;UserPermission&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Permission.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function users() {
+       return hasManyThrough( [ &quot;userPermissions&quot;, &quot;user&quot; ] );
+    }
+
+    function userPermissions() {
+        return hasMany( &quot;UserPermission&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// UserPermission.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function user() {
+        return belongsTo( &quot;User&quot; );
+    }
+
+    function permission() {
+        return belongsTo( &quot;Permission&quot; );
+    }
+
+}</code></pre>
+<p>The only value needed for &#39;hasManyThrough&#39; is an array of relationship function names to walk through to get to the related entity.  The first relationship function name in the array must exist on the current entity.  Each subsequent function name must exist on the related entity of the previous relationship result.  For our previous example, &#39;userPermissions&#39; must be a relationship function on &#39;User<code>.  &#39;permission&#39; must then be a relationship function on the related entity resulting from calling &#39;User.userPermissions()</code>.  This returns a &#39;hasMany&#39; relationship where the related entity is &#39;UserPermission<code>.  So, &#39;UserPermission&#39; must have a &#39;permission&#39; relationship function.  That is the end of the relationship function names array, so the related entity resulting from calling &#39;UserPermission.permission()&#39; is our final entity which is &#39;Permission</code>.</p>
+<pre><code class="language-text">hasManyThrough( [ &quot;userPermissions&quot;, &quot;permission&quot; ] );
+
++----------------+---------------------------+----------------+
+
++================+===========================+================+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+</code></pre>
+<p>Let&#39;s take a look at another example.  &#39;HasManyThrough&#39; relationships can go up and down the relationship chain.  Here&#39;s an example of finding a User&#39;s teammates</p>
+<p>The inverse of &#39;hasManyThrough&#39; is either a &#39;belongsToThrough&#39; or a &#39;hasManyThrough&#39; relationship.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function team() {
+        return belongsTo( &quot;Team&quot; );
+    }
+
+    function teammates() {
+        return hasManyThrough( [ &quot;team&quot;, &quot;members&quot; ] );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Team.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function members() {
+       return hasMany( &quot;User&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-text">hasManyThrough( [ &quot;team&quot;, &quot;members&quot; ] );
+
++----------------+---------------------------+----------------+
+
++================+===========================+================+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+</code></pre>
+<p>This approach can scale to as many related entities as you need.  For instance, let&#39;s expand the previous example to include an Office that houses many Teams.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function team() {
+        return belongsTo( &quot;Team&quot; );
+    }
+
+    function teammates() {
+        return hasManyThrough( [ &quot;team&quot;, &quot;members&quot; ] );
+    }
+
+    function officemates() {
+        return hasManyThrough( [ &quot;team&quot;, &quot;office&quot;, &quot;teams&quot;, &quot;members&quot; ] );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Team.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function members() {
+       return hasMany( &quot;User&quot; );
+    }
+
+    function office() {
+       return belongsTo( &quot;Office&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Office.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function teams() {
+       return hasMany( &quot;Team&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-text">hasManyThrough( [ &quot;team&quot;, &quot;office&quot;, &quot;teams&quot;, &quot;members&quot; ] );
+
++----------------+---------------------------+----------------+
+
++================+===========================+================+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+</code></pre>
+<p>This next example can get a little gnarly - you can include other &#39;hasManyThrough&#39; relationships in a &#39;hasManyThrough&#39; relationship function names array.  You can rewrite the &#39;officemates&#39; relationship like so:</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function team() {
+        return belongsTo( &quot;Team&quot; );
+    }
+
+    function teammates() {
+        return hasManyThrough( [ &quot;team&quot;, &quot;members&quot; ] );
+    }
+
+    function officemates() {
+        return hasManyThrough( [ &quot;team&quot;, &quot;office&quot;, &quot;members&quot; ] );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Team.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function members() {
+        return hasMany( &quot;User&quot; );
+    }
+
+    function office() {
+       return belongsTo( &quot;Office&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Office.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function teams() {
+        return hasMany( &quot;Team&quot; );
+    }
+
+    function members() {
+        return hasManyThrough( [ &quot;teams&quot;, &quot;members&quot; ] );
+    }
+
+}</code></pre>
+<pre><code class="language-text">hasManyThrough( [ &quot;team&quot;, &quot;office&quot;, &quot;members&quot; ] );
+
++----------------+---------------------------+----------------+
+
++================+===========================+================+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+---+
+
+    +----------------+---------------------------+----------------+
+
+    +----------------+---------------------------+----------------+</code></pre>
+<p>As you can see, this is a very powerful relationship type that can save you many unnecessary queries to get the data you need.</p>
+<h2 id="signature">Signature</h2>

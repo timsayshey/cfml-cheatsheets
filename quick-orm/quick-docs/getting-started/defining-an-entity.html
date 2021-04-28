@@ -1,0 +1,88 @@
+<h1 id="defining-an-entity">Defining An Entity</h1>
+<p>To get started with Quick, you need an entity. You start by extending &#39;quick.models.BaseEntity`.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {}</code></pre>
+<p>That&#39;s all that is needed to get started with Quick. There are a few defaults of Quick worth mentioning here.</p>
+<h2 id="tables">Tables</h2>
+<p>We don&#39;t need to tell Quick what table name to use for our entity. By default, Quick uses the pluralized name of the component for the table name. That means for our &#39;User&#39; entity Quick will assume the table name is &#39;users`. You can override this by specifying a &#39;table&#39; metadata attribute on the component.</p>
+<pre><code class="language-javascript">// User.cfc
+component table=&quot;my_users&quot; extends=&quot;quick.models.BaseEntity&quot; {}</code></pre>
+<h2 id="primary-key">Primary Key</h2>
+<p>By default, Quick assumes a primary key of &#39;id`. The name of this key can be configured by setting &#39;variables._key&#39; in your component.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    variables._key = &quot;user_id&quot;;
+
+}</code></pre>
+<p>Quick also assumes a key type that is auto-incrementing. If you would like a different key type, define a function called `keyType&#39; and return the key type from that function.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function keyType() {
+        return variables._wirebox.getInstance( &quot;UUIDKeyType@quick&quot; );
+    }
+
+}</code></pre>
+<p>Quick ships with the following key types:</p>
+<ul>
+<li>&#39;AutoIncrementingKeyType`</li>
+<li>&#39;NullKeyType`</li>
+<li>&#39;ReturningKeyType`</li>
+<li>&#39;UUIDKeyType`</li>
+</ul>
+<p>`keyType&#39; can be any component that adheres to the &#39;keyType&#39; interface, so feel free to create your own and distribute them via ForgeBox.</p>
+<pre><code class="language-javascript">interface displayname=&quot;KeyType&quot; {
+
+    /**
+    * Called to handle any tasks before inserting into the database.
+    * Recieves the entity as the only argument.
+    */
+    public void function preInsert( required entity );
+
+    /**
+    * Called to handle any tasks after inserting into the database.
+    * Recieves the entity and the queryExecute result as arguments.
+    */
+    public void function postInsert( required entity, required struct result );
+
+}</code></pre>
+<h2 id="columns">Columns</h2>
+<p>You specify what columns are retrieved by adding properties to your component.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+
+}</code></pre>
+<p>Now, only the &#39;id<code>, &#39;username</code>, and &#39;email&#39; columns will be retrieved.</p>
+<blockquote>
+<p>Note: Make sure to include the primary key (&#39;id&#39; by default) as a property.</p>
+</blockquote>
+<p>To prevent Quick from mapping a property to the database add the &#39;persistent=&quot;false&quot;&#39; attribute to the property.</p>
+<pre><code class="language-text">// User.cfc</code></pre>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    property name=&quot;bcrypt&quot; inject=&quot;@BCrypt&quot; persistent=&quot;false&quot;;
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+
+}</code></pre>
+<p>If the column name in your table is not the column name you wish to use in quick, you can alias it using the &#39;column&#39; metadata attribute.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot; column=&quot;user_name&quot;;
+    property name=&quot;countryId&quot; column=&quot;FK_country_id&quot;;
+
+}</code></pre>
+<h2 id="multiple-datasource-support">Multiple datasource support</h2>
+<p>Quick uses a default datasource and default grammar, as described <a href="./">here</a>. If you are using multiple datasources you can override default datasource by specifying a &#39;datasource&#39; metadata attribute on the component. If your extra datasource has a different grammar you can override your grammar as well by specifying a &#39;grammar&#39; attribute.</p>
+<pre><code class="language-javascript">// User.cfc
+component datasource=&quot;myOtherDatasource&quot; grammar=&quot;PostgresGrammar&quot; extends=&quot;quick.models.BaseEntity&quot; {}</code></pre>
+<p>At the time of writing Valid grammar options are: &#39;MySQLGrammar<code>, &#39;PostgresGrammar</code>, &#39;MSSQLGrammar&#39; and &#39;OracleGrammar`. Please check the <a href="https://qb.ortusbooks.com/">qb docs</a> for additional options.</p>

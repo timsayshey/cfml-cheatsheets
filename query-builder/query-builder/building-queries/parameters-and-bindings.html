@@ -1,7 +1,6 @@
 <h1 id="query-parameters-and-bindings">Query Parameters and Bindings</h1>
 <h2 id="custom-parameter-types">Custom Parameter Types</h2>
 <p>When passing a parameter to qb, it will infer the sql type to be used.  You can pass a struct with the parameters you would pass to <a href="https://qb.ortusbooks.com/query-builder/building-queries/https://cfdocs.org/cfqueryparam">cfqueryparam</a>.</p>
-<p>You can pass include any parameters you would use with <a href="https://qb.ortusbooks.com/query-builder/building-queries/https://cfdocs.org/cfqueryparam">cfqueryparam</a> including null, list, etc.  This applies anywhere parameters are used including where, update, and insert methods.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .where( &quot;id&quot;, &quot;=&quot;, { value = 18, cfsqltype = &quot;CF_SQL_VARCHAR&quot; } );</code></pre>
 <p>This can be used when inserting or updating records as well.</p>

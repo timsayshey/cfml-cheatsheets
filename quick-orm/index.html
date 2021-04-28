@@ -38,157 +38,1084 @@
 
 
       <div class="menu">
-        <a href="#wheres">Wheres</a>
+        <a href="#creating-new-entities">Creating New Entities</a>
+        <a href="#deleting-entities">Deleting Entities</a>
+        <a href="#query-scopes-and-subselects">Query Scopes And Subselects</a>
+        <a href="#retrieving-entities">Retrieving Entities</a>
+        <a href="#updating-existing-entities">Updating Existing Entities</a>
+        <a href="#working-with-entities">Working With Entities</a>
+        <a href="#cookbook-introduction">Cookbook Introduction</a>
+        <a href="#eager-loading">Eager Loading</a>
+        <a href="#ordering-by-relationships">Ordering By Relationships</a>
+        <a href="#querying-relationships">Querying Relationships</a>
+        <a href="#relationship-counts">Relationship Counts</a>
+        <a href="#retrieving-relationships">Retrieving Relationships</a>
+        <a href="#collections">Collections</a>
+        <a href="#custom-getters-and-setters">Custom Getters And Setters</a>
+        <a href="#debugging">Debugging</a>
+        <a href="#interception-points">Interception Points</a>
+        <a href="#serialization">Serialization</a>
       </div>
       <br><br>
       <main>
         <div class="column1">
-          <a id="wheres"></a>
-          <h1 id="wheres">Wheres</h1>
-<h2 id="where-methods">Where Methods</h2>
-<h3 id="where">where</h3>
-<p>Adds a where clause to a query.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( &quot;active&quot;, &quot;=&quot;, 1 );</code></pre>
-<p>Using the where method will parameterize the value passed.  If you want to constrain a column to another column, use the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#wherecolumn">whereColumn</a> method.</p>
-<p>You can also pass an <a href="https://qb.ortusbooks.com/query-builder/building-queries/raw-expressions.md">Expression</a> as the value.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( &quot;last_logged_in&quot;, &quot;&gt;&quot;, query.raw( &quot;NOW()&quot; ) );</code></pre>
-<p>Any of the following operators can be used in a where clause.</p>
-<p>When using the &quot;=&quot; constraint, you can use a shortcut and define the value as the second argument.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( &quot;active&quot;, 1 );</code></pre>
-<p>You may also use <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#dynamic-where-methods">dynamic where{Column}</a> statements to simplify this further.</p>
-<p>To group where statements together, pass a function to the where clause as the only parameter.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( function( q ) {
-        q.where( &quot;active&quot;, 1 )
-            .where( &quot;last_logged_in&quot;, &quot;&gt;&quot;, dateAdd( &quot;ww&quot;, -1, now() ) )
-    } );</code></pre>
-<p>This grouping can be nested as many levels as you require.</p>
-<p>A Function or QueryBuilder can be used as a subselect expression when passed to value.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( &quot;email&quot;, &quot;foo&quot; )
-    .orWhere( &quot;id&quot;, &quot;=&quot;, function( q ) {
-        q.select( q.raw( &quot;MAX(id)&quot; ) )
-            .from( &quot;users&quot; )
-            .where( &quot;email&quot;, &quot;bar&quot; );
-    } );</code></pre>
-<h3 id="andwhere">andWhere</h3>
-<p>This method is simply an alias for <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#where">where</a> with the combinator set to &quot;and&quot;.</p>
-<h3 id="orwhere">orWhere</h3>
-<p>This method is simply an alias for <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#where">where</a> with the combinator set to &quot;or&quot;.</p>
-<h3 id="wherebetween">whereBetween</h3>
-<p>Adds a where between clause to the query.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereBetween( &quot;id&quot;, 1, 2 );</code></pre>
-<p>If a function or QueryBuilder is passed it is used as a subselect expression.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereBetween(
-        &quot;id&quot;,
-        function( q ) {
-            q.select( q.raw( &quot;MIN(id)&quot; ) )
-                .from( &quot;users&quot; )
-                .where( &quot;email&quot;, &quot;bar&quot; );
-        },
-        builder.newQuery()
-            .select( builder.raw( &quot;MAX(id)&quot; ) )
-            .from( &quot;users&quot; )
-            .where( &quot;email&quot;, &quot;bar&quot; )
-    );</code></pre>
-<h3 id="wherenotbetween">whereNotBetween</h3>
-<p>Adds a where not in clause to the query.  This behaves identically to the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#wherebetween">whereBetween</a> method with the negate`flag set to true.  See the documentation for <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#wherebetween">whereBetween</a> for usage and examples.</p>
-<h3 id="wherecolumn">whereColumn</h3>
-<p>Adds a where clause to a query that compares two columns.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereColumn( &quot;first_name&quot;, &quot;=&quot;, &quot;last_name&quot; );</code></pre>
-<p>Just as with where, when using &quot;=&quot; as the operator you can use a shorthand passing the second column in as the operator and leaving the second column null.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereColumn( &quot;first_name&quot;, &quot;last_name&quot; );</code></pre>
-<p>`Expressions can be passed in place of either column.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereColumn( &quot;first_name&quot;, query.raw( &quot;LOWER(first_name)&quot; ) );</code></pre>
-<h3 id="whereexists">whereExists</h3>
-<p>Adds a where exists clause to the query.</p>
-<p>It can be configured with a function.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereExists( function( q ) {
-        q.select( q.raw( 1 ) )
-            .from( &quot;products&quot; )
-            .whereColumn( &quot;products.id&quot;, &quot;orders.id&quot; );
-    } );</code></pre>
-<p>It can also be configured with a QueryBuilder instance.</p>
-<pre><code class="language-javascript">var existsQuery = query.newQuery()
-    .select( q.raw( 1 ) )
-    .from( &quot;products&quot; )
-    .whereColumn( &quot;products.id&quot;, &quot;orders.id&quot; );
+          <a id="creating-new-entities"></a>
+          <h1 id="creating-new-entities">Creating New Entities</h1>
+<h2 id="save">save</h2>
+<p>New Quick entities can be created and persisted to the database by creating a new entity instance, setting the attributes on the entity, and then calling the &#39;save&#39; method.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; );
+user.setUsername( &quot;JaneDoe&quot; );
+user.setEmail( &quot;jane@example.com&quot; );
+user.setPassword( &quot;mypass1234&quot; );
+user.save();</code></pre>
+<p>When we call &#39;save`, the record is persisted from the database and the primary key is set to the auto-generated value (if any).</p>
+<p>We can shortcut the setters above using a &#39;fill&#39; method.</p>
+<h2 id="fill">fill</h2>
+<p>Finds the first matching record or creates a new entity.</p>
+<p>Sets attributes data from a struct of key / value pairs. This method does the following, in order:</p>
+<ol>
+<li>Guard against read-only attributes.</li>
+<li>Attempt to call a relationship setter.</li>
+<li>Calls custom attribute setters for attributes that exist.</li>
+<li>Throws an error if an attribute does not exist (if &#39;ignoreNonExistentAttributes&#39; is &#39;false&#39; which is the default).</li>
+</ol>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; );
+user.fill( {
+    &quot;username&quot;: &quot;JaneDoe&quot;,
+    &quot;email&quot;: &quot;jane@example.com&quot;,
+    &quot;password&quot;: &quot;mypass1234&quot;
+} );
+user.save();</code></pre>
+<h2 id="populate">populate</h2>
+<p>Populate is simply an alias for &#39;fill`. Use whichever one suits you best.</p>
+<h2 id="create">create</h2>
+<p>Creates a new entity with the given attributes and then saves the entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).create( {
+    &quot;username&quot;: &quot;JaneDoe&quot;,
+    &quot;email&quot;: &quot;jane@example.com&quot;,
+    &quot;password&quot;: &quot;mypass1234&quot;
+} );</code></pre>
+<p>There is no need to call &#39;save&#39; when using the &#39;create&#39; method.</p>
+<h2 id="firstornew">firstOrNew</h2>
+<p>Finds the first matching record or returns an unloaded new entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .firstOrNew( { &quot;username&quot;: rc.username } );</code></pre>
+<h2 id="firstorcreate">firstOrCreate</h2>
+<p>Finds the first matching record or creates a new entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .firstOrCreate( { &quot;username&quot;: rc.username } );</code></pre>
+<h2 id="findornew">findOrNew</h2>
+<p>Returns the entity with the id value as the primary key. If no record is found, it returns a new unloaded entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrNew(
+    9999,
+      {
+              &quot;firstName&quot; : &quot;doesnt&quot;,
+              &quot;lastName&quot;  : &quot;exist&quot;
+      }
+);</code></pre>
+<h2 id="findorcreate">findOrCreate</h2>
+<p>Returns the entity with the id value as the primary key. If no record is found, it returns a newly created entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrCreate(
+    9999,
+      {
+        &quot;username&quot;  : &quot;doesntexist&quot;,
+              &quot;firstName&quot; : &quot;doesnt&quot;,
+              &quot;lastName&quot;  : &quot;exist&quot;,
+              &quot;password&quot;  : &quot;secret&quot;
+      }
+);</code></pre>
+<h2 id="updateorcreate">updateOrCreate</h2>
+<p>Updates an existing record or creates a new record with the given attributes.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).updateOrCreate( {
+    &quot;username&quot;: &quot;newuser&quot;
+} );</code></pre>
+<h2 id="hydration-methods">Hydration Methods</h2>
+<p>Hydration is a term to describe filling an entity with a struct of data and then marking it as loaded, without doing any database queries. For example, this might be useful when hydrating a user from session data instead of doing a query every request.</p>
+<h3 id="hydrate">hydrate</h3>
+<p>Hyrdates an entity from a struct of data. Hydrating an entity fills the entity and then marks it as loaded.</p>
+<p>If the entity&#39;s keys are not included in the struct of data, a &#39;MissingHydrationKey&#39; is thrown.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).hydrate( {
+    &quot;id&quot;: 4,
+    &quot;username&quot;: &quot;JaneDoe&quot;,
+    &quot;email&quot;: &quot;jane@example.com&quot;,
+    &quot;password&quot;: &quot;mypass1234&quot;
+} );
 
-query.from( &quot;orders&quot; )
-    .whereExists( existsQuery );</code></pre>
-<h3 id="wherenotexists">whereNotExists</h3>
-<p>Adds a where not in clause to the query.  This behaves identically to the <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#whereexists">whereExists</a> method with the negate`flag set to true.  See the documentation for <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#whereexists">whereExists</a> for usage and examples.</p>
-<h3 id="wherelike">whereLike</h3>
-<p>A shortcut for calling <a href="https://qb.ortusbooks.com/query-builder/building-queries/wheres#where">where</a> with &quot;like&quot; set as the operator.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereLike( &quot;username&quot;, &quot;J%&quot; );</code></pre>
-<h3 id="wherein">whereIn</h3>
-<p>Adds a where in clause to the query.</p>
-<p>The values passed to whereIn can be a single value, a list of values, or an array of values.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, [ 1, 4, 66 ] );</code></pre>
-<p>Some database grammars have a hard limit on the number of parameters passed to a SQL statement.  Keep this in mind while writing your queries.</p>
-<p>If a list of values is passed in, it is converted to an array of values using a single comma  &quot;,&quot;  delimiter.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, &quot;1,4,66&quot; );</code></pre>
-<p>Any value in the list or array can also be passed using a <a href="https://qb.ortusbooks.com/query-builder/building-queries/parameters-and-bindings#custom-parameter-types">custom parameter type</a> to have more control over the parameter settings.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, [ 1, 4, { value = &quot;66&quot;, cfsqltype = &quot;CF_SQL_VARCHAR&quot; } ] );</code></pre>
-<p>`Expressions can be freely mixed in with other values.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, [ query.raw( &quot;MAX(id)&quot; ), 4, 66 ] );</code></pre>
-<p>A function or QueryBuilder instance can be passed to be used as a subquery expression instead of a list of values.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereIn( &quot;id&quot;, function( q ) {
-        q.select( &quot;id&quot; )
-            .from( &quot;users&quot; )
-            .where( &quot;age&quot;, &quot;&gt;&quot;, 25 );
+user.isLoaded(); // true</code></pre>
+<h3 id="hydrateall">hydrateAll</h3>
+<p>Hydrates a new collection of entities from an array of structs.</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; ).hydrateAll( [
+    {
+        &quot;id&quot;: 3,
+        &quot;username&quot;: &quot;JohnDoe&quot;,
+        &quot;email&quot;: &quot;john@example.com&quot;,
+        &quot;password&quot;: &quot;mypass4321&quot;
+    },
+    {
+        &quot;id&quot;: 4,
+        &quot;username&quot;: &quot;JaneDoe&quot;,
+        &quot;email&quot;: &quot;jane@example.com&quot;,
+        &quot;password&quot;: &quot;mypass1234&quot;
+    }
+] );</code></pre>
+
+          <a id="deleting-entities"></a>
+          <h1 id="deleting-entities">Deleting Entities</h1>
+<h2 id="delete">delete</h2>
+<p>You can delete an entity by calling the &#39;delete&#39; method on it.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.delete();</code></pre>
+<p>The entity will still exist in any variables you have stored it in, even though it has been deleted from the database.</p>
+<h2 id="deleteall">deleteAll</h2>
+<p>Just like &#39;updateAll`, you can delete many records from the database by specifying a query with constraints and then calling the &#39;deleteAll&#39; method.</p>
+<p>Deletes matching entities according to the configured query.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereActive( false )
+    .deleteAll();</code></pre>
+<p>Additionally, you can pass in an array of ids to &#39;deleteAll&#39; to delete only those ids.  Note that any previously configured constraints will still apply.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).deleteAll( [ 4, 10, 22 ] );</code></pre>
+
+
+          <a id="updating-existing-entities"></a>
+          <h1 id="updating-existing-entities">Updating Existing Entities</h1>
+<h2 id="save">save</h2>
+<p>Updates are handled identically to inserts when using the &#39;save&#39; method. The only difference is that instead of starting with a new entity, we start with an existing entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.setPassword( &quot;newpassword&quot; );
+user.save();</code></pre>
+<h2 id="update">update</h2>
+<p>You can update multiple fields at once using the &#39;update&#39; method. This is similar to the &#39;create&#39; method for creating new entities.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.update( {
+   email = &quot;janedoe2@example.com&quot;,
+   password = &quot;newpassword&quot;
+} );</code></pre>
+<p>There is no need to call &#39;save&#39; when using the &#39;update&#39; method.</p>
+<p>By default, if you have a key in the struct that doesn&#39;t match a property in the entity the &#39;update&#39; method will fail. If you add the optional argument &#39;ignoreNonExistentAttributes&#39; set to &#39;true`, those missing keys are ignored. Now you can pass the &#39;rc&#39; scope from your submitted form directly into the &#39;update&#39; method and not worry about any other keys in the &#39;rc&#39; like &#39;event&#39; that would cause the method to fail.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.update( rc, true );</code></pre>
+<h2 id="updateorcreate">updateOrCreate</h2>
+<p>Updates an existing record or creates a new record with the given attributes.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).updateOrCreate( {
+    &quot;username&quot;: &quot;newuser&quot;
+} );</code></pre>
+<h2 id="updateall">updateAll</h2>
+<p>Updates matching entities with the given attributes according to the configured query. This is analagous to <a href="https://qb.ortusbooks.com/query-builder/executing-queries/inserts-updates-deletes#update">qb&#39;s update method.</a></p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .where( &quot;lastLoggedIn&quot;, &quot;&gt;&quot;, dateAdd( &quot;m&quot;, 3, now() ) )
+    .updateAll( {
+        &quot;active&quot; = 0
     } );</code></pre>
-<p>You may find a whereExists method performs better for you than a whereIn with a subquery.</p>
-<h3 id="wherenotin">whereNotIn</h3>
-<p>Adds a where not in clause to the query.</p>
-<h3 id="whereraw">whereRaw</h3>
-<p>Shorthand to add a raw SQL statement to the where clauses.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereRaw(
-        &quot;id = ? OR email = ? OR is_admin = 1&quot;,
-        [ 1, &quot;foo&quot; ]
-    );</code></pre>
-<h3 id="wherenull">whereNull</h3>
-<p>Adds a where null clause to the query.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereNull( &quot;id&quot; );</code></pre>
-<h3 id="wherenotnull">whereNotNull</h3>
-<p>Adds a where not in clause to the query.</p>
-<h2 id="dynamic-where-methods">Dynamic Where Methods</h2>
-<p>qb uses onMissingMethod to provide a few different helpers when working with where... methods.</p>
-<h3 id="andwhere-and-orwhere">andWhere... and orWhere...</h3>
-<p>Every where... method in qb can be called prefixed with either and or or.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .where( &quot;username&quot;, &quot;like&quot;, &quot;j%&quot; )
-    .andWhere( function( q ) {
-        q.where( &quot;isSubscribed&quot;, 1 )
-            .orWhere( &quot;isOnFreeTrial&quot;, 1 );
-     } );</code></pre>
-<h3 id="wherecolumn-1">where{Column}</h3>
-<p>If you call a method starting with where that does not match an existing qb method, qb will instead call the where method using the rest of the method name as the first column name.  (The rest of the arguments will be shifted to account for this.)  This also applies to andWhere{Column} and orWhere{Column} method signatures.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereUsername( &quot;like&quot;, &quot;j%&quot; )
-    .whereActive( 1 );</code></pre>
+<h2 id="fresh">fresh</h2>
+<p>Retrieves a new entity from the database with the same key value as the current entity. Useful for seeing any changes made to the record in the database. This function executes a query.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrFail( rc.userID );
+var sameUser = user.fresh();</code></pre>
+<h2 id="refresh">refresh</h2>
+<p>Refreshes the attributes data for the entity with data from the database. This differs from &#39;fresh&#39; in that it operates on the current entity instead of returning a new one. This function executes a query.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrFail( rc.userID );
+user.refresh(); // user now has updated data from the database</code></pre>
+
+          <a id="working-with-entities"></a>
+          <h1 id="working-with-entities">Working with Entities</h1>
+<h2 id="isloaded">isLoaded</h2>
+<p>Checks if the entity was loaded from the database.</p>
+<p>A loaded entity has a tie to the database.  It has either been loaded from the database or saved to the database.  An unloaded entity is one created in code but not saved to the database yet.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; );
+user.isLoaded(); // false
+user.save();
+user.isLoaded(); // true</code></pre>
+
+          <a id="cookbook-introduction"></a>
+          <h1 id="introduction">Introduction</h1>
+<p>The cookbook is a place to show examples of using Quick in practice.  Each cookbook entry will include a short description of the problem to solve or use case and one or more code snippets showing the code.</p>
+<p>The cookbook is not meant to teach you the basics of Quick or show you the method signatures.  That is the purpose of the Guide and API Docs, respectively.  The cookbook is meant to show you advanced and specific use cases.</p>
+<p>Additionally, this is a great place to contribute to Quick!  If you have solved a particular use case, send in a pull request and add it to the cookbook!  We only ask that you take the time to simplify your example as much as you can.  This usually means removing any custom naming convention for your attributes, tables, and entities.</p>
+
+          <a id="ordering-by-relationships"></a>
+          <h1 id="ordering-by-relationships">Ordering By Relationships</h1>
+<p>To order by a relationship field, you will use a dot-delimited syntax.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).orderBy( &quot;author.name&quot; );</code></pre>
+<p>The last item in the dot-delimited string should be an attribute on the related entity.</p>
+<p>Nested relationships are also supported.  Continue to chain relationships in your dot-delimited string until arriving at the desired entity.  Remember to end with the attribute to order by.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).orderBy( &quot;author.team.name&quot; );</code></pre>
+<p>If you desire to be explicit, you can use the &#39;orderByRelated&#39; method, which is what is being called under the hood.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).orderByRelated( &quot;author.team&quot;, &quot;name&quot; );
+// or
+getInstance( &quot;Post&quot; ).orderByRelated( [ &quot;author&quot;, &quot;team&quot; ], &quot;name&quot; );</code></pre>
+<p>You might prefer the explicitness of this method, but it cannot handle normal orders like &#39;orderBy`.  Use whichever method you prefer.</p>
+
+          <a id="querying-relationships"></a>
+          <h1 id="querying-relationships">Querying Relationships</h1>
+<p>When querying an entity, you may want to restrict the query based on the existence or absence of a related entity.  You can do that using the following four methods:</p>
+<h2 id="has">has</h2>
+<p>Checks for the existence of a relationship when executing the query.</p>
+<p>By default, a &#39;has&#39; constraint will only return entities that have one or more of the related entity.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).has( &quot;posts&quot; ).get();</code></pre>
+<p>An optional operator and count can be added to the call.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).has( &quot;posts&quot;, &quot;&gt;&quot;, 2 ).get();</code></pre>
+<p>Nested relationships can be checked by passing a dot-delimited string of relationships.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).has( &quot;posts.comments&quot; ).get();</code></pre>
+<h2 id="doesnthave">doesntHave</h2>
+<p>Checks for the absence of a relationship when executing the query.</p>
+<p>By default, a &#39;doesntHave&#39; constraint will only return entities that have zero of the related entity.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).doesntHave( &quot;posts&quot; ).get();</code></pre>
+<p>An optional operator and count can be added to the call.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).doesntHave( &quot;posts&quot;, &quot;&lt;=&quot;, 1 ).get();</code></pre>
+<p>Nested relationships can be checked by passing a dot-delimited string of relationships.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).doesntHave( &quot;posts.comments&quot; ).get();</code></pre>
+<h2 id="wherehas">whereHas</h2>
+<p>When you need to have more control over the relationship constraint, you can use &#39;whereHas`.  This method operates similarly to &#39;has&#39; but also accepts a callback to configure the relationship constraint.</p>
+<p>The &#39;whereHas&#39; callback is passed a builder instance configured according to the relationship.  You may call any entity or query builder methods on it as usual.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereHas( &quot;posts&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%different%&quot; );
+    } )
+        .get();</code></pre>
+<p>When you specify a nested relationship, the builder instance is configured for the last relationship specified.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereHas( &quot;posts.comments&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%great%&quot; );
+      } )
+      .get();</code></pre>
+<p>An optional operator and count can be added to the call, as well.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereHas( &quot;posts.comments&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%great%&quot; );
+      }, &quot;&gt;&quot;, 2 )
+      .get();</code></pre>
+<h2 id="wheredoesnthave">whereDoesntHave</h2>
+<p>The &#39;whereDoesntHave&#39; callback is passed a builder instance configured according to the relationship.  You may call any entity or query builder methods on it as usual.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereDoesntHave( &quot;posts&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%different%&quot; );
+    } )
+        .get();</code></pre>
+<p>When you specify a nested relationship, the builder instance is configured for the last relationship specified.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereDoesntHave( &quot;posts.comments&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%great%&quot; );
+      } )
+      .get();</code></pre>
+<p>An optional operator and count can be added to the call, as well.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .whereDoesntHave( &quot;posts.comments&quot;, function( q ) {
+          q.where( &quot;body&quot;, &quot;like&quot;, &quot;%great%&quot; );
+      }, &quot;&gt;&quot;, 2 )
+      .get();</code></pre>
+
+          <a id="relationship-counts"></a>
+          <h1 id="relationship-counts">Relationship Counts</h1>
+<p>One common type of subselect field is the count of related entites.  For instance, you may want to load a Post or a list of Posts with the count of Comments on each Post.  You can reuse your existing relationship definitions and add this count using the &#39;withCount&#39; method.</p>
+<h2 id="withcount">withCount</h2>
+<p>Adds a count of related entities as a subselect property.  Relationships can be constrained at runtime by passing a struct where the key is the relationship name and the value is a function to constrain the query.</p>
+<p>By default, you will access the returned count using the relationship name appended with &#39;Count<code>, i.e. &#39;comments&#39; will be available under &#39;commentsCount</code>.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; )
+    .withCount( &quot;comments&quot; )
+    .findOrFail( 1 );
+
+post.getCommentsCount();</code></pre>
+<p>You can alias the count attribute using the  &#39;AS&#39;  syntax as follows:</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; )
+    .withCount( &quot;comments AS myCommentsCount&quot; )
+    .findOrFail( 1 );
+
+post.getMyCommentsCount();</code></pre>
+<p>This is especially useful as you can dynamically constrain counts at runtime using the same struct syntax as eager loading with the &#39;with&#39; function.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; )
+    .withCount( [
+        &quot;comments AS allCommentsCount&quot;,
+        { &quot;comments AS pendingCommentsCount&quot;: function( q ) {
+            q.where( &quot;approved&quot;, 0 );
+        } },
+        { &quot;comments AS approvedCommentsCount&quot;: function( q ) {
+            q.where( &quot;approved&quot;, 1 );
+        } }
+    ] )
+    .findOrFail( 1 );
+
+post.getAllCommentsCount();
+post.getPendingCommentsCount();
+post.getApprovedCommentsCount();</code></pre>
+<p>Note that where possible it is cleaner and more readable to create a dedicated relationship instead of using dynamic constraints.  In the above example, the &#39;Post&#39; entity could have &#39;pendingComments&#39; and &#39;approvedComments&#39; relationships.  Dynamic constraints are more useful when applying user-provided data to the constraints like searching.</p>
+
+          <a id="retrieving-relationships"></a>
+          <h1 id="retrieving-relationships">Retrieving Relationships</h1>
+<p>Relationships can be used in two ways.</p>
+<p>The first is as a getter. Calling &#39;user.getPosts()&#39; will execute the relationship, cache the result, and return it.</p>
+<pre><code class="language-javascript">var posts = user.getPosts();</code></pre>
+<p>The second is as a relationship. Calling &#39;user.posts()&#39; returns a &#39;Relationship&#39; instance to retrieve the posts that can be further constrained. A &#39;Relationship&#39; is backed by qb as well, so feel free to call any qb method to further constrain the relationship.</p>
+<pre><code class="language-javascript">var newestPosts = user
+    .posts()
+    .orderBy( &quot;publishedDate&quot;, &quot;desc&quot; )
+    .get();</code></pre>
+<p>You can also call the other Quick fetch methods: &#39;first<code>, &#39;firstOrFail</code>, &#39;find`, and &#39;findOrFail&#39; are all supported.  This is especially useful to constrain the entities available to a user by using the user&#39;s relationships:</p>
+<pre><code class="language-javascript">// This will only find posts the user has written.
+var post = user.posts().findOrFail( rc.id );</code></pre>
+
+          <a id="collections"></a>
+          <h1 id="collections">Collections</h1>
+<p>Collections are what are returned when calling &#39;get&#39; or &#39;all&#39; on an entity.  By default, it returns an array.  Every entity can override its &#39;newCollection&#39; method and return a custom collection.  This method accepts an array of entities and should return your custom collection.</p>
+<p><code>QuickCollection&#39; is a custom collection included in Quick as an extra component.  It is a specialized version of [&#39;CFCollection&#39;](https://www.forgebox.io/view/cfcollection). It smooths over the various CFML engines to provide an extendible, reliable array wrapper with functional programming methods. You may be familiar with methods like &#39;map&#39; \(&#39;ArrayMap&#39;\), &#39;filter&#39; \(&#39;ArrayFilter&#39;\), or &#39;reduce&#39; \(&#39;ArrayReduce&#39;\). These methods work in every CFML engine with &#39;CFCollection</code>.</p>
+<p>To use collections you need to install &#39;cfcollection&#39; and configure it as your as your &#39;newCollection`.</p>
+<p>Here&#39;s how you would configure an entity to return a &#39;QuickCollection`.</p>
+<pre><code class="language-javascript">component name=&quot;User&quot; {
+
+    function newCollection( array entities = [] ) {
+        return variables._wirebox.getInstance(
+            name = &quot;quick.extras.QuickCollection&quot;,
+            initArguments = {
+                &quot;collection&quot; = arguments.entities
+            }
+        );
+    }
+
+}</code></pre>
+<p>Collections are more powerful than plain arrays. There are many methods that can make your work easier. For instance, let&#39;s say you needed to group each active user by the first letter of their username in a list.</p>
+<pre><code class="language-javascript">var users = getInstance(&quot;User&quot;).all();
+
+users
+    .filter(function(user) {
+        return user.getActive();
+    })
+    .pluck(&quot;username&quot;)
+    .groupBy(function(username) {
+        return left(username, 1);
+    });</code></pre>
+<p>So powerful! We think you&#39;ll love it.</p>
+<h2 id="load">load</h2>
+<p>Additionally, &#39;QuickCollection&#39; includes a &#39;load&#39; method. &#39;load&#39; lets you eager load a relationship after executing the initial query.</p>
+<pre><code class="language-javascript">var posts = getInstance(&quot;Post&quot;).all();
+
+if (someCondition) {
+    posts.load(&quot;user&quot;);
+}</code></pre>
+<p>This is the same as if you had initially executed:</p>
+<pre><code class="language-javascript">getInstance(&quot;Post&quot;)
+    .with(&quot;user&quot;)
+    .all();</code></pre>
+<h2 id="renderdata">$renderData</h2>
+<p>`QuickCollection&#39; includes a &#39;$renderData&#39; method that lets you return a &#39;QuickCollection&#39; directly from your handler and translates the results and the entities within to a serialized version. Check out more about it in the <a href="serialization.md">Serialization</a> chapter.</p>
 
         </div>
         <div class="column2">
+
+          <a id="query-scopes-and-subselects"></a>
+          <h1 id="query-scopes-and-subselects">Query Scopes and Subselects</h1>
+<h2 id="what-are-scopes">What are Scopes?</h2>
+<p>Query scopes are a way to encapsulate query constraints in your entities while giving them readable names .</p>
+<h3 id="a-practical-example">A Practical Example</h3>
+<p>For instance, let&#39;s say that you need to write a report for subscribers to your site. Maybe you track subscribers in a &#39;users&#39; table with a boolean flag in a &#39;subscribed&#39; column. Additionally, you want to see the oldest subscribers first. You keep track of when a user subscribed in a &#39;subscribedDate&#39; column. Your query might look as follows:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .where( &quot;subscribed&quot;, true )
+    .orderBy( &quot;subscribedDate&quot; )
+    .get();</code></pre>
+<p>Now nothing is wrong with this query. It retrieves the data correctly and you continue on with your day.</p>
+<p>Later, you need to retrieve a list of subscribed users for a different part of the site. So, you write a query like this:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .where( &quot;subscribed&quot;, true )
+    .get();</code></pre>
+<p>We&#39;ve duplicated the logic for how to retrieve active users now. If the database representation changed, we&#39;d have to change it in multiple places. For instance, what if instead of keeping track of a boolean flag in the database, we just checked that the &#39;subscribedDate&#39; column wasn&#39;t null?</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .whereNotNull( &quot;subscribedDate&quot; )
+    .get();</code></pre>
+<p>Now we see the problem. Let&#39;s look at the solution.</p>
+<p>The key here is that we are trying to retrieve subscribed users. Let&#39;s add a scope to our &#39;User&#39; entity for &#39;subscribed`:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function scopeSubscribed( query ) {
+        return query.where( &quot;subscribed&quot;, true );
+    }
+
+}</code></pre>
+<p>Now, we can use this scope in our query:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .subscribed()
+    .get();</code></pre>
+<p>We can use this on our first example as well, for our report.</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .subscribed()
+    .orderBy( &quot;subscribedDate&quot; )
+    .get();</code></pre>
+<p>We&#39;ve successfully encapsulated our concept of a subscribed user!</p>
+<p>We can add as many scopes as we&#39;d like. Let&#39;s add one for &#39;longestSubscribers`.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function scopeLongestSubscribers( query ) {
+        return query.orderBy( &quot;subscribedDate&quot; );
+    }
+
+    function scopeSubscribed( query ) {
+        return query.where( &quot;subscribed&quot;, true );
+    }
+
+}</code></pre>
+<p>Now our query is as follows:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .subscribed()
+    .longestSubscribers()
+    .get();</code></pre>
+<p>Best of all, we can reuse those scopes anywhere we see fit without duplicating logic.</p>
+<h3 id="usage">Usage</h3>
+<p>All query scopes are methods on an entity that begin with the &#39;scope&#39; keyword. You call these functions without the &#39;scope&#39; keyword (as shown above).</p>
+<p>Each scope is passed the &#39;query`, a reference to the current &#39;QuickBuilder&#39; instance, as the first argument. Any other arguments passed to the scope will be passed in order after that.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function scopeOfType( query, type ) {
+        return query.where( &quot;type&quot;, type );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .ofType( &quot;admin&quot; )
+    .get();</code></pre>
+<h3 id="scopes-that-return-values">Scopes that Return Values</h3>
+<p>All of the examples so far either returned the &#39;QuickBuilder&#39; object or nothing. Doing so lets you continue to chain methods on your Quick entity. If you instead return a value, Quick will pass on that value to your code. This lets you use scopes as shortcut methods that work on a query.</p>
+<p>For example, maybe you have a domain method to reset passwords for a group of users, and you want the count of users updated returned.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;password&quot;;
+    property name=&quot;type&quot;;
+
+    function scopeOfType( query, type = &quot;limited&quot; ) {
+        return query.where( &quot;type&quot;, type );
+    }
+
+    function scopeResetPasswords( query ) {
+        return query.updateAll( { &quot;password&quot; = &quot;&quot; } ).result.recordcount;
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).ofType( &quot;admin&quot; ).resetPasswords(); // 1</code></pre>
+<h2 id="global-scopes">Global Scopes</h2>
+<p>Occasionally, you want to apply a scope to each retrieval of an entity. An example of this is an Admin entity which is just a User entity with a type of admin. Global Scopes can be registered in the &#39;applyGlobalScopes&#39; method on an entity. Inside this entity you can call any number of scopes:</p>
+<pre><code class="language-javascript">component extends=&quot;User&quot; table=&quot;users&quot; accessors=&quot;true&quot; {
+
+    function applyGlobalScopes() {
+        this.ofType( &quot;admin&quot; );
+    }
+
+}</code></pre>
+<p>These scopes will be applied to the query without needing to call the scope again.</p>
+<pre><code class="language-javascript">var admins = getInstance( &quot;Admin&quot; ).all();
+// SELECT * FROM users WHERE type = &#39;admin&#39;</code></pre>
+<p>If you have a global scope applied to an entity that you need to temporarily disable, you can disable them individually using the &#39;withoutGlobalScope&#39; method:</p>
+<pre><code class="language-javascript">var admins = getInstance( &quot;Admin&quot; ).withoutGlobalScope( [ &quot;ofType&quot; ] ).all();
+// SELECT * FROM users</code></pre>
+<h2 id="subselects">Subselects</h2>
+<p>Subselects are a useful way to grab data from related tables without having to execute the full relationship. Sometimes you just want a small piece of information like the &#39;lastLoginDate&#39; of a user, not the entire &#39;Login&#39; relationship. Subselects are perfect for this use case. You can even use subselects to provide the correct key for dynamic subselect relationships. We&#39;ll show how both work here.</p>
+<p>Quick handles subselect properties (or computed or formula properties) through query scopes. This allows you to dynamically include a subselect. If you would like to always include a subselect, add it to your entity&#39;s <a href="https://github.com/ortus-docs/quick-docs/blob/2.1.0/getting-started/query-scopes.md#global-scopes">list of global scopes.</a></p>
+<p>Here&#39;s an example of grabbing the &#39;lastLoginDate&#39; for a User:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    /* properties */
+
+    function logins() {
+        return hasMany( &quot;Login&quot; ).latest();
+    }
+
+    function scopeAddLastLoginDate( query ) {
+        addSubselect( &quot;lastLoginDate&quot;, newEntity( &quot;Login&quot; )
+            .select( &quot;timestamp&quot; )
+            .whereColumn( &quot;users.id&quot;, &quot;user_id&quot; )
+        );
+    }
+
+}</code></pre>
+<p>We&#39;d add this subselect by calling our scope:</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).addLastLoginDate().first();
+user.getLastLoginDate(); // {ts 2019-05-02 08:24:51}</code></pre>
+<p>We can even constrain our &#39;User&#39; entity based on the value of the subselect, so long as we&#39;ve called the scope adding the subselect first (or made it a global scope).</p>
+<pre><code class="language-javascript"> var user = getInstance( &quot;User&quot; )
+     .addLastLoginDate()
+     .where( &quot;lastLoginDate&quot;, &quot;&gt;&quot;, &quot;2019-05-10&quot; )
+     .all();</code></pre>
+<p>Or add a new scope to &#39;User&#39; based on the subselect:</p>
+<pre><code class="language-javascript">function scopeLoggedInAfter( query, required date afterDate ) {
+    return query.where( &quot;lastLoginDate&quot;, &quot;&gt;&quot;, afterDate );
+}</code></pre>
+<p>In this example, we are using the &#39;addSubselect&#39; helper method. Here is that function signature:</p>
+<p>You might be wondering why not use the &#39;logins&#39; relationship? Or even &#39;logins().latest().limit( 1 ).get()`? Because that executes a second query. Using a subselect we get all the information we need in one query, no matter how many entities we are pulling back.</p>
+<h3 id="using-relationships-in-subselects">Using Relationships in Subselects</h3>
+<p>In most cases the values you want as subselects are values from your entity&#39;s relationships. In these cases, you can use a shortcut to define your subselect in terms of your entity&#39;s relationships represented as a dot-delimited string.</p>
+<p>Let&#39;s re-write the above subselect for &#39;lastLoginDate&#39; for a User using the existing relationship:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    /* properties */
+
+    function logins() {
+        return hasMany( &quot;Login&quot; );
+    }
+
+    function scopeAddLastLoginDate( query ) {
+        addSubselect( &quot;lastLoginDate&quot;, &quot;logins.timestamp&quot; );
+    }
+
+}</code></pre>
+<p>Much simpler! In addition to be much simpler this code is also more dynamic and reusable. We have a relationship defined for logins if we need to fetch them. If we change how the &#39;logins&#39; relationship is structured, we only have one place we need to change.</p>
+<p>With the query cleaned up using existing relationships, you might find yourself adding subselects directly in your handlers instead of behind scopes. This is fine in most cases. Keep an eye on how many places you use the subselect in case you need to re-evaluate and move it behind a scope.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .addSubselect( &quot;lastLoginDate&quot;, &quot;logins.timestamp&quot; )
+    .first();
+user.getLastLoginDate(); // {ts 2019-05-02 08:24:51}</code></pre>
+<h3 id="dynamic-subselect-relationships">Dynamic Subselect Relationships</h3>
+<p>Subselects can be used in conjunction with relationships to provide a dynamic, constrained relationship. In this example we will pull the latest post for a user.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    /* properties */
+
+    function scopeWithLatestPost( query ) {
+        return addSubselect( &quot;latestPostId&quot;, newEntity( &quot;Post&quot; )
+            .select( &quot;id&quot; )
+            .whereColumn( &quot;user_id&quot;, &quot;users.id&quot; )
+            .orderBy( &quot;created_date&quot;, &quot;desc&quot; )
+        ).with( &quot;latestPost&quot; );
+    }
+
+    function latestPost() {
+        return belongsTo( &quot;Post&quot;, &quot;latestPostId&quot; );
+    }
+
+}</code></pre>
+<p>This can be executed as follows:</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; ).withLatestPost().all();
+for ( var user in users ) {
+    user.getLatestPost().getTitle(); // My awesome post, etc.
+}</code></pre>
+<p>As you can see, we are loading the id of the latest post in a subquery and then using that value to eager load the &#39;latestPost&#39; relationship. This sequence will only execute two queries, no matter how many records are loaded.</p>
+<h2 id="virtual-attributes">Virtual Attributes</h2>
+<p>Virtual attributes are attributes that are not present on the table backing the Quick entity. A Subselect is an example of a virtual attribute. Other examples could include calculated counts or &#39;CASE&#39; statement results.</p>
+<p>By default, if you add a virtual column to a Quick query, you won&#39;t see anything in the entity. This is because Quick needs to have an attribute defined to map the result to. You can create a virtual attribute in these cases.</p>
+<p>This step is unnecessary when using the &#39;addSubselect&#39; helper method.</p>
+<p>Here&#39;s an example including the result of a &#39;CASE&#39; statement as a field:</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function scopeAddType( qb ) {
+        qb.selectRaw( &quot;
+                CASE
+                    WHEN publishedDate IS NULL THEN &#39;unpublished&#39;
+                    ELSE &#39;published&#39;
+                END AS publishedStatus
+            &quot; );
+        appendVirtualAttribute( &quot;publishedStatus&quot; );
+    }
+
+}</code></pre>
+<p>With this code, we could now access the &#39;publishedStatus&#39; just like any other attribute. It will not be updated, inserted, or saved though, as it is just a virtual column.</p>
+<p>The &#39;appendVirtualAttribute&#39; method adds the given name as an attribute available in the entity.</p>
+<h3 id="appendvirtualattribute">appendVirtualAttribute</h3>
+<p>Creates a virtual attribute for the given name.</p>
+<p>It is likely that Quick will introduce more helper methods in the future making these calls simpler.</p>
+
+          <a id="retrieving-entities"></a>
+          <h1 id="retrieving-entities">Retrieving Entities</h1>
+<p>Once you have an entity and its associated database table you can start retrieving data from your database.</p>
+<p>You can configure your query to retrieve entities using any qb method.  It is highly recommended you become familiar with the <a href="https://qb.ortusbooks.com/">qb documentation.</a></p>
+<h2 id="active-record">Active Record</h2>
+<p>You start every interaction with Quick with an instance of an entity. The easiest way to do this is using WireBox. &#39;getInstance&#39; is available in all handlers by default. WireBox can easily be injected in to any other class you need using &#39;inject=&quot;wirebox&quot;`.</p>
+<p>Quick is backed by qb, a CFML Query Builder. With this in mind, think of retrieving records for your entities like interacting with qb. For example:</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; ).all();
+
+for ( var user in users ) {
+    writeOutput( user.getUsername() );
+}</code></pre>
+<p>In addition to using &#39;for&#39; you can utilize the &#39;each&#39; function on arrays. For example:</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; ).all();
+
+prc.users.each( function( user ) {
+    writeOutput( user.getUsername() );
+});</code></pre>
+<p>You can add constraints to the query just the same as you would using qb directly:</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; )
+    .where( &quot;active&quot;, 1 )
+    .orderByDesc( &quot;username&quot; )
+    .limit( 10 )
+    .get();</code></pre>
+<p>For more information on what is possible with qb, check out the <a href="https://qb.ortusbooks.com">qb documentation</a>.</p>
+<h2 id="quick-service">Quick Service</h2>
+<p>A second way to retrieve results is to use a Quick Service. It is similar to a &#39;VirtualEntityService&#39; from cborm.</p>
+<p>The easiest way to create a Quick Service is to inject it using the &#39;quickService:&#39; dsl:</p>
+<pre><code class="language-javascript">component {
+
+    property name=&quot;userService&quot; inject=&quot;quickService:User&quot;
+
+}</code></pre>
+<p>If you have a existing Service, and you would like to extend the quickService, you can extend the quikc.models.BaseService and then call super.init inside of the service init function passing the name of the entity (for example your User Entity) shown below:</p>
+<pre><code class="language-javascript">component singleton extends=&quot;quick.models.BaseService&quot; {
+
+    function init(){
+        super.init( &quot;User&quot; );
+    }
+
+}</code></pre>
+<p>Any method you can call on an entity can be called on the service.  A new entity will be used for all calls to a Quick Service.</p>
+<pre><code class="language-javascript">var users = userService
+    .where( &quot;active&quot;, 1 )
+    .orderByDesc( &quot;username&quot; )
+    .limit( 10 )
+    .get();</code></pre>
+<h2 id="aggregates">Aggregates</h2>
+<p>Calling qb&#39;s aggregate methods (&#39;count<code>, &#39;max</code>, etc.) will return the appropriate value instead of an entity or collection of entities.</p>
+<h3 id="existsorfail">existsOrFail</h3>
+<p>Returns true if any entities exist with the configured query. If no entities exist, it throws an EntityNotFound exception.</p>
+<pre><code class="language-javascript">var doesUserExist = getInstance( &quot;User&quot; )
+    .existsOrFail( rc.userID );</code></pre>
+<h2 id="retrieval-methods">Retrieval Methods</h2>
+<h3 id="all">all</h3>
+<p>Retrieves all the records for an entity. Calling &#39;all&#39; will ignore any non-global constraints on the query.</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; ).all();</code></pre>
+<h3 id="get">get</h3>
+<p>Executes the configured query, eager loads any relations, and returns the entities in a new collection.</p>
+<pre><code class="language-javascript">var posts = getInstance( &quot;Post&quot; )
+    .whereNotNull( &quot;publishedDate&quot; )
+    .get();</code></pre>
+<h3 id="paginate">paginate</h3>
+<p>Executes the configured query, eager loads any relations, and returns the entities in the configured qb pagination struct.</p>
+<pre><code class="language-javascript">var posts = getInstance( &quot;Post&quot; )
+    .whereNotNull( &quot;publishedDate&quot; )
+    .paginate( rc.page, rc.maxrows );</code></pre>
+<pre><code class="language-javascript">// default response example
+{
+    &quot;results&quot;: [ User#1, User#2, ... ],
+    &quot;pagination&quot;: {
+        &quot;totalPages&quot;: 2,
+        &quot;maxRows&quot;: 25,
+        &quot;offset&quot;: 0,
+        &quot;page&quot;: 1,
+        &quot;totalRecords&quot;: 40
+    }
+}</code></pre>
+<h3 id="simplepaginate">simplePaginate</h3>
+<p>Executes the configured query, eager loads any relations, and returns the entities in the configured qb simple pagination struct.</p>
+<pre><code class="language-javascript">var posts = getInstance( &quot;Post&quot; )
+    .whereNotNull( &quot;publishedDate&quot; )
+    .simplePaginate( rc.page, rc.maxrows );</code></pre>
+<pre><code class="language-javascript">// default response example
+{
+    &quot;results&quot;: [ User#1, User#2, ... ],
+    &quot;pagination&quot;: {
+        &quot;hasMore&quot;: true,
+        &quot;maxRows&quot;: 25,
+        &quot;offset&quot;: 0,
+        &quot;page&quot;: 1
+    }
+}</code></pre>
+<h3 id="first">first</h3>
+<p>Executes the configured query and returns the first entity found.  If no entity is found, returns &#39;null`.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .where( &quot;username&quot;, rc.username )
+    .first();</code></pre>
+<h3 id="firstwhere">firstWhere</h3>
+<p>Adds a basic where clause to the query and returns the first result.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .firstWhere( &quot;username&quot;, rc.username );</code></pre>
+<h3 id="firstorfail">firstOrFail</h3>
+<p>Executes the configured query and returns the first entity found.  If no entity is found, then an &#39;EntityNotFound&#39; exception is thrown with the given or default error message.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .where( &quot;username&quot;, rc.username )
+    .firstOrFail();</code></pre>
+<h3 id="firstornew">firstOrNew</h3>
+<p>Finds the first matching record or returns an unloaded new entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .firstOrNew( { &quot;username&quot;: rc.username } );</code></pre>
+<h3 id="firstorcreate">firstOrCreate</h3>
+<p>Finds the first matching record or creates a new entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .firstOrCreate( { &quot;username&quot;: rc.username } );</code></pre>
+<h3 id="find">find</h3>
+<p>Returns the entity with the id value as the primary key. If no record is found, it returns null instead.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .find( rc.userID );</code></pre>
+<h3 id="findorfail">findOrFail</h3>
+<p>Returns the entity with the id value as the primary key. If no record is found, it throws an &#39;EntityNotFound&#39; exception.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .findOrFail( rc.userID );</code></pre>
+<h3 id="findornew">findOrNew</h3>
+<p>Returns the entity with the id value as the primary key. If no record is found, it returns a new unloaded entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrNew(
+    9999,
+      {
+              &quot;firstName&quot; : &quot;doesnt&quot;,
+              &quot;lastName&quot;  : &quot;exist&quot;
+      }
+);</code></pre>
+<h3 id="findorcreate">findOrCreate</h3>
+<p>Returns the entity with the id value as the primary key. If no record is found, it returns a newly created entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrCreate(
+    9999,
+      {
+        &quot;username&quot;  : &quot;doesntexist&quot;,
+              &quot;firstName&quot; : &quot;doesnt&quot;,
+              &quot;lastName&quot;  : &quot;exist&quot;,
+              &quot;password&quot;  : &quot;secret&quot;
+      }
+);</code></pre>
+<h2 id="hydration-methods">Hydration Methods</h2>
+<p>Hydration is a term to describe filling an entity with a struct of data and then marking it as loaded, without doing any database queries.  For example, this might be useful when hydrating a user from session data instead of doing a query every request.</p>
+<h3 id="hydrate">hydrate</h3>
+<p>Hyrdates an entity from a struct of data.  Hydrating an entity fills the entity and then marks it as loaded.</p>
+<p>If the entity&#39;s keys are not included in the struct of data, a &#39;MissingHydrationKey&#39; is thrown.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).hydrate( {
+    &quot;id&quot;: 4,
+    &quot;username&quot;: &quot;JaneDoe&quot;,
+    &quot;email&quot;: &quot;jane@example.com&quot;,
+    &quot;password&quot;: &quot;mypass1234&quot;
+} );
+
+user.isLoaded(); // true</code></pre>
+<h3 id="hydrateall">hydrateAll</h3>
+<p>Hydrates a new collection of entities from an array of structs.</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; ).hydrateAll( [
+    {
+        &quot;id&quot;: 3,
+        &quot;username&quot;: &quot;JohnDoe&quot;,
+        &quot;email&quot;: &quot;john@example.com&quot;,
+        &quot;password&quot;: &quot;mypass4321&quot;
+    },
+    {
+        &quot;id&quot;: 4,
+        &quot;username&quot;: &quot;JaneDoe&quot;,
+        &quot;email&quot;: &quot;jane@example.com&quot;,
+        &quot;password&quot;: &quot;mypass1234&quot;
+    }
+] );</code></pre>
+<h2 id="custom-collections">Custom Collections</h2>
+<p>If you would like collections of entities to be returned as something besides an array, you can override the &#39;newCollection&#39; method.  It receives the array of entities.  You can return any custom collection you desire.</p>
+<h3 id="newcollection">newCollection</h3>
+<p>Returns a new collection of the given entities. It is expected to override this method in your entity if you need to specify a different collection to return. You can also call this method with no arguments to get an empty collection.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function newCollection( array entities = [] ) {
+        return variables._wirebox.getInstance(
+            name = &quot;extras.QuickCollection&quot;,
+            initArguments = {
+                &quot;collection&quot; = arguments.entities
+            }
+        );
+    }
+
+}</code></pre>
+
+
+
+
+
         </div>
         <div class="column2">
+          <a id="eager-loading"></a>
+          <h1 id="eager-loading">Eager Loading</h1>
+<h2 id="the-problem">The Problem</h2>
+<p>Let&#39;s imagine a scenario where you are displaying a list of posts. You fetch the posts:</p>
+<pre><code class="language-javascript">prc.posts = getInstance( &quot;Post&quot; ).limit( 25 ).get():</code></pre>
+<p>And start looping through them:</p>
+<pre><code class="language-markup">&lt;cfoutput&gt;
+    &lt;h1&gt;Posts&lt;/h1&gt;
+    &lt;ul&gt;
+        &lt;cfloop array=&quot;#prc.posts#&quot; item=&quot;post&quot;&gt;
+            &lt;li&gt;#post.getTitle()# by #post.getAuthor().getUsername()#&lt;/li&gt;
+        &lt;/cfloop&gt;
+    &lt;/ul&gt;
+&lt;/cfoutput&gt;</code></pre>
+<p>When you visit the page, though, you notice it takes a while to load. You take a look at your SQL console and you&#39;ve executed 26 queries for this one page! What?!?</p>
+<p>Turns out that each time you loop through a post to display its author&#39;s username you are executing a SQL query to retreive that author. With 25 posts this becomes 25 SQL queries plus one initial query to get the posts. This is where the <a href="https://stackoverflow.com/questions/97197/what-is-n1-select-query-issue">N+1 problem</a> gets its name.</p>
+<p>So what is the solution? <strong>Eager Loading.</strong></p>
+<p>Eager Loading means to load all the needed users for the posts in one query rather than separate queries and then stitch the relationships together. With Quick you can do this with one method call.</p>
+<h2 id="the-solution">The Solution</h2>
+<h3 id="with">with</h3>
+<p>You can eager load a relationship with the &#39;with&#39; method call.</p>
+<pre><code class="language-javascript">prc.posts = getInstance( &quot;Post&quot; )
+    .with( &quot;author&quot; )
+    .limit( 25 )
+    .get();</code></pre>
+<p>`with&#39; takes one parameter, the name of the relationship to load. Note that this is the name of the function, not the entity name. For example:</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function author() {
+        return belongsTo( &quot;User&quot; );
+    }
+
+}</code></pre>
+<p>To eager load the User in the snippet above you would call pass &#39;author&#39; to the &#39;with&#39; method.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).with( &quot;author&quot; ).get();</code></pre>
+<p>For this operation, only two queries will be executed:</p>
+<pre><code class="language-text">SELECT * FROM &#39;posts&#39; LIMIT 25
+
+SELECT * FROM &#39;users&#39; WHERE &#39;id&#39; IN (1, 2, 3, 4, 5, 6, ...)</code></pre>
+<p>Quick will then stitch these relationships together so when you call &#39;post.getAuthor()&#39; it will use the fetched relationship value instead of going to the database.</p>
+<h3 id="nested-relationships">Nested Relationships</h3>
+<p>You can eager load nested relationships using dot notation. Each segment must be a valid relationship name.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function country() {
+        return belongsTo( &quot;User&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).with( &quot;author.country&quot; );</code></pre>
+<p>You can eager load multiple relationships by passing an array of relation names to &#39;with&#39; or by calling &#39;with&#39; multiple times.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).with( [ &quot;author.country&quot;, &quot;tags&quot; ] );</code></pre>
+<h3 id="constraining-eager-loaded-relationships">Constraining Eager Loaded Relationships</h3>
+<p>In most cases when you want to constrain an eager loaded relationship, the better approach is to create a new relationship.</p>
+<pre><code class="language-javascript">// User.cfc
+component {
+
+    function posts() {
+        return hasMany( &quot;Post&quot; );
+    }
+
+    function publishedPosts() {
+        return hasMany( &quot;Post&quot; ).published(); // published is a query scope on Post
+    }
+
+}</code></pre>
+<p>You can eager load either option.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).with( &quot;posts&quot; ).get();
+getInstance( &quot;User&quot; ).with( &quot;publishedPosts&quot; ).get();</code></pre>
+<p>Occassionally that decision needs to be dynamic. For example, maybe you only want to eager load the posts created within a timeframe defined by a user. To do this, pass a struct instead of a string to the &#39;with&#39; function. The key should be the name of the relationship and the value should be a function. This function will accept the related entity as its only argument. Here is an example:</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).with( { &quot;posts&quot; = function( query ) {
+
+} } ).latest().get();</code></pre>
+<p>If you need to load nested relationships with constraints you can call &#39;with&#39; in your constraint callback to continue eager loading relationships.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).with( { &quot;posts&quot; = function( q1 ) {
+    return q1
+        .whereBetween( &quot;published_date&quot;, rc.startDate, rc.endDate )
+        .with( { &quot;comments&quot; = function( q2 ) {
+            return q2.where( &quot;body&quot;, &quot;like&quot;, rc.search );
+        } } );
+} } ).latest().get();</code></pre>
+<h3 id="load">load</h3>
+<p>Finally, you can postpone eager loading until needed by using the &#39;load&#39; method on &#39;QuickCollection<code>. &#39;load&#39; has the same function signature as &#39;with</code>. &#39;QuickCollection&#39; is the object returned for all Quick queries that return more than one record. Read more about it in <a href="../collections.md">Collections</a>.</p>
+
+          <a id="custom-getters-and-setters"></a>
+          <h1 id="custom-getters--setters">Custom Getters &amp; Setters</h1>
+<p>Sometimes you want to use a different value in your code than is stored in your database. Perhaps you want to enforce that setting a password always is hashed with BCrypt. Maybe you have a Date value object that you want wrapping each of your dates. You can accomplish this using custom getters and setters.</p>
+<p>A custom getter or setter is simply a function in your entity.</p>
+<p>To retrieve the attribute value fetched from the database, call &#39;retrieveAttribute&#39; passing in the name of the attribute.</p>
+<p>To set an attribute for saving to the database, call &#39;assignAttribute&#39; passing in the name and the value.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;bcrypt&quot; inject=&quot;@BCrypt&quot;;
+
+    function setPassword( value ) {
+        return assignAttribute( &quot;password&quot;, bcrypt.hashPassword( value ) );
+    }
+
+    function getCreatedDate( value ) {
+        return dateFormat( retrieveAttribute( &quot;createdDate&quot; ), &quot;DD MMM YYYY&quot; );
+    }
+
+}</code></pre>
+<p>Custom getters and setters with <strong>not</strong> be called when hydrating a model from the database. For that use case, use <a href="getting-started/defining-an-entity/#casts">&#39;casts&#39;</a>.</p>
+
+          <a id="debugging"></a>
+          <h1 id="debugging">Debugging</h1>
+<h2 id="debugging-a-single-query">Debugging a Single Query</h2>
+<h3 id="tosql">toSQL</h3>
+<p>Returns the SQL that would be executed for the current query.</p>
+<pre><code class="language-javascript">var userQuery = getInstance( &quot;User&quot; )
+    .where( &quot;active&quot;, &quot;=&quot;, 1 );
+
+writeOutput( userQuery.toSQL() );</code></pre>
+<p>The bindings for the query are represented by question marks (&#39;?&#39;) just as when using &#39;queryExecute<code>.  qb can replace each question mark with the corresponding &#39;cfqueryparam</code>-compatible struct by passing &#39;showBindings = true&#39; to the method.</p>
+<pre><code class="language-javascript">var userQuery = getInstance( &quot;User&quot; )
+    .where( &quot;active&quot;, &quot;=&quot;, 1 );
+
+writeOutput( userQuery.toSQL( showBindings = true ) );</code></pre>
+<h3 id="tap">tap</h3>
+<p>Executes a callback with the current entity passed to it.  The return value from &#39;tap&#39; is ignored and the current entity is returned.</p>
+<p>While not strictly a debugging method, &#39;tap&#39; makes it easy to see the changes to an entity after each call without introducing temporary variables.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .tap( function( e ) {
+        writeOutput( e.toSQL() &amp; &quot;&lt;br&gt;&quot; );
+    } )
+    .where( &quot;active&quot;, &quot;=&quot;, 1 )
+    .tap( function( e ) {
+        writeOutput( e.toSQL() &amp; &quot;&lt;br&gt;&quot; );
+    } );</code></pre>
+<h2 id="debugging-all-queries">Debugging All Queries</h2>
+<h3 id="cbdebugger">cbDebugger</h3>
+<p>Starting in <a href="https://forgebox.io/view/cbdebugger">cbDebugger</a> 2.0.0 you can view all your Quick and qb  queries for a request.  This is the same output as using qb standalone.  This is enabled by default if you have qb installed.  Make sure your debug output is configured correctly and scroll to the bottom of the page to find the debug output.</p>
+<p>Additionally, with Quick installed you will see number of loaded entities for the request.  This can help identify places that are missing pagination or relationships that could be tuned or converted to a subselect.</p>
+<p><img src="../.gitbook/assets/2020-05-04_12-40.png" alt=""></p>
+<h3 id="logbox-appender">LogBox Appender</h3>
+<p>Quick is set to log all queries to a debug log out of the box via qb.  To enable this behavior, configure LogBox to allow debug logging from qb&#39;s grammar classes.</p>
+<p>qb can be quite chatty when executing many database queries.  Make sure that this logging is only enabled for your development environments using <a href="https://coldbox.ortusbooks.com/getting-started/configuration/coldbox.cfc/configuration-directives/environments">ColdBox&#39;s environment controls</a>.</p>
+<h3 id="interception-points">Interception Points</h3>
+<p>ColdBox Interception Points can also be used for logging, though you may find it easier to use LogBox.  See the documentation for <a href="https://qb.ortusbooks.com/query-builder/options-and-utilities/interception-points">qb&#39;s Interception Points</a>  or Quick&#39;s <a href="interception-points.md">own interception points</a> for more information.</p>
+
+          <a id="interception-points"></a>
+          <h1 id="interception-points">Interception Points</h1>
+<p>Quick allows you to hook in to multiple points in the entity lifecycle. If the event is on the component, you do not need to prefix it with &#39;quick`. If you are listening to an interception point, include &#39;quick&#39; at the beginning.</p>
+<p>If you create your own Interceptors, they will not fire if you define them in your Main application. &#39;quick&#39; will be loaded AFTER your interceptors, so the &#39;quick&#39; interception points will <strong>not</strong> be registered with your interceptor. This can be solved by moving your interceptors to a module with a dependency on &#39;quick`, of by also registering the &#39;quick&#39; custom interception points in your main coldbox configuration.</p>
+<h2 id="quickinstanceready">quickInstanceReady</h2>
+<p>Fired after dependency injection has been performed on the entity and the metadata has been inspected.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpreload">quickPreLoad</h2>
+<p>Fired before attempting to load an entity from the database.</p>
+<p>This method is only called for &#39;find&#39; actions.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostload">quickPostLoad</h2>
+<p>Fired after loading an entity from the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpresave">quickPreSave</h2>
+<p>Fired before saving an entity to the database.</p>
+<blockquote>
+<p>This method is called for both insert and update actions.</p>
+</blockquote>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostsave">quickPostSave</h2>
+<p>Fired after saving an entity to the database.</p>
+<blockquote>
+<p>This method is called for both insert and update actions.</p>
+</blockquote>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpreinsert">quickPreInsert</h2>
+<p>Fired before inserting an entity into the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostinsert">quickPostInsert</h2>
+<p>Fired after inserting an entity into the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpreupdate">quickPreUpdate</h2>
+<p>Fired before updating an entity in the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostupdate">quickPostUpdate</h2>
+<p>Fired after updating an entity in the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpredelete">quickPreDelete</h2>
+<p>Fired before deleting a entity from the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostdelete">quickPostDelete</h2>
+<p>Fired after deleting a entity from the database.</p>
+<p>`interceptData&#39; structure</p>
+
+          <a id="serialization"></a>
+          <h1 id="serialization">Serialization</h1>
+<h2 id="getmemento">getMemento</h2>
+<p>The memento pattern is an established pattern in ColdBox apps. A &#39;memento&#39; in this case is a simple representation of your entity using arrays, structs, and simple values.</p>
+<p>For instance, the following example shows a User entity and its corresponding memento:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+    property name=&quot;password&quot;;
+    property name=&quot;createdDate&quot;;
+    property name=&quot;modifiedDate&quot;;
+
+}</code></pre>
+<pre><code class="language-javascript">{
+    &quot;id&quot; = 1,
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;password&quot; = &quot;$2a$04$2nVI5rPOfl6.hrflkhBWOObO5Z7lXGJpi1vlosY74NrL/CKdpWqZS&quot;
+    &quot;createdDate&quot; = &quot;{ts &#39;2018-03-12 16:14:10&#39;}&quot;,
+    &quot;modifiedDate&quot; = &quot;{ts &#39;2018-03-12 16:14:10&#39;}&quot;
+}</code></pre>
+<p>Quick bundles in the excellent <a href="https://www.forgebox.io/view/mementifier">Mementifier</a> library to handle converting entities to mementos. This gives you excellent control over serialization using a &#39;this.memento&#39; struct on the entity and passing in arguments to the &#39;getMemento&#39; function.</p>
+<h3 id="thismemento">this.memento</h3>
+<p>By default, Quick includes all defined attributes as &#39;includes`. You can change this or add other Mementifier options by defining your own &#39;this.memento&#39; struct on your entity. Your custom &#39;this.memento&#39; struct will be merged with Quick&#39;s default, so you can only define what changes you need.</p>
+<p>Here is the default Quick memento struct. It is inside the &#39;instanceReady()&#39; lifecycle method in this example because &#39;retrieveAttributeNames()&#39; relies on the entity being wired (though not loaded); it is not otherwise necessary to put &#39;this.memento&#39; inside &#39;instanceReady()`.</p>
+<pre><code class="language-javascript">function instanceReady() {
+    this.memento = {
+        &quot;defaultIncludes&quot; : retrieveAttributeNames( withVirtualAttributes = true ),
+          &quot;defaultExcludes&quot; : [],
+          &quot;neverInclude&quot;    : [],
+          &quot;defaults&quot;        : {},
+          &quot;mappers&quot;         : {},
+          &quot;trustedGetters&quot;  : true,
+          &quot;ormAutoIncludes&quot; : false
+    };
+}</code></pre>
+<h3 id="getmemento-arguments">getMemento Arguments</h3>
+<p>You can also control the serialization of a memento at call time using Mementifier&#39;s &#39;getMemento&#39; arguments.</p>
+<pre><code class="language-javascript">struct function getMemento(
+    includes = &quot;&quot;, // or []
+    excludes = &quot;&quot;, // or []
+    struct mappers = {},
+    struct defaults = {},
+    boolean ignoreDefaults = false,
+    boolean trustedGetters
+)</code></pre>
+<h3 id="custom-getmemento">Custom getMemento</h3>
+<p>If this does not give you the control you need, you can further modify the memento by overriding the &#39;getMemento&#39; function on your entity. In this case, a &#39;$getMemento&#39; function will be available which is the Mementifier function.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+    property name=&quot;password&quot;;
+    property name=&quot;createdDate&quot;;
+    property name=&quot;modifiedDate&quot;;
+
+    function getMemento() {
+        return {
+            id = getId(),
+            username = getUsername(),
+            email = getEmail(),
+            createdDate = dateFormat( getCreatedDate(), &quot;MM/DD/YYYY&quot; ),
+            // can also use getAttribute if you want to bypass a custom getter
+            modifiedDate = dateFormat( retrieveAttribute( &quot;modifiedDate&quot; ), &quot;MM/DD/YYYY&quot; )
+        };
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">{
+    &quot;id&quot; = 1,
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;createdDate&quot; = &quot;03/12/2018&quot;,
+    &quot;modifiedDate&quot; = &quot;03/12/2018&quot;
+}</code></pre>
+<h2 id="asmemento">asMemento</h2>
+<p>Sometimes when retrieving entities or executing a Quick query, you already know you want mementos back. You can skip the step of calling &#39;getMemento&#39; yourself or mapping over the array of results returned by calling &#39;asMemento&#39; before executing the query. &#39;asMemento&#39; takes the same arguments that &#39;getMemento&#39; does. It will pass those arguments on and convert your entities to mementos after executing the query. This works for all the query execution methods - &#39;find<code>, &#39;first</code>, &#39;get<code>, &#39;paginate</code>, etc.</p>
+<h2 id="renderdata">$renderData</h2>
+<p>The &#39;$renderData&#39; method is a special method for ColdBox. When returning a model from a handler, this method will be called and the value returned will be used as the serialized response. This let&#39;s you simply return an entity from a handler for your API. By default this will call &#39;getMemento()`.</p>
+<pre><code class="language-javascript">component {
+
+    // /users/:id
+    function show( event, rc, prc ) {
+        return getInstance( &quot;User&quot; ).findOrFail( rc.id );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">{
+    &quot;id&quot; = 1,
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;createdDate&quot; = &quot;03/12/2018&quot;,
+    &quot;modifiedDate&quot; = &quot;03/12/2018&quot;
+}</code></pre>
+<p>`QuickCollection&#39; also defines a &#39;$renderData&#39; method, which will delegate the call to each entity in the collection and return the array of serialized entities.</p>
+<p>Automatically serializing a returned collection only works when using the &#39;QuickCollection&#39; as your entity&#39;s &#39;newCollection`.</p>
+<pre><code class="language-javascript">component {
+
+    function index( event, rc, prc ) {
+        return getInstance( &quot;User&quot; ).all();
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">[
+    {
+        &quot;id&quot; = 1,
+        &quot;username&quot; = &quot;JaneDoe&quot;,
+        &quot;email&quot; = &quot;jane@example.com&quot;,
+        &quot;createdDate&quot; = &quot;03/12/2018&quot;,
+        &quot;modifiedDate&quot; = &quot;03/12/2018&quot;
+    },
+    {
+        &quot;id&quot; = 2,
+        &quot;username&quot; = &quot;JohnDoe&quot;,
+        &quot;email&quot; = &quot;john@example.com&quot;,
+        &quot;createdDate&quot; = &quot;03/14/2018&quot;,
+        &quot;modifiedDate&quot; = &quot;03/15/2018&quot;
+    }
+]</code></pre>
+
         </div>
       </main>
 

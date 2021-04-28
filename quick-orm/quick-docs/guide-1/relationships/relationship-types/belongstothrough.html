@@ -1,0 +1,131 @@
+<h1 id="belongstothrough">belongsToThrough</h1>
+<h2 id="usage">Usage</h2>
+<p>A &#39;belongsToThrough&#39; relationship is the &#39;one&#39; side of a &#39;many-to-one&#39; relationship with an intermediate entity. It is used when you want to access a related, owning entity through one or more intermediate entities. For instance, a &#39;Post&#39; may belong to a &#39;Team&#39; via a &#39;User`.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function team() {
+        return belongsToThrough( [ &quot;author&quot;, &quot;team&quot; ] );
+    }
+
+    function author() {
+        return belongsTo( &quot;Post&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function posts() {
+        return hasMany( &quot;Post&quot; );
+    }
+
+    function team() {
+        return belongsTo( &quot;Team&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Team.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function members() {
+        return hasMany( &quot;User&quot; );
+    }
+
+}</code></pre>
+<p>The only value needed for &#39;belongsToThrough&#39; is an array of relationship function names to walk through to get to the related entity. The first relationship function name in the array must exist on the current entity. Each subsequent function name must exist on the related entity of the previous relationship result. For our previous example, &#39;author&#39; must be a relationship function on &#39;Post<code>. &#39;team&#39; must then be a relationship function on the related entity resulting from calling &#39;Post.author()</code>. This returns a &#39;belongsTo&#39; relationship where the related entity is &#39;User<code>. So, &#39;User&#39; must have a &#39;team&#39; relationship function. That is the end of the relationship function names array, so the related entity resulting from calling &#39;User.team()&#39; is our final entity which is &#39;Team</code>.</p>
+<pre><code class="language-text">belongsToThrough( [ &quot;author&quot;, &quot;team&quot; ] );
+
++----------------+---------------------------+----------------+
+
++================+===========================+================+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+</code></pre>
+<p>This approach can scale to as many related entities as you need. For instance, let&#39;s expand the previous example to include an Office that houses many Teams.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function office() {
+        return belongsToThrough( [ &quot;author&quot;, &quot;team&quot;, &quot;office&quot; ] );
+    }
+
+    function author() {
+        return belongsTo( &quot;Post&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function posts() {
+        return hasMany( &quot;Post&quot; );
+    }
+
+    function team() {
+        return belongsTo( &quot;Team&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Team.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function members() {
+        return hasMany( &quot;User&quot; );
+    }
+
+    function office() {
+        return belongsTo( &quot;Office&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Office.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function teams() {
+        return hasMany( &quot;Team&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-text">belongsToThrough( [ &quot;author&quot;, &quot;team&quot;, &quot;office&quot; ] );
+
++----------------+---------------------------+----------------+
+
++================+===========================+================+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+
+
++----------------+---------------------------+----------------+</code></pre>
+<h2 id="withdefault">withDefault</h2>
+<p>`HasOneThrough&#39; relationships can be configured to return a default entity if no entity is found. This is done by calling &#39;withDefault&#39; on the relationship object.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function team() {
+        return belongsToThrough( [ &quot;author&quot;, &quot;team&quot; ] ).withDefault();
+    }
+
+    function author() {
+        return belongsTo( &quot;Post&quot; );
+    }
+
+}</code></pre>
+<p>Called this way will return a new unloaded entity with no data. You can also specify any default attributes data by passing in a struct of data to &#39;withDefault`.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function team() {
+        return belongsToThrough( [ &quot;author&quot;, &quot;team&quot; ] ).withDefault( {
+            &quot;name&quot;: &quot;No Team&quot;
+        } );
+    }
+
+    function author() {
+        return belongsTo( &quot;Post&quot; );
+    }
+
+}</code></pre>
+<h2 id="signature">Signature</h2>

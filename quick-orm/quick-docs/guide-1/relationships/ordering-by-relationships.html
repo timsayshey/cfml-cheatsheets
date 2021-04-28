@@ -1,0 +1,11 @@
+<h1 id="ordering-by-relationships">Ordering By Relationships</h1>
+<p>To order by a relationship field, you will use a dot-delimited syntax.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).orderBy( &quot;author.name&quot; );</code></pre>
+<p>The last item in the dot-delimited string should be an attribute on the related entity.</p>
+<p>Nested relationships are also supported.  Continue to chain relationships in your dot-delimited string until arriving at the desired entity.  Remember to end with the attribute to order by.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).orderBy( &quot;author.team.name&quot; );</code></pre>
+<p>If you desire to be explicit, you can use the &#39;orderByRelated&#39; method, which is what is being called under the hood.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).orderByRelated( &quot;author.team&quot;, &quot;name&quot; );
+// or
+getInstance( &quot;Post&quot; ).orderByRelated( [ &quot;author&quot;, &quot;team&quot; ], &quot;name&quot; );</code></pre>
+<p>You might prefer the explicitness of this method, but it cannot handle normal orders like &#39;orderBy`.  Use whichever method you prefer.</p>

@@ -1,0 +1,208 @@
+<h1 id="query-scopes-and-subselects">Query Scopes and Subselects</h1>
+<h2 id="what-are-scopes">What are Scopes?</h2>
+<p>Query scopes are a way to encapsulate query constraints in your entities while giving them readable names .</p>
+<h3 id="a-practical-example">A Practical Example</h3>
+<p>For instance, let&#39;s say that you need to write a report for subscribers to your site. Maybe you track subscribers in a &#39;users&#39; table with a boolean flag in a &#39;subscribed&#39; column. Additionally, you want to see the oldest subscribers first. You keep track of when a user subscribed in a &#39;subscribedDate&#39; column. Your query might look as follows:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .where( &quot;subscribed&quot;, true )
+    .orderBy( &quot;subscribedDate&quot; )
+    .get();</code></pre>
+<p>Now nothing is wrong with this query. It retrieves the data correctly and you continue on with your day.</p>
+<p>Later, you need to retrieve a list of subscribed users for a different part of the site. So, you write a query like this:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .where( &quot;subscribed&quot;, true )
+    .get();</code></pre>
+<p>We&#39;ve duplicated the logic for how to retrieve active users now. If the database representation changed, we&#39;d have to change it in multiple places. For instance, what if instead of keeping track of a boolean flag in the database, we just checked that the &#39;subscribedDate&#39; column wasn&#39;t null?</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .whereNotNull( &quot;subscribedDate&quot; )
+    .get();</code></pre>
+<p>Now we see the problem. Let&#39;s look at the solution.</p>
+<p>The key here is that we are trying to retrieve subscribed users. Let&#39;s add a scope to our &#39;User&#39; entity for &#39;subscribed`:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function scopeSubscribed( query ) {
+        return query.where( &quot;subscribed&quot;, true );
+    }
+
+}</code></pre>
+<p>Now, we can use this scope in our query:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .subscribed()
+    .get();</code></pre>
+<p>We can use this on our first example as well, for our report.</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .subscribed()
+    .orderBy( &quot;subscribedDate&quot; )
+    .get();</code></pre>
+<p>We&#39;ve successfully encapsulated our concept of a subscribed user!</p>
+<p>We can add as many scopes as we&#39;d like. Let&#39;s add one for &#39;longestSubscribers`.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function scopeLongestSubscribers( query ) {
+        return query.orderBy( &quot;subscribedDate&quot; );
+    }
+
+    function scopeSubscribed( query ) {
+        return query.where( &quot;subscribed&quot;, true );
+    }
+
+}</code></pre>
+<p>Now our query is as follows:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .subscribed()
+    .longestSubscribers()
+    .get();</code></pre>
+<p>Best of all, we can reuse those scopes anywhere we see fit without duplicating logic.</p>
+<h3 id="usage">Usage</h3>
+<p>All query scopes are methods on an entity that begin with the &#39;scope&#39; keyword. You call these functions without the &#39;scope&#39; keyword (as shown above).</p>
+<p>Each scope is passed the &#39;query`, a reference to the current &#39;QuickBuilder&#39; instance, as the first argument. Any other arguments passed to the scope will be passed in order after that.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function scopeOfType( query, type ) {
+        return query.where( &quot;type&quot;, type );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .ofType( &quot;admin&quot; )
+    .get();</code></pre>
+<h3 id="scopes-that-return-values">Scopes that Return Values</h3>
+<p>All of the examples so far either returned the &#39;QuickBuilder&#39; object or nothing. Doing so lets you continue to chain methods on your Quick entity. If you instead return a value, Quick will pass on that value to your code. This lets you use scopes as shortcut methods that work on a query.</p>
+<p>For example, maybe you have a domain method to reset passwords for a group of users, and you want the count of users updated returned.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;password&quot;;
+    property name=&quot;type&quot;;
+
+    function scopeOfType( query, type = &quot;limited&quot; ) {
+        return query.where( &quot;type&quot;, type );
+    }
+
+    function scopeResetPasswords( query ) {
+        return query.updateAll( { &quot;password&quot; = &quot;&quot; } ).result.recordcount;
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).ofType( &quot;admin&quot; ).resetPasswords(); // 1</code></pre>
+<h2 id="global-scopes">Global Scopes</h2>
+<p>Occasionally, you want to apply a scope to each retrieval of an entity. An example of this is an Admin entity which is just a User entity with a type of admin. Global Scopes can be registered in the &#39;applyGlobalScopes&#39; method on an entity. Inside this entity you can call any number of scopes:</p>
+<pre><code class="language-javascript">component extends=&quot;User&quot; table=&quot;users&quot; accessors=&quot;true&quot; {
+
+    function applyGlobalScopes() {
+        this.ofType( &quot;admin&quot; );
+    }
+
+}</code></pre>
+<p>These scopes will be applied to the query without needing to call the scope again.</p>
+<pre><code class="language-javascript">var admins = getInstance( &quot;Admin&quot; ).all();
+// SELECT * FROM users WHERE type = &#39;admin&#39;</code></pre>
+<p>If you have a global scope applied to an entity that you need to temporarily disable, you can disable them individually using the &#39;withoutGlobalScope&#39; method:</p>
+<pre><code class="language-javascript">var admins = getInstance( &quot;Admin&quot; ).withoutGlobalScope( [ &quot;ofType&quot; ] ).all();
+// SELECT * FROM users</code></pre>
+<h2 id="subselects">Subselects</h2>
+<p>Subselects are a useful way to grab data from related tables without having to execute the full relationship. Sometimes you just want a small piece of information like the &#39;lastLoginDate&#39; of a user, not the entire &#39;Login&#39; relationship. Subselects are perfect for this use case. You can even use subselects to provide the correct key for dynamic subselect relationships. We&#39;ll show how both work here.</p>
+<p>Quick handles subselect properties (or computed or formula properties) through query scopes. This allows you to dynamically include a subselect. If you would like to always include a subselect, add it to your entity&#39;s <a href="https://github.com/ortus-docs/quick-docs/blob/2.1.0/getting-started/query-scopes.md#global-scopes">list of global scopes.</a></p>
+<p>Here&#39;s an example of grabbing the &#39;lastLoginDate&#39; for a User:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    /* properties */
+
+    function logins() {
+        return hasMany( &quot;Login&quot; ).latest();
+    }
+
+    function scopeAddLastLoginDate( query ) {
+        addSubselect( &quot;lastLoginDate&quot;, newEntity( &quot;Login&quot; )
+            .select( &quot;timestamp&quot; )
+            .whereColumn( &quot;users.id&quot;, &quot;user_id&quot; )
+        );
+    }
+
+}</code></pre>
+<p>We&#39;d add this subselect by calling our scope:</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).addLastLoginDate().first();
+user.getLastLoginDate(); // {ts 2019-05-02 08:24:51}</code></pre>
+<p>We can even constrain our &#39;User&#39; entity based on the value of the subselect, so long as we&#39;ve called the scope adding the subselect first (or made it a global scope).</p>
+<pre><code class="language-javascript"> var user = getInstance( &quot;User&quot; )
+     .addLastLoginDate()
+     .where( &quot;lastLoginDate&quot;, &quot;&gt;&quot;, &quot;2019-05-10&quot; )
+     .all();</code></pre>
+<p>Or add a new scope to &#39;User&#39; based on the subselect:</p>
+<pre><code class="language-javascript">function scopeLoggedInAfter( query, required date afterDate ) {
+    return query.where( &quot;lastLoginDate&quot;, &quot;&gt;&quot;, afterDate );
+}</code></pre>
+<p>In this example, we are using the &#39;addSubselect&#39; helper method. Here is that function signature:</p>
+<p>You might be wondering why not use the &#39;logins&#39; relationship? Or even &#39;logins().latest().limit( 1 ).get()`? Because that executes a second query. Using a subselect we get all the information we need in one query, no matter how many entities we are pulling back.</p>
+<h3 id="using-relationships-in-subselects">Using Relationships in Subselects</h3>
+<p>In most cases the values you want as subselects are values from your entity&#39;s relationships. In these cases, you can use a shortcut to define your subselect in terms of your entity&#39;s relationships represented as a dot-delimited string.</p>
+<p>Let&#39;s re-write the above subselect for &#39;lastLoginDate&#39; for a User using the existing relationship:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    /* properties */
+
+    function logins() {
+        return hasMany( &quot;Login&quot; );
+    }
+
+    function scopeAddLastLoginDate( query ) {
+        addSubselect( &quot;lastLoginDate&quot;, &quot;logins.timestamp&quot; );
+    }
+
+}</code></pre>
+<p>Much simpler! In addition to be much simpler this code is also more dynamic and reusable. We have a relationship defined for logins if we need to fetch them. If we change how the &#39;logins&#39; relationship is structured, we only have one place we need to change.</p>
+<p>With the query cleaned up using existing relationships, you might find yourself adding subselects directly in your handlers instead of behind scopes. This is fine in most cases. Keep an eye on how many places you use the subselect in case you need to re-evaluate and move it behind a scope.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .addSubselect( &quot;lastLoginDate&quot;, &quot;logins.timestamp&quot; )
+    .first();
+user.getLastLoginDate(); // {ts 2019-05-02 08:24:51}</code></pre>
+<h3 id="dynamic-subselect-relationships">Dynamic Subselect Relationships</h3>
+<p>Subselects can be used in conjunction with relationships to provide a dynamic, constrained relationship. In this example we will pull the latest post for a user.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    /* properties */
+
+    function scopeWithLatestPost( query ) {
+        return addSubselect( &quot;latestPostId&quot;, newEntity( &quot;Post&quot; )
+            .select( &quot;id&quot; )
+            .whereColumn( &quot;user_id&quot;, &quot;users.id&quot; )
+            .orderBy( &quot;created_date&quot;, &quot;desc&quot; )
+        ).with( &quot;latestPost&quot; );
+    }
+
+    function latestPost() {
+        return belongsTo( &quot;Post&quot;, &quot;latestPostId&quot; );
+    }
+
+}</code></pre>
+<p>This can be executed as follows:</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; ).withLatestPost().all();
+for ( var user in users ) {
+    user.getLatestPost().getTitle(); // My awesome post, etc.
+}</code></pre>
+<p>As you can see, we are loading the id of the latest post in a subquery and then using that value to eager load the &#39;latestPost&#39; relationship. This sequence will only execute two queries, no matter how many records are loaded.</p>
+<h2 id="virtual-attributes">Virtual Attributes</h2>
+<p>Virtual attributes are attributes that are not present on the table backing the Quick entity. A Subselect is an example of a virtual attribute. Other examples could include calculated counts or &#39;CASE&#39; statement results.</p>
+<p>By default, if you add a virtual column to a Quick query, you won&#39;t see anything in the entity. This is because Quick needs to have an attribute defined to map the result to. You can create a virtual attribute in these cases.</p>
+<p>This step is unnecessary when using the &#39;addSubselect&#39; helper method.</p>
+<p>Here&#39;s an example including the result of a &#39;CASE&#39; statement as a field:</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function scopeAddType( qb ) {
+        qb.selectRaw( &quot;
+                CASE
+                    WHEN publishedDate IS NULL THEN &#39;unpublished&#39;
+                    ELSE &#39;published&#39;
+                END AS publishedStatus
+            &quot; );
+        appendVirtualAttribute( &quot;publishedStatus&quot; );
+    }
+
+}</code></pre>
+<p>With this code, we could now access the &#39;publishedStatus&#39; just like any other attribute. It will not be updated, inserted, or saved though, as it is just a virtual column.</p>
+<p>The &#39;appendVirtualAttribute&#39; method adds the given name as an attribute available in the entity.</p>
+<h3 id="appendvirtualattribute">appendVirtualAttribute</h3>
+<p>Creates a virtual attribute for the given name.</p>
+<p>It is likely that Quick will introduce more helper methods in the future making these calls simpler.</p>

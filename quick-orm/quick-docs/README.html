@@ -1,0 +1,87 @@
+<h1 id="introduction">Introduction</h1>
+<p><img src=".gitbook/assets/quick300.png" alt="Quick logo"></p>
+<h2 id="a-cfml-orm-engine">A CFML ORM Engine</h2>
+<h3 id="why">Why?</h3>
+<p>Quick was built out of lessons learned and persistent challenges in developing complex RDBMS applications using built-in Hibernate ORM in CFML.</p>
+<ul>
+<li><p>Hibernate ORM error messages often obfuscate the actual cause of the error</p>
+<p>because they are provided directly by the Java classes.</p>
+</li>
+<li><p>Complex CFML Hibernate ORM applications can consume significant memory and</p>
+<p>processing resources, making them cost-prohibitive and inefficient when used</p>
+<p>in microservices architecture.</p>
+</li>
+<li><p>Hibernate ORM is tied to the engine releases. This means that updates come</p>
+<p>infrequently and may be costly for non-OSS engine users.</p>
+</li>
+<li><p>Hibernate ORM is built in Java. This limits contributions from CFML</p>
+<p>developers who don&#39;t know Java or don&#39;t feel comfortable contributing to a</p>
+<p>Java project.</p>
+</li>
+<li><p>Hibernate ORM doesn&#39;t take advantage of a lot of dynamic- and</p>
+<p>meta-programming available in CFML. (Tools like CBORM have helped to bridge</p>
+<p>this gap.)</p>
+</li>
+</ul>
+<p>We can do better.</p>
+<h3 id="what">What?</h3>
+<p>Quick is an ORM (Object Relational Mapper) written in CFML for CFML. It provides an <a href="https://en.wikipedia.org/wiki/Active_record_pattern">ActiveRecord</a> implementation for working with your database. With it you can map database tables to components, create relationships between components, query and manipulate data, and persist all your changes to your database.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>You need the following configured before using Quick:</p>
+<ul>
+<li>Configure a default datasource in your CFML engine</li>
+<li>ColdBox 4.3+</li>
+<li>Add a mapping for &#39;quick&#39; in your &#39;Application.cfc`</li>
+<li>Configure your &#39;BaseGrammar&#39; in &#39;config/ColdBox.cfc`</li>
+</ul>
+<p>See <a href="https://github.com/ortus-docs/quick-docs/tree/63f32b8cec17d528f0156c8493189b777ed594d2/getting-started/README.md">Getting Started</a> for more details.</p>
+<h3 id="supported-databases">Supported Databases</h3>
+<p>Quick supports all databases supported by <a href="https://qb.ortusbooks.com">qb</a>.</p>
+<h3 id="example">Example</h3>
+<p>Here&#39;s a &quot;quick&quot; example to whet your appetite.</p>
+<p>We&#39;ll show the database structure using a <a href="https://forgebox.io/view/commandbox-migrations">migrations file</a>. This isn&#39;t required to use &#39;quick`, but it is highly recommended.</p>
+<pre><code class="language-javascript">// 2017_11_10_122835_create_users_table.cfc
+component {
+
+    function up() {
+        schema.create( &quot;users&quot;, function( table ) {
+            table.increments( &quot;id&quot; );
+            table.string( &quot;username&quot; ).unique();
+            table.string( &quot;email&quot; ).unique();
+            table.string( &quot;password&quot; );
+            table.timestamp( &quot;createdDate&quot; );
+            table.timestamp( &quot;updatedDate&quot; );
+        } );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// User
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    // the name of the table is the pluralized version of the model
+    // all fields in a table are mapped by default
+    // both of these points can be configured on a per-entity basis
+
+}</code></pre>
+<pre><code class="language-javascript">// handlers/Users.cfc
+component {
+
+    // /users/:id
+    function show( event, rc, prc ) {
+        // this finds the User with an id of 1 and retrieves it
+        prc.user = getInstance( &quot;User&quot; ).findOrFail( rc.id );
+        event.setView( &quot;users/show&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-markup">&lt;!-- views/users/show.cfm --&gt;
+&lt;cfoutput&gt;
+    &lt;h1&gt;Hi, #prc.user.getUsername()#!&lt;/h1&gt;
+&lt;/cfoutput&gt;</code></pre>
+<p>Now that you&#39;ve seen an example, <a href="https://github.com/ortus-docs/quick-docs/tree/63f32b8cec17d528f0156c8493189b777ed594d2/getting-started/defining-an-entity.md">dig in to what you can do</a> with Quick!</p>
+<h3 id="prior-art-acknowledgements-and-thanks">Prior Art, Acknowledgements, and Thanks</h3>
+<p>Quick is backed by <a href="https://www.forgebox.io/view/qb">qb</a>. Without qb, there is no Quick.</p>
+<p>Quick is inspired heavily by <a href="https://laravel.com/docs/5.6/eloquent">Eloquent in Laravel</a>. Thank you Taylor Otwell and the Laravel community for a great library.</p>
+<p>Development of Quick is sponsored by Ortus Solutions. Thank you Ortus Solutions for investing in the future of CFML.</p>
+<h3 id="discussion--help">Discussion &amp; Help</h3>
+<p>The Box products  community for further discussion and help can be found here: <a href="https://community.ortussolutions.com/c/communities/quick-orm/23">https://community.ortussolutions.com/c/communities/quick-orm/23</a></p>

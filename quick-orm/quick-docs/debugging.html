@@ -1,0 +1,4 @@
+<h1 id="debugging">Debugging</h1>
+<p>There are two ways to debug Quick entities, both by hooking in to qb.</p>
+<p>qb logs all queries it runs as debug logs. Configure LogBox to output debug logs for the &#39;qb.models.Grammars.BaseGrammar&#39; component to view them.</p>
+<p>Additionally, qb announces a &#39;preQBExecute&#39; and a &#39;postQBExectute&#39; interception point. These interception points contain the sql and bindings being executed. You can hook in to these interception points to enable your own logging.</p>

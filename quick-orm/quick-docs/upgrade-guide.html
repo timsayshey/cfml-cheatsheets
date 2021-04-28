@@ -1,0 +1,267 @@
+<h1 id="upgrade-guide">Upgrade Guide</h1>
+<h2 id="400">4.0.0</h2>
+<h3 id="scopes-wherehas-and-wheredoesnthave-are-now-automatically-grouped-when-using-an-or-combinator">Scopes, whereHas, and whereDoesntHave are now automatically grouped when using an OR combinator</h3>
+<p>This isn&#39;t a breaking change that will affect most people. In fact, it will most likely improve your code.</p>
+<p>Previously, when using <a href="guide-1/getting-started/query-scopes-and-subselects.md#what-are-scopes">scopes</a>, <a href="guide-1/relationships/querying-relationships.md#wherehas">&#39;whereHas&#39;</a>, or <a href="guide-1/relationships/querying-relationships.md#wheredoesnthave">&#39;whereDoesntHave&#39;</a>, you were fully responsible for the wrapping of your where statements. For example, the following query:</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; )
+    .active()
+    .search( event.getValue( &quot;q&quot;, &quot;&quot; ) )
+    .get();</code></pre>
+<p>with the following scopes defined:</p>
+<pre><code class="language-javascript">function scopeActive( qb ) {
+    qb.where( &quot;active&quot;, 1 );
+}
+
+function scopeSearch( qb, term ) {
+    qb.where( &quot;username&quot;, &quot;like&quot;, term &amp; &quot;%&quot; )
+        .orWhere( &quot;email&quot;, &quot;like&quot;, term &amp; &quot;%&quot; );
+}</code></pre>
+<p>would generate the following SQL:</p>
+<p>The problem with this statement is that the &#39;OR&#39; can short circuit the &#39;active&#39; check.</p>
+<p>The fix is to wrap the &#39;LIKE&#39; statements in parenthesis. This is done in qb using a function callback to &#39;where`. Adding this nesting inside our scope will fix this problem.</p>
+<pre><code class="language-javascript">function scopeSearch( qb, term ) {
+    qb.where( function( q ) {
+        q.where( &quot;username&quot;, &quot;like&quot;, term &amp; &quot;%&quot; )
+            .orWhere( &quot;email&quot;, &quot;like&quot;, term &amp; &quot;%&quot; );
+    } );
+}</code></pre>
+<p>But this was easy to miss this. This is because you are in a completely different file than the built query. It also breaks the mental model of a scope as an encapsulated piece of SQL code.</p>
+<p>In Quick 4.0.0, scopes, &#39;whereHas`, and &#39;whereDoesntHave&#39; will automatically group added where clauses when needed. That means our original example now produces the SQL we probably expected.</p>
+<p>Grouping is not needed if there is no &#39;OR&#39; combinator. In these cases no grouping is added.</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; )
+    .active()
+    .isAdmin()
+    .get();</code></pre>
+<pre><code class="language-javascript">function scopeActive( qb ) {
+    qb.where( &quot;active&quot;, 1 );
+}
+
+function scopeIsAdmin( qb ) {
+    qb.where( &quot;admin&quot;, 1 )
+        .whereNotNull( &quot;hireDate&quot; );
+}</code></pre>
+<p>If you had already wrapped your expression in a group inside the scope, &#39;whereHas`, or &#39;whereDoesntHave&#39; call, nothing changes. Your code works as before. The &#39;OR&#39; combinator check only works on the top most level of added where clauses. Additionally, if you do not add any where clauses inside your scope, nothing changes.</p>
+<p>The breaking change part is if you were relying on these statements residing at the same level without grouping. If so, you will need to group your changes into a single scope where you control the grouping or do the querying at the builder level outside of scopes.</p>
+<h2 id="300">3.0.0</h2>
+<h3 id="adobe-coldfusion-11-and-lucee-45-are-no-longer-supported">Adobe ColdFusion 11 and Lucee 4.5 are no longer supported</h3>
+<p>Please migrate to a supported engine.</p>
+<h3 id="virtual-inheritance-support-removed">Virtual Inheritance support removed</h3>
+<p>Virtual Inheritance allowed you to use a &#39;quick&#39; annotation on your entity instead of extending &#39;quick.models.BaseEntity`. This was hardly used and didn&#39;t offer any benefit to extending using traditional inheritance. Additionally, removing the support allows us to clean up the code base by removing duplicate code paths.</p>
+<p>If any of your entities are using the &#39;quick&#39; annotation, instead have them &#39;extends=&quot;quick.models.BaseEntity&quot;`.</p>
+<h3 id="accessorstrue-required-for-all-entities">`accessors=&quot;true&quot;&#39; required for all entities</h3>
+<p>From the early days of Quick, developers have wanted to have &#39;accessors=&quot;true&quot;&#39; on their entities. Because of this, Quick supported defining entities both with and without accessors. However, just as with virtual inheritance, it created two code paths that could hide bugs and make it hard to follow the code. In Quick 3.0.0, &#39;accessors=&quot;true&quot;&#39; is required on all entities. If it is omitted, a helpful error message is thrown to remind you. This will help immensely in simplifying the code base. (In fact, just introducing this requirement helped find two bugs that were only present when using accessors.)</p>
+<p>Ensure all entities have &#39;accessors=&quot;true&quot;&#39; in their component metadata.</p>
+<h3 id="assignedkey-removed">AssignedKey removed</h3>
+<p>Use &#39;NullKeyType&#39; instead.</p>
+<h3 id="boolean-casts-updates-to-hook-in-to-new-cast-system">Boolean casts updates to hook in to new Cast system</h3>
+<p>Previously, the only valid cast type was &#39;casts=&quot;boolean&quot;<code>. In introducing the new Casts system, the boolean cast was refactored to use the same system. For this reason, any &#39;casts=&quot;boolean&quot;&#39; needs to be changed to &#39;casts=&quot;BooleanCast@quick&quot;</code></p>
+<h3 id="defaultgrammar-updated-to-be-the-full-wirebox-mapping-a-iddefaultgrammar-updated-to-be-the-full-wirebox-mappinga">defaultGrammar updated to be the full WireBox mapping <a id="defaultgrammar-updated-to-be-the-full-wirebox-mapping"></a></h3>
+<p>In previous versions, the value passed to &#39;defaultGrammar&#39; was used to look up a mapping in the &#39;@qb&#39; namespace. This made it difficult to add or use grammars that weren&#39;t part of qb. (You could get around this be registering your custom grammar in the &#39;@qb&#39; namespace, but doing so seemed strange.)</p>
+<p>To migrate this code, change your &#39;defaultGrammar&#39; to be the full WireBox mapping in your &#39;moduleSettings`:</p>
+<pre><code class="language-javascript">moduleSettings = {
+    &quot;quick&quot;: {
+        &quot;defaultGrammar&quot;: &quot;MSSQLGrammar@qb&quot;
+    }
+};</code></pre>
+<h3 id="hasmanythrough-relationship-re-tooled-to-be-based-on-relationships"><a href="guide-1/relationships/relationship-types/hasmanythrough.md">HasManyThrough relationship</a> re-tooled to be based on relationships</h3>
+<p>It no longer accepts any entities or columns. Rather, it accepts an array of relationships to walk &quot;through&quot; to end up at the desired entity.</p>
+<p>Here&#39;s how the old syntax would be used to define the relationship between &#39;Country&#39; and &#39;Post`.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function posts() {
+        return hasManyThrough( &quot;Post&quot;, &quot;User&quot;, &quot;country_id&quot;, &quot;user_id&quot; );
+    }
+
+}</code></pre>
+<p>This same relationship now needs to be defined in terms of other relationships, like so.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function posts() {
+        return hasManyThrough( [ &quot;users&quot;, &quot;posts&quot; ] );
+    }
+
+    function users() {
+        return hasMany( &quot;User&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function posts() {
+        return hasMany( &quot;Post&quot; );
+    }
+
+}</code></pre>
+<p>This approach does require a relationship defined for each level, but it works up and down any number of relationships to get to your desired entity.</p>
+<h3 id="associate-cannot-be-called-on-unloaded-entities">`<a href="guide-1/relationships/relationship-types/belongsto.md#updating">associate</a>&#39; cannot be called on unloaded entities</h3>
+<p>To update the foreign key of a &#39;belongsTo&#39; relationship you use the &#39;associate&#39; method. In the past, it was possible to associate a new, unsaved child entity to its parent using this method.</p>
+<pre><code class="language-javascript">var newChild = getInstance( &quot;Child&quot; );
+newChild.fill( fields );
+newChild.parent().associate( parent );
+newChild.save();</code></pre>
+<p>In an attempt to provide more helpful error messages, this behavior is no longer possible. You can achieve the same effect in one of two ways.</p>
+<p>The first is to manually assign the foreign keys:</p>
+<pre><code class="language-javascript">var newChild = getInstance( &quot;Child&quot; );
+newChild.fill( fields );
+newChild.setParentKey( parent.getId() );
+newChild.save();</code></pre>
+<p>While this works, it breaks the encapsulation provided by the relationship.</p>
+<p>The second approach is to use the &#39;hasOne&#39; or &#39;hasMany&#39; side of the relationship to create the new child entity:</p>
+<pre><code class="language-javascript">var newChild = getInstance( &quot;Child&quot; );
+newChild.fill( fields );
+var parent = getInstance( &quot;Parent&quot; ).findOrFail( id );
+parent.children().save( newChild );</code></pre>
+<p>If you have all the data handy in a struct, you can use the &#39;create&#39; method for a more concise syntax.</p>
+<pre><code class="language-javascript">var parent = getInstance( &quot;Parent&quot; ).findOrFail( id );
+var newChild = parent.children().create( fields );</code></pre>
+<p>This is the recommended way of creating these components.</p>
+<h3 id="assignattributesdata-argument-renamed-to-attributes">assignAttributesData argument renamed to `attributes`</h3>
+<p>This brings the API in line with the other methods referencing attributes.</p>
+<h3 id="method-changes-due-to-compound-key-support">Method changes due to compound key support</h3>
+<p>Compound key support required some method and parameter name changes. Although the list seems extensive, you will likely not need to change anything in your code unless you have extended built-in Quick components. (You will see many relationship parameter name changes. Note that the function you call to define a relationship is a function on the &#39;BaseEntity&#39; and has not changed its signature.)</p>
+<p><strong>BaseEntity.cfc:</strong></p>
+<ul>
+<li>&#39;retrieveQualifiedKeyName : String&#39; -&gt; &#39;retrieveQualifiedKeyNames : [String]`</li>
+<li>&#39;keyName : String&#39; -&gt; &#39;keyNames : [String]`</li>
+<li>&#39;keyColumn : String&#39; -&gt; &#39;keyColumns : [String]`</li>
+<li>&#39;keyValue : String&#39; -&gt; &#39;keyValues : [String]`</li>
+</ul>
+<p><strong>AutoIncrementingKeyType.cfc</strong></p>
+<ul>
+<li>This cannot be used with composite primary keys</li>
+</ul>
+<p><strong>BaseRelationship.cfc</strong></p>
+<ul>
+<li>&#39;getKeys&#39; now takes an array of &#39;keys&#39; as the second argument</li>
+<li>&#39;getQualifiedLocalKey : String&#39; -&gt; &#39;getQualifiedLocalKeys : [String]`</li>
+<li>&#39;getExistenceCompareKey : String&#39; -&gt; &#39;getExistenceCompareKeys : [String]`</li>
+</ul>
+<p><strong>BelongsTo.cfc</strong></p>
+<ul>
+<li>&#39;init&#39; arguments have changed<ul>
+<li>&#39;foreignKey : String&#39; -&gt; &#39;foreignKeys : [String]`</li>
+<li>&#39;localKey : String&#39; -&gt; &#39;localKeys : [String]`</li>
+</ul>
+</li>
+<li>&#39;getQualifiedLocalKey : String&#39; -&gt; &#39;getQualifiedLocalKeys : [String]`</li>
+<li>&#39;getExistenceCompareKey : String&#39; -&gt; &#39;getExistenceCompareKeys : [String]`</li>
+</ul>
+<p><strong>BelongsToMany.cfc</strong></p>
+<ul>
+<li>&#39;init&#39; arguments have changed<ul>
+<li>&#39;foreignPivotKey : String&#39; -&gt; &#39;foreignPivotKeys : [String]`</li>
+<li>&#39;relatedPivotKey : String&#39; -&gt; &#39;relatedPivotKeys : [String]`</li>
+<li>&#39;parentKey : String&#39; -&gt; &#39;parentKeys : [String]`</li>
+<li>&#39;relatedKey : String&#39; -&gt; &#39;relatedKeys : [String]`</li>
+</ul>
+</li>
+<li>&#39;getQualifiedRelatedPivotKeyName : String&#39; -&gt; &#39;getQualifiedRelatedPivotKeyNames : [String]`</li>
+<li>&#39;getQualifiedForeignPivotKeyName : String&#39; -&gt; &#39;getQualifiedForeignPivotKeyNames : [String]`</li>
+<li>&#39;getQualifiedForeignKeyName : String&#39; -&gt; getQualifiedForeignKeyNames : [String]`</li>
+</ul>
+<p><strong>HasManyThrough.cfc</strong></p>
+<ul>
+<li>This component now extends &#39;quick.models.Relationships.HasOneOrManyThrough`</li>
+<li>&#39;init&#39; arguments are now as follows:<ul>
+<li>&#39;related`: The related entity instance.</li>
+<li>&#39;relationName`: The WireBox mapping for the related entity.</li>
+<li>&#39;relationMethodName`: The method name called to retrieve this relationship.</li>
+<li>&#39;parent`: The parent entity instance for the relationship.</li>
+<li>&#39;relationships`: An array of relationships between the parent entity and the related entity.</li>
+<li>&#39;relationshipsMap`: A dictionary of relationship name to relationship component.</li>
+</ul>
+</li>
+<li>The following methods no longer exist:<ul>
+<li>&#39;getQualifiedFarKeyName`</li>
+<li>&#39;getQualifiedForeignKeyName`</li>
+<li>&#39;getQualifiedFirstKeyName`</li>
+<li>&#39;getQualifiedParentKeyName`</li>
+</ul>
+</li>
+</ul>
+<p><strong>HasOneOrMany.cfc</strong></p>
+<ul>
+<li>&#39;init&#39; arguments have changed<ul>
+<li>&#39;foreignKey : String&#39; -&gt; &#39;foreignKeys : [String]`</li>
+<li>&#39;localKey : String&#39; -&gt; &#39;localKeys : [String]`</li>
+</ul>
+</li>
+<li>&#39;getParentKey : any&#39; -&gt; &#39;getParentKeys : [any]`</li>
+<li>&#39;getQualifiedLocalKey : String&#39; -&gt; &#39;getQualifiedLocalKeys : [String]`</li>
+<li>&#39;getQualifiedForeignKeyName : String&#39; -&gt; &#39;getQualifiedForeignKeyNames : [String]`</li>
+</ul>
+<p><strong>PolymorphicBelongsTo.cfc</strong></p>
+<ul>
+<li>&#39;init&#39; arguments have changed<ul>
+<li>&#39;foreignKey : String&#39; -&gt; &#39;foreignKeys : [String]`</li>
+<li>&#39;localKey : String&#39; -&gt; &#39;localKeys : [String]`</li>
+</ul>
+</li>
+</ul>
+<p><strong>PolymorphicHasOneOrMany.cfc</strong></p>
+<ul>
+<li>&#39;init&#39; arguments have changed<ul>
+<li>&#39;id : String&#39; -&gt; &#39;ids : [String]`</li>
+<li>&#39;localKey : String&#39; -&gt; &#39;localKeys : [String]`</li>
+</ul>
+</li>
+</ul>
+<h2 id="200">2.0.0</h2>
+<p>Quick 2.0 brings with it a lot of changes to make things more flexible and more performant. This shouldn&#39;t take too long — maybe 2-5 minutes per entity.</p>
+<h3 id="internal-properties-renamed">Internal properties renamed</h3>
+<p>There were some common name clashes between internal Quick properties and custom attributes of your entities (the most common being &#39;fullName&#39;). All Quick internals have been obfuscated to avoid this situation. If you relied on these properties, please consult the following table below for the new property names.</p>
+<p>If you are renaming your primary keys in your entities, you will have to change your key definition from &#39;variables.key = &quot;user_id&quot;;&#39; to &#39;variables._key&#39; &#39;= &quot;user_id&quot;;&#39; See <a href="https://github.com/ortus-docs/quick-docs/tree/63f32b8cec17d528f0156c8493189b777ed594d2/getting-started/defining-an-entity.md">Defining an Entity</a> for details.</p>
+<p>Additionally, some method names have also changed to avoid clashing with automatically generated getters and setters. Please consult the table below for method changes.</p>
+<p>Lastly, the following properties and methods have been removed:</p>
+<h3 id="key-types">Key Types</h3>
+<h4 id="defining-key-types">Defining Key Types</h4>
+<p>Key Types are the way to define setting and retrieving a primary key in Quick. In Quick 1.0 these were injected in to the component. This made reusability hard for simple things like sequence names. In order to allow for more flexible key types, key types are no longer injected. Instead, they should be returned from a &#39;keyType&#39; method.</p>
+<pre><code class="language-text">function keyType() {
+    return variables._wirebox.getInstance( &quot;Sequence@quick&quot; )
+        .setSequenceName( &quot;seq_users&quot; );
+}</code></pre>
+<p>The &#39;keyType&#39; is lazily created and cached on the component, so this is both a more flexible approach as well as being more performant. If you are injecting custom key types in your entities you will need to move them to the method syntax.</p>
+<h4 id="changed-key-types">Changed Key Types</h4>
+<p>A few key types have been renamed and will need to be updated in your codebase:</p>
+<h4 id="new-key-types">New Key Types</h4>
+<p>In additional to the changes to defining key types, there is a few new key types introduced in Quick 2.0.</p>
+<p><strong>ReturningKeyType</strong></p>
+<p>Used with grammars that return their primary key in the query response when inserting to the database. An example of this is &#39;NEWSEQUENTIALID&#39; in Microsoft SQL Server.</p>
+<h3 id="scopes">Scopes</h3>
+<p>The way arguments are passed to scopes have been updated to allow for default arguments. &#39;query&#39; is still the first argument. Other arguments will be passed in order after that. The &#39;args&#39; struct is no longer passed.</p>
+<h3 id="relationships">Relationships</h3>
+<p>The relationship methods are still named the same but some of the arguments have been changed to fix bugs and support better eager loading performance. Please <a href="https://github.com/ortus-docs/quick-docs/tree/63f32b8cec17d528f0156c8493189b777ed594d2/relationships/README.md">check the relationship docs</a> for more details.</p>
+<p>Additionally, the alternative syntax for defining relationships on a &#39;relationships&#39; struct has been removed. It created an unnecessary code path that had it&#39;s own share of bugs. All relationships should be defined as methods on the entity.</p>
+<h3 id="removing-cfcollection">Removing CFCollection</h3>
+<p>CFCollection was included in Quick 1.0 as both a way to lazily eager load a relationship and as a compatibility layer for older CF versions. The compatibility that CFCollection provides, however, comes with a performance cost. Additionally, the majority of users wanted to use plain arrays as the return format. For those reasons, arrays are now the default return format for collections. CFCollections can still be used by specifying a different return format in the module settings.</p>
+<h3 id="converting-to-null">Converting to Null</h3>
+<p>Null is a tricky thing in CFML. The same goes for interacting with nulls in a database. By default, we will support the CFML convention of using an empty string to represent null. When interacting with the database empty strings will be converted to nulls. You can adjust this behavior on the property level with two new annotations:</p>
+<ul>
+<li>&#39;convertToNull&#39; - Determines if the property will be automatically checked to convert to null at all. Defaults to &#39;true`.</li>
+<li>&#39;nullValue&#39; - This is the value that is equivalent to null for this property. Defaults to an empty string.</li>
+</ul>
+<h3 id="returning-null-instead-of-unloaded-entities">Returning Null instead of Unloaded Entities</h3>
+<p>In an effort to avoid dealing with CFML&#39;s version of &#39;null`, Quick originally returned unloaded entities. You could check if an entity was loaded using the &#39;isLoaded&#39; method. This doesn&#39;t make as much sense as &#39;null&#39; however and even made it more difficult to interact with other libraries. Now Quick will return null when it encounters an empty query result either from a retrieval or from a &#39;belongsTo&#39; or &#39;hasOne&#39; relationship. Any instances that you were checking &#39;isLoaded&#39; should be updated. &#39;isLoaded&#39; will continue to exist for when you are creating a new entity not from the database.</p>
+<h3 id="autodiscover-grammar">AutoDiscover Grammar</h3>
+<p>The default grammar for Quick is now &#39;AutoDiscover<code>. This provides a better first run experience. The grammar can still be set in the &#39;moduleSettings</code>.</p>
+<h3 id="baseservice">BaseService</h3>
+<p>As a new way to interact with Quick, you can use Quick Services to interact with your entities in a service-oriented fashion. These are equivalent to &#39;VirtualEntityServices&#39; in cborm.</p>
+<p>The easiest way to use a Quick Service is to use the &#39;quickService:&#39; injection dsl.</p>
+<pre><code class="language-text">component {
+    property name=&quot;userService&quot; inject=&quot;quickService:User&quot;;
+}</code></pre>
+<p>All methods available on the Quick entity are available on the service.</p>
+<h3 id="eager-loading">Eager Loading</h3>
+<p>Eager loading is now supported for nested relationships using a dot-separated syntax. Additionally, constraints can be added to an eager loaded relationship. See the <a href="https://github.com/ortus-docs/quick-docs/tree/63f32b8cec17d528f0156c8493189b777ed594d2/relationships/eager-loading.md">docs on eager loading</a> for more information.</p>
+<h3 id="column-aliases-in-queries">Column Aliases in Queries</h3>
+<p>Column aliases can now be used in queries. They will be transformed to columns before executing the query.</p>
+<h3 id="quick-entities-in-setters">Quick entities in Setters</h3>
+<p>If you pass a Quick entity to a setter method the entity&#39;s &#39;keyValue&#39; value will be passed.</p>
+<h3 id="update-and-insert-guards">Update and Insert Guards</h3>
+<p>Columns can be prevented from being inserted or updated using property attributes — &#39;insert=&quot;false&quot;&#39; and &#39;update=&quot;false&quot;`.</p>
+<h3 id="cbvalidation-removed-as-a-default-dependency">cbvalidation removed as a default dependency</h3>
+<p>Quick no longer automatically validates entities before saving them. Having cbvalidation baked in made it hard to extend it. If desired, validation can be added back in using Quick&#39;s lifecycle hooks.</p>
+<h3 id="instanceready-lifecycle-method">&#39;instanceReady&#39; Lifecycle Method</h3>
+<p>Quick now announces an &#39;instanceReady&#39; event after the entity has gone through dependency injected and had its metadata inspected. This can be used to hook in other libraries, like &#39;cbvalidation&#39; and &#39;mementifier`.</p>
+<h3 id="automatic-attribute-casting">Automatic Attribute Casting</h3>
+<p>You can automatically cast a property to a boolean value while retrieving it from the database and back to a bit value when serializing to the database by setting &#39;casts=&quot;boolean&quot;&#39; on the property.</p>

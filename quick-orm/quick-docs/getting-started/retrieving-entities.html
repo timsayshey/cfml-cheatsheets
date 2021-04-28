@@ -1,0 +1,47 @@
+<h1 id="retrieving-entities">Retrieving Entities</h1>
+<p>Once you have an entity and its associated database table you can start retrieving data from your database.</p>
+<h2 id="active-record">Active Record</h2>
+<p>You start every interaction with Quick with an instance of an entity. The easiest way to do this is using WireBox. &#39;getInstance&#39; is available in all handlers by default. WireBox can easily be injected in to any other class you need using &#39;inject=&quot;wirebox&quot;`.</p>
+<p>Quick is backed by qb, a CFML Query Builder. With this in mind, think of retrieving records for your entities like interacting with qb. For example:</p>
+<pre><code class="language-javascript">var users = getInstance(&quot;User&quot;).all();
+
+for (var user in users) {
+    writeOutput(user.getUsername());
+}</code></pre>
+<p>In addition to using &#39;for&#39; you can utilize the &#39;each&#39; function on arrays. For example:</p>
+<pre><code class="language-javascript">var users = getInstance(&quot;User&quot;).all();
+
+prc.users.each(function(user) {
+    writeOutput(user.getUsername());
+});</code></pre>
+<p>You can add constraints to the query just the same as you would using qb directly:</p>
+<pre><code class="language-javascript">var users = getInstance(&quot;User&quot;)
+    .where(&quot;active&quot;, 1)
+    .orderBy(&quot;username&quot;, &quot;desc&quot;)
+    .limit(10)
+    .get();</code></pre>
+<blockquote>
+<p>For more information on what is possible with qb, check out the <a href="https://qb.ortusbooks.com">qb documentation</a>.</p>
+</blockquote>
+<h2 id="quick-service">Quick Service</h2>
+<p>A second way to retrieve results is to use a Quick Service. It is similar to a &#39;VirtualEntityService&#39; from cborm.</p>
+<p>The easiest way to create a Quick Service is to inject it using the &#39;quickService:&#39; dsl:</p>
+<pre><code class="language-javascript">component {
+    property name=&quot;userService&quot; inject=&quot;quickService:User&quot;
+}</code></pre>
+<p>Any method you can call on an entity can be called on the service:</p>
+<pre><code class="language-javascript">var users = userService
+    .where(&quot;active&quot;, 1)
+    .orderBy(&quot;username&quot;, &quot;desc&quot;)
+    .limit(10)
+    .get();</code></pre>
+<h2 id="aggregates">Aggregates</h2>
+<p>Calling qb&#39;s aggregate methods (&#39;count<code>, &#39;max</code>, etc.) will return the appropriate value instead of an entity or collection of entities.</p>
+<h2 id="custom-quick-retrieval-methods">Custom Quick Retrieval Methods</h2>
+<p>There are a few custom retrieval methods for Quick:</p>
+<h3 id="all">all</h3>
+<p>Retrieves all the records for an entity. Calling &#39;all&#39; will ignore any constraints on the query.</p>
+<h3 id="findorfail--firstorfail">findOrFail &amp; firstOrFail</h3>
+<p>These two methods will throw a &#39;EntityNotFound&#39; exception if the query returns no results.</p>
+<p>The &#39;findOrFail&#39; method should be used in place of &#39;find`, passing an id in to retrieve.</p>
+<p>The &#39;firstOrFail&#39; method should be used in place of &#39;first`, being called after constraining a query.</p>

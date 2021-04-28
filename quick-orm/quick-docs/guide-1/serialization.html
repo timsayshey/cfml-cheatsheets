@@ -1,0 +1,121 @@
+<h1 id="serialization">Serialization</h1>
+<h2 id="getmemento">getMemento</h2>
+<p>The memento pattern is an established pattern in ColdBox apps. A &#39;memento&#39; in this case is a simple representation of your entity using arrays, structs, and simple values.</p>
+<p>For instance, the following example shows a User entity and its corresponding memento:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+    property name=&quot;password&quot;;
+    property name=&quot;createdDate&quot;;
+    property name=&quot;modifiedDate&quot;;
+
+}</code></pre>
+<pre><code class="language-javascript">{
+    &quot;id&quot; = 1,
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;password&quot; = &quot;$2a$04$2nVI5rPOfl6.hrflkhBWOObO5Z7lXGJpi1vlosY74NrL/CKdpWqZS&quot;
+    &quot;createdDate&quot; = &quot;{ts &#39;2018-03-12 16:14:10&#39;}&quot;,
+    &quot;modifiedDate&quot; = &quot;{ts &#39;2018-03-12 16:14:10&#39;}&quot;
+}</code></pre>
+<p>Quick bundles in the excellent <a href="https://www.forgebox.io/view/mementifier">Mementifier</a> library to handle converting entities to mementos. This gives you excellent control over serialization using a &#39;this.memento&#39; struct on the entity and passing in arguments to the &#39;getMemento&#39; function.</p>
+<h3 id="thismemento">this.memento</h3>
+<p>By default, Quick includes all defined attributes as &#39;includes`. You can change this or add other Mementifier options by defining your own &#39;this.memento&#39; struct on your entity. Your custom &#39;this.memento&#39; struct will be merged with Quick&#39;s default, so you can only define what changes you need.</p>
+<p>Here is the default Quick memento struct. It is inside the &#39;instanceReady()&#39; lifecycle method in this example because &#39;retrieveAttributeNames()&#39; relies on the entity being wired (though not loaded); it is not otherwise necessary to put &#39;this.memento&#39; inside &#39;instanceReady()`.</p>
+<pre><code class="language-javascript">function instanceReady() {
+    this.memento = {
+        &quot;defaultIncludes&quot; : retrieveAttributeNames( withVirtualAttributes = true ),
+          &quot;defaultExcludes&quot; : [],
+          &quot;neverInclude&quot;    : [],
+          &quot;defaults&quot;        : {},
+          &quot;mappers&quot;         : {},
+          &quot;trustedGetters&quot;  : true,
+          &quot;ormAutoIncludes&quot; : false
+    };
+}</code></pre>
+<h3 id="getmemento-arguments">getMemento Arguments</h3>
+<p>You can also control the serialization of a memento at call time using Mementifier&#39;s &#39;getMemento&#39; arguments.</p>
+<pre><code class="language-javascript">struct function getMemento(
+    includes = &quot;&quot;, // or []
+    excludes = &quot;&quot;, // or []
+    struct mappers = {},
+    struct defaults = {},
+    boolean ignoreDefaults = false,
+    boolean trustedGetters
+)</code></pre>
+<h3 id="custom-getmemento">Custom getMemento</h3>
+<p>If this does not give you the control you need, you can further modify the memento by overriding the &#39;getMemento&#39; function on your entity. In this case, a &#39;$getMemento&#39; function will be available which is the Mementifier function.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+    property name=&quot;password&quot;;
+    property name=&quot;createdDate&quot;;
+    property name=&quot;modifiedDate&quot;;
+
+    function getMemento() {
+        return {
+            id = getId(),
+            username = getUsername(),
+            email = getEmail(),
+            createdDate = dateFormat( getCreatedDate(), &quot;MM/DD/YYYY&quot; ),
+            // can also use getAttribute if you want to bypass a custom getter
+            modifiedDate = dateFormat( retrieveAttribute( &quot;modifiedDate&quot; ), &quot;MM/DD/YYYY&quot; )
+        };
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">{
+    &quot;id&quot; = 1,
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;createdDate&quot; = &quot;03/12/2018&quot;,
+    &quot;modifiedDate&quot; = &quot;03/12/2018&quot;
+}</code></pre>
+<h2 id="asmemento">asMemento</h2>
+<p>Sometimes when retrieving entities or executing a Quick query, you already know you want mementos back. You can skip the step of calling &#39;getMemento&#39; yourself or mapping over the array of results returned by calling &#39;asMemento&#39; before executing the query. &#39;asMemento&#39; takes the same arguments that &#39;getMemento&#39; does. It will pass those arguments on and convert your entities to mementos after executing the query. This works for all the query execution methods - &#39;find<code>, &#39;first</code>, &#39;get<code>, &#39;paginate</code>, etc.</p>
+<h2 id="renderdata">$renderData</h2>
+<p>The &#39;$renderData&#39; method is a special method for ColdBox. When returning a model from a handler, this method will be called and the value returned will be used as the serialized response. This let&#39;s you simply return an entity from a handler for your API. By default this will call &#39;getMemento()`.</p>
+<pre><code class="language-javascript">component {
+
+    // /users/:id
+    function show( event, rc, prc ) {
+        return getInstance( &quot;User&quot; ).findOrFail( rc.id );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">{
+    &quot;id&quot; = 1,
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;createdDate&quot; = &quot;03/12/2018&quot;,
+    &quot;modifiedDate&quot; = &quot;03/12/2018&quot;
+}</code></pre>
+<p>`QuickCollection&#39; also defines a &#39;$renderData&#39; method, which will delegate the call to each entity in the collection and return the array of serialized entities.</p>
+<p>Automatically serializing a returned collection only works when using the &#39;QuickCollection&#39; as your entity&#39;s &#39;newCollection`.</p>
+<pre><code class="language-javascript">component {
+
+    function index( event, rc, prc ) {
+        return getInstance( &quot;User&quot; ).all();
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">[
+    {
+        &quot;id&quot; = 1,
+        &quot;username&quot; = &quot;JaneDoe&quot;,
+        &quot;email&quot; = &quot;jane@example.com&quot;,
+        &quot;createdDate&quot; = &quot;03/12/2018&quot;,
+        &quot;modifiedDate&quot; = &quot;03/12/2018&quot;
+    },
+    {
+        &quot;id&quot; = 2,
+        &quot;username&quot; = &quot;JohnDoe&quot;,
+        &quot;email&quot; = &quot;john@example.com&quot;,
+        &quot;createdDate&quot; = &quot;03/14/2018&quot;,
+        &quot;modifiedDate&quot; = &quot;03/15/2018&quot;
+    }
+]</code></pre>

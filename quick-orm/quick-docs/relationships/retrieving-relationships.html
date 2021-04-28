@@ -1,0 +1,9 @@
+<h1 id="retrieving-relationships">Retrieving Relationships</h1>
+<p>Relationships can be used in two ways.</p>
+<p>The first is as a getter. Calling &#39;user.getPosts()&#39; will execute the relationship, cache the result, and return it.</p>
+<pre><code class="language-javascript">var posts = user.getPosts();</code></pre>
+<p>The second is as a relationship. Calling &#39;user.posts()&#39; returns a &#39;Relationship&#39; instance to retrieve the posts that can be further constrained. A &#39;Relationship&#39; is backed by qb as well, so feel free to call any qb method to further constrain the relationship.</p>
+<pre><code class="language-javascript">var newestPosts = user
+    .posts()
+    .orderBy( &quot;publishedDate&quot;, &quot;desc&quot; )
+    .get();</code></pre>

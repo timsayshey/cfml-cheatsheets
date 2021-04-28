@@ -1,0 +1,16 @@
+<h1 id="creating-new-entities">Creating New Entities</h1>
+<h2 id="save">save</h2>
+<p>New Quick entities can be created and persisted to the database by creating a new entity instance, setting the attributes on the entity, and then calling the &#39;save&#39; method.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; );
+user.setUsername( &quot;JaneDoe&quot; );
+user.setEmail( &quot;jane@example.com&quot; );
+user.setPassword( &quot;mypass1234&quot; );
+user.save();</code></pre>
+<p>When we call &#39;save`, the record is persisted from the database and the primary key is set to the auto-generated value (if any).</p>
+<h2 id="create">create</h2>
+<p>Another option is to use the &#39;create&#39; method. This method accepts a struct of data and creates a new instance with the data specified.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).create( {
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;password&quot; = &quot;mypass1234&quot;
+} );</code></pre>

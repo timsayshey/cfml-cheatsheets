@@ -1,0 +1,48 @@
+<h1 id="interception-points">Interception Points</h1>
+<p>Quick allows you to hook in to multiple points in the entity lifecycle. If the event is on the component, you do not need to prefix it with &#39;quick`. If you are listening to an interception point, include &#39;quick&#39; at the beginning.</p>
+<p>If you create your own Interceptors, they will not fire if you define them in your Main application. &#39;quick&#39; will be loaded AFTER your interceptors, so the &#39;quick&#39; interception points will <strong>not</strong> be registered with your interceptor. This can be solved by moving your interceptors to a module with a dependency on &#39;quick`, of by also registering the &#39;quick&#39; custom interception points in your main coldbox configuration.</p>
+<h2 id="quickinstanceready">quickInstanceReady</h2>
+<p>Fired after dependency injection has been performed on the entity and the metadata has been inspected.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpreload">quickPreLoad</h2>
+<p>Fired before attempting to load an entity from the database.</p>
+<blockquote>
+<p>This method is only called for &#39;find&#39; actions.</p>
+</blockquote>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostload">quickPostLoad</h2>
+<p>Fired after loading an entity from the database.</p>
+<blockquote>
+<p>This method is only called for &#39;find&#39; actions.</p>
+</blockquote>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpresave">quickPreSave</h2>
+<p>Fired before saving an entity to the database.</p>
+<blockquote>
+<p>This method is called for both insert and update actions.</p>
+</blockquote>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostsave">quickPostSave</h2>
+<p>Fired after saving an entity to the database.</p>
+<blockquote>
+<p>This method is called for both insert and update actions.</p>
+</blockquote>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpreinsert">quickPreInsert</h2>
+<p>Fired before inserting an entity into the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostinsert">quickPostInsert</h2>
+<p>Fired after inserting an entity into the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpreupdate">quickPreUpdate</h2>
+<p>Fired before updating an entity in the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostupdate">quickPostUpdate</h2>
+<p>Fired after updating an entity in the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpredelete">quickPreDelete</h2>
+<p>Fired before deleting a entity from the database.</p>
+<p>`interceptData&#39; structure</p>
+<h2 id="quickpostdelete">quickPostDelete</h2>
+<p>Fired after deleting a entity from the database.</p>
+<p>`interceptData&#39; structure</p>

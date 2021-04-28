@@ -1,0 +1,33 @@
+<h1 id="relationship-counts">Relationship Counts</h1>
+<p>One common type of subselect field is the count of related entites.  For instance, you may want to load a Post or a list of Posts with the count of Comments on each Post.  You can reuse your existing relationship definitions and add this count using the &#39;withCount&#39; method.</p>
+<h2 id="withcount">withCount</h2>
+<p>Adds a count of related entities as a subselect property.  Relationships can be constrained at runtime by passing a struct where the key is the relationship name and the value is a function to constrain the query.</p>
+<p>By default, you will access the returned count using the relationship name appended with &#39;Count<code>, i.e. &#39;comments&#39; will be available under &#39;commentsCount</code>.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; )
+    .withCount( &quot;comments&quot; )
+    .findOrFail( 1 );
+
+post.getCommentsCount();</code></pre>
+<p>You can alias the count attribute using the  &#39;AS&#39;  syntax as follows:</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; )
+    .withCount( &quot;comments AS myCommentsCount&quot; )
+    .findOrFail( 1 );
+
+post.getMyCommentsCount();</code></pre>
+<p>This is especially useful as you can dynamically constrain counts at runtime using the same struct syntax as eager loading with the &#39;with&#39; function.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; )
+    .withCount( [
+        &quot;comments AS allCommentsCount&quot;,
+        { &quot;comments AS pendingCommentsCount&quot;: function( q ) {
+            q.where( &quot;approved&quot;, 0 );
+        } },
+        { &quot;comments AS approvedCommentsCount&quot;: function( q ) {
+            q.where( &quot;approved&quot;, 1 );
+        } }
+    ] )
+    .findOrFail( 1 );
+
+post.getAllCommentsCount();
+post.getPendingCommentsCount();
+post.getApprovedCommentsCount();</code></pre>
+<p>Note that where possible it is cleaner and more readable to create a dedicated relationship instead of using dynamic constraints.  In the above example, the &#39;Post&#39; entity could have &#39;pendingComments&#39; and &#39;approvedComments&#39; relationships.  Dynamic constraints are more useful when applying user-provided data to the constraints like searching.</p>

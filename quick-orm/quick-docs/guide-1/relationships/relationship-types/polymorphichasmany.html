@@ -1,0 +1,105 @@
+<h1 id="polymorphichasmany">polymorphicHasMany</h1>
+<h2 id="usage">Usage</h2>
+<p>A &#39;polymorphicHasMany&#39; relationship is a &#39;one-to-many&#39; relationship. This relationship is used when an entity can belong to multiple types of entities. The classic example for this type of relationship is &#39;Posts<code>, &#39;Videos</code>, and &#39;Comments`.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function comments() {
+       return polymorphicHasMany( &quot;Comment&quot;, &quot;commentable&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Video.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function comments() {
+        return polymorphicHasMany( &quot;Comment&quot;, &quot;commentable&quot; );
+    }
+
+}</code></pre>
+<p>The first value passed to &#39;polymophicHasMany&#39; is a WireBox mapping to the related entity.</p>
+<p>The second value is a &#39;prefix&#39; for the polymorphic type. A common convention where is to add &#39;able&#39; to the end of the entity name, though this is not automatically done. In our example, this prefix is &#39;commentable<code>. This tells quick to look for a &#39;commentable_type&#39; and a &#39;commentable_id&#39; column in our &#39;Comment&#39; entity. It stores our entity&#39;s mapping as the &#39;_type&#39; and our entity&#39;s primary key value as the &#39;_id</code>.</p>
+<p>The inverse of &#39;polymophicHasMany&#39; is &#39;polymorphicBelongsTo`.</p>
+<pre><code class="language-javascript">// Comment.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function post() {
+        return polymorphicBelongsTo( &quot;commentable&quot; );
+    }
+
+}</code></pre>
+<h2 id="signature">Signature</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">Name</th>
+      <th style="text-align:left">Type</th>
+      <th style="text-align:left">Required</th>
+      <th style="text-align:left">Default</th>
+      <th style="text-align:left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left">relationName</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left"><code>true</code>
+      </td>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">The WireBox mapping for the related entity.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">name</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left"><code>true</code>
+      </td>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">The name given to the polymorphic relationship.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">type</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left"><code>name &amp; &quot;_type&quot;</code>
+      </td>
+      <td style="text-align:left">The column name that defines the type of the polymorphic relationship.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">id</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left"><code>name &amp; &quot;_id&quot;</code>
+      </td>
+      <td style="text-align:left">The column name that defines the id of the polymorphic relationship.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">localKey</td>
+      <td style="text-align:left">String | [String]</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left"><code>keyNames()</code>
+      </td>
+      <td style="text-align:left">The local primary key on the parent entity.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">relationMethodName</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left">The method name called on the entity to produce this relationship.</td>
+      <td
+      style="text-align:left">
+        <p>The method name called to retrieve this relationship. Uses a stack backtrace
+          to determine by default.</p>
+        <p>&lt;b&gt;&lt;/b&gt;</p>
+        <p><b>DO NOT PASS A VALUE HERE UNLESS YOU KNOW WHAT YOU ARE DOING.</b>
+        </p>
+        </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Returns a polymorphicHasMany relationship between this entity and the entity defined by &#39;relationName`.</p>
+<h2 id="visualizer">Visualizer</h2>

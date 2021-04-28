@@ -1,0 +1,51 @@
+<h1 id="hasmanythrough">hasManyThrough</h1>
+<p>A &#39;hasManyThrough&#39; relationship is a &#39;many-to-many&#39; relationship. It is used when you want to access a related entity through another entity. The most common example for this is through a pivot table. For instance, a &#39;User&#39; may have multiple &#39;Permissions&#39; via a &#39;UserPermission&#39; entity. This allows you to store additional data on the &#39;UserPermission&#39; entity, like a &#39;createdDate&#39; .</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function permissions() {
+       return hasManyThrough( &quot;Permission&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// Permission.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function users() {
+       return hasManyThrough( &quot;User&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">// UserPermission.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function user() {
+        return belongsTo( &quot;User&quot; );
+    }
+
+    function permission() {
+        return belongsTo( &quot;Permission&quot; );
+    }
+
+}</code></pre>
+<p>The first value passed to &#39;hasManyThrough&#39; is a WireBox mapping to the related entity.</p>
+<p>The second value passed is a WireBox mapping to the intermediate entity.</p>
+<p>Quick determines the foreign key of the relationship based on the entity name and key values. In this case, the &#39;Permission&#39; entity is assumed to have a &#39;permissionId&#39; foreign key. You can override this by passing a foreign key in as the third argument:</p>
+<pre><code class="language-javascript">return hasManyThrough(&quot;Permission&quot;, &quot;UserPermission&quot;, &quot;FK_permissionID&quot;);</code></pre>
+<p>The &#39;secondKey&#39; is also determined by Quick. It is the foreign key of the current entity for the intermediate entity&#39;s table. In our example, this would be &#39;userId`, since &#39;User&#39; is our entity and it is for the &#39;UserPermissions&#39; table. You can override this by passing in the &#39;secondKey&#39; as the fourth argument.</p>
+<pre><code class="language-javascript">return hasManyThrough(
+    &quot;Permission&quot;,
+    &quot;UserPermission&quot;,
+    &quot;FK_permissionID&quot;,
+    &quot;FK_userID&quot;
+);</code></pre>
+<p>Lastly, the &#39;localKey&#39; and &#39;secondLocalKey&#39; are the primary keys of the entity and the intermediate entities. Usually this is just &#39;id`. You can override these as the fifth and sixth argument.</p>
+<pre><code class="language-text">return hasManyThrough(
+    relationName = &quot;Permission&quot;,
+    intermeediateName = &quot;UserPermission&quot;,
+    firstKey = &quot;FK_permissionID&quot;, // foreign key on the UserPermission table
+    secondKey = &quot;FK_userID&quot;, // foreign key on the Permission table
+    localKey = &quot;userID&quot;, // local key on the owning entity table
+    secondLocalKey = &quot;id&quot; // local key on the UserPermission table
+);</code></pre>
+<p>The inverse of &#39;hasManyThrough&#39; is also &#39;hasManyThrough`. A note that the intermediate entity would use &#39;belongsTo&#39; relationships to link back to each side of the &#39;hasManyThrough&#39; relationship. These relationships are not needed to use a &#39;hasManyThrough&#39; relationship.</p>

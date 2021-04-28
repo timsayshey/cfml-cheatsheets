@@ -1,0 +1,48 @@
+<h1 id="cborm-compatibility-shim">CBORM Compatibility Shim</h1>
+<p>To assist you in migrating from CBORM, Quick ships with a small compatibility shim. To use it, have your entity extend &#39;quick.models.CBORMCompatEntity`. This will map common CBORM methods to their Quick counterparts as well as provide a partial CriteriaBuilder shim. The compatibility shim does not cover differences in properties or relationships.</p>
+<h2 id="entity--service-methods">Entity / Service Methods</h2>
+<ul>
+<li>list</li>
+<li>countWhere</li>
+<li>deleteById</li>
+<li>deleteWhere</li>
+<li>exists</li>
+<li>findAllWhere</li>
+<li>findWhere</li>
+<li>get</li>
+<li>getAll</li>
+<li>new</li>
+<li>populate</li>
+<li>save</li>
+<li>saveAll</li>
+<li>newCriteria</li>
+</ul>
+<h2 id="criteria-builder-methods">Criteria Builder Methods</h2>
+<ul>
+<li>getSQL</li>
+<li>between</li>
+<li>eqProperty</li>
+<li>isEQ</li>
+<li>isGT</li>
+<li>gtProperty</li>
+<li>isGE</li>
+<li>geProperty</li>
+<li>idEQ</li>
+<li>like</li>
+<li>ilike</li>
+<li>isIn</li>
+<li>isNull</li>
+<li>isNotNull</li>
+<li>isLT</li>
+<li>ltProperty</li>
+<li>neProperty</li>
+<li>isLE</li>
+<li>leProperty</li>
+<li>maxResults</li>
+<li>firstResult</li>
+<li>order</li>
+<li>list</li>
+<li>get</li>
+<li>count</li>
+<li>onMissingMethod</li>
+</ul>

@@ -1,0 +1,92 @@
+<h1 id="serialization">Serialization</h1>
+<h2 id="getmemento">getMemento</h2>
+<p>The memento pattern is an established pattern in ColdBox apps. A &#39;memento&#39; in this case is a simple representation of your entity using arrays, structs, and simple values.</p>
+<p>For instance, the following example shows a User entity and its corresponding memento:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+    property name=&quot;password&quot;;
+    property name=&quot;createdDate&quot;;
+    property name=&quot;modifiedDate&quot;;
+
+}</code></pre>
+<pre><code class="language-javascript">{
+    &quot;id&quot; = 1,
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;password&quot; = &quot;$2a$04$2nVI5rPOfl6.hrflkhBWOObO5Z7lXGJpi1vlosY74NrL/CKdpWqZS&quot;
+    &quot;createdDate&quot; = &quot;{ts &#39;2018-03-12 16:14:10&#39;}&quot;,
+    &quot;modifiedDate&quot; = &quot;{ts &#39;2018-03-12 16:14:10&#39;}&quot;
+}</code></pre>
+<p>You can modify the memento by overriding the &#39;getMemento&#39; function on your entity.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+    property name=&quot;password&quot;;
+    property name=&quot;createdDate&quot;;
+    property name=&quot;modifiedDate&quot;;
+
+    function getMemento() {
+        return {
+            id = getId(),
+            username = getUsername(),
+            email = getEmail(),
+            createdDate = dateFormat( getCreatedDate(), &quot;MM/DD/YYYY&quot; ),
+            // can also use getAttribute if you want to bypass a custom getter
+            modifiedDate = dateFormat( retrieveAttribute( &quot;modifiedDate&quot; ), &quot;MM/DD/YYYY&quot; )
+        };
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">{
+    &quot;id&quot; = 1,
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;createdDate&quot; = &quot;03/12/2018&quot;,
+    &quot;modifiedDate&quot; = &quot;03/12/2018&quot;
+}</code></pre>
+<h2 id="renderdata">$renderData</h2>
+<p>The &#39;$renderData&#39; method is a special method for ColdBox. When returning a model from a handler, this method will be called and the value returned will be used as the serialized response. This let&#39;s you simply return an entity from a handler for your API. By default this will call &#39;getMemento()`.</p>
+<pre><code class="language-javascript">component {
+
+    // /users/:id
+    function show( event, rc, prc ) {
+        return getInstance( &quot;User&quot; ).findOrFail( rc.id );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">{
+    &quot;id&quot; = 1,
+    &quot;username&quot; = &quot;JaneDoe&quot;,
+    &quot;email&quot; = &quot;jane@example.com&quot;,
+    &quot;createdDate&quot; = &quot;03/12/2018&quot;,
+    &quot;modifiedDate&quot; = &quot;03/12/2018&quot;
+}</code></pre>
+<p>`QuickCollection&#39; also defines a &#39;$renderData&#39; method, which will delegate the call to each entity in the collection and return the array of serialized entities.</p>
+<pre><code class="language-javascript">component {
+
+    function index( event, rc, prc ) {
+        return getInstance( &quot;User&quot; ).all();
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">[
+    {
+        &quot;id&quot; = 1,
+        &quot;username&quot; = &quot;JaneDoe&quot;,
+        &quot;email&quot; = &quot;jane@example.com&quot;,
+        &quot;createdDate&quot; = &quot;03/12/2018&quot;,
+        &quot;modifiedDate&quot; = &quot;03/12/2018&quot;
+    },
+    {
+        &quot;id&quot; = 2,
+        &quot;username&quot; = &quot;JohnDoe&quot;,
+        &quot;email&quot; = &quot;john@example.com&quot;,
+        &quot;createdDate&quot; = &quot;03/14/2018&quot;,
+        &quot;modifiedDate&quot; = &quot;03/15/2018&quot;
+    }
+]</code></pre>

@@ -1,0 +1,22 @@
+<h1 id="getting-started">Getting Started</h1>
+<p>qb is the engine that powers Quick.  It is highly recommended that you become familiar with the <a href="https://qb.ortusbooks.com/">qb documentation.</a></p>
+<h2 id="configure-a-default-datasource-in-your-cfml-engine">Configure a default datasource in your CFML engine</h2>
+<p>You can do this any way you&#39;d like: through the web admin, in &#39;Application.cfc`, or using <a href="https://cfconfig.ortusbooks.com">cfconfig</a>.</p>
+<p>Make sure to set &#39;this.datasource&#39; in your &#39;Application.cfc&#39; so Quick knows which datasource to use.</p>
+<p>Quick can use <a href="defining-an-entity/#multiple-datasource-support">multiple datasources</a>, but it makes it easier to use when you don&#39;t have to deal with that.</p>
+<h2 id="download-quick">Download Quick</h2>
+<p>The easiest way to download Quick is to use ForgeBox with CommandBox. Just run the following from the root of your application:</p>
+<p><code>box install quick</code></p>
+<h2 id="add-a-mapping-for-quick-in-your-applicationcfc">Add a mapping for &#39;quick&#39; in your &#39;Application.cfc`</h2>
+<p>For a default installation in a ColdBox template, the following line will do the trick.</p>
+<p><code>this.mappings[ &quot;/quick&quot; ] = COLDBOX_APP_ROOT_PATH &amp; &quot;/modules/quick&quot;;</code></p>
+<h2 id="configure-your-defaultgrammar-in-configcoldboxcfc">Configure your &#39;defaultGrammar&#39; in &#39;config/ColdBox.cfc`</h2>
+<p>Quick will auto discover your grammar by default on startup. To avoid this check, set a &#39;BaseGrammar`.</p>
+<p>`defaultGrammar&#39; is a module setting for Quick. Set it in your &#39;config/ColdBox.cfc&#39; like so:</p>
+<pre><code class="language-text">moduleSettings = {
+    quick = {
+        defaultGrammar = &quot;MySQLGrammar@qb&quot;
+    }
+};</code></pre>
+<p>Valid options are any of the <a href="https://qb.ortusbooks.com">qb supported grammars</a>. At the time of writing valid grammar options are: &#39;MySQLGrammar@qb<code>, &#39;PostgresGrammar@qb</code>, &#39;MSSQLGrammar@qb&#39; and &#39;OracleGrammar@qb<code>. You can also have qb discover your grammar on application init using &#39;AutoDiscover@qb</code>. Please check the qb docs for additional options.</p>
+<p>If you want to use a different datasource and/or grammar for individual entitities you can do so by <a href="defining-an-entity/#multiple-datasource-support">adding some metadata</a> attributes to your entities.</p>

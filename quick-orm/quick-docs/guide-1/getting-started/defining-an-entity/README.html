@@ -1,0 +1,292 @@
+<h1 id="defining-an-entity">Defining An Entity</h1>
+<p>To get started with Quick, you need an entity. You start by extending &#39;quick.models.BaseEntity`.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {}</code></pre>
+<p>That&#39;s all that is needed to get started with Quick. There are a few defaults of Quick worth mentioning here.</p>
+<p>You can generate Quick entities from CommandBox! Install &#39;quick-commands&#39; and use &#39;quick entity create&#39; to get started!</p>
+<h2 id="tables">Tables</h2>
+<p>We don&#39;t need to tell Quick what table name to use for our entity. By default, Quick uses the pluralized name of the component for the table name. That means for our &#39;User&#39; entity Quick will assume the table name is &#39;users`. You can override this by specifying a &#39;table&#39; metadata attribute on the component.</p>
+<pre><code class="language-javascript">// User.cfc
+component table=&quot;my_users&quot; extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {}</code></pre>
+<h2 id="inheritance">Inheritance</h2>
+<p>For more information on using inheritance and child tables in your relational database model, see <a href="subclass-entities.md">Subclass Entities</a>.</p>
+<h2 id="primary-key">Primary Key</h2>
+<p>By default, Quick assumes a primary key of &#39;id`. The name of this key can be configured by setting &#39;variables._key&#39; in your component.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    variables._key = &quot;user_id&quot;;
+
+}</code></pre>
+<p>Quick also assumes a key type that is auto-incrementing. If you would like a different key type, override the`keyType&#39; function and return the desired key type from that function.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function keyType() {
+        return variables._wirebox.getInstance( &quot;UUIDKeyType@quick&quot; );
+    }
+
+}</code></pre>
+<p>Quick ships with the following key types:</p>
+<ul>
+<li>&#39;AutoIncrementingKeyType`</li>
+<li>&#39;NullKeyType`</li>
+<li>&#39;ReturningKeyType`</li>
+<li>&#39;UUIDKeyType`</li>
+</ul>
+<p>`keyType&#39; can be any component that adheres to the &#39;keyType&#39; interface, so feel free to create your own and distribute them via ForgeBox.</p>
+<pre><code class="language-javascript">interface displayname=&quot;KeyType&quot; {
+
+    /**
+    * Called to handle any tasks before inserting into the database.
+    * Recieves the entity as the only argument.
+    */
+    public void function preInsert( required entity );
+
+    /**
+    * Called to handle any tasks after inserting into the database.
+    * Recieves the entity and the queryExecute result as arguments.
+    */
+    public void function postInsert( required entity, required struct result );
+
+}</code></pre>
+<h2 id="attributes">Attributes</h2>
+<p>You specify what attributes are retrieved by adding properties to your component.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+
+}</code></pre>
+<p>Now, only the &#39;id<code>, &#39;username</code>, and &#39;email&#39; attributes will be retrieved.</p>
+<p>Make sure to include the primary key (&#39;id&#39; by default) as a property.</p>
+<h3 id="persistent">Persistent</h3>
+<p>To prevent Quick from mapping a property to a database column add the &#39;persistent=&quot;false&quot;&#39; attribute to the property. This is needed mostly when using dependency injection.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;bcrypt&quot; inject=&quot;@BCrypt&quot; persistent=&quot;false&quot;;
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;email&quot;;
+
+}</code></pre>
+<h3 id="column">Column</h3>
+<p>If the column name in your table is not the column name you wish to use in Quick, you can specify the column name using the &#39;column&#39; metadata attribute. The attribute will be available using the &#39;name&#39; of the attribute.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot; column=&quot;user_name&quot;;
+    property name=&quot;countryId&quot; column=&quot;FK_country_id&quot;;
+
+}</code></pre>
+<h3 id="null-values">Null Values</h3>
+<p>To work around CFML&#39;s lack of &#39;null`, you can use the &#39;nullValue&#39; and &#39;convertToNull&#39; attributes.</p>
+<p>`nullValue&#39; defines the value that is considered &#39;null&#39; for a attribute. By default it is an empty string. (&#39;&quot;&quot;&#39;)</p>
+<p><code>convertToNull&#39; is a flag that, when false, will not try to insert &#39;null&#39; in to the database. By default this flag is &#39;true</code>.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;number&quot; convertToNull=&quot;false&quot;;
+    property name=&quot;title&quot; nullValue=&quot;REALLY_NULL&quot;;
+
+}</code></pre>
+<h3 id="read-only">Read Only</h3>
+<p>The &#39;readOnly&#39; attribute will prevent setters, updates, and inserts to a attribute when set to &#39;true`.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;createdDate&quot; readonly=&quot;true&quot;;
+
+}</code></pre>
+<h3 id="sql-type">SQL Type</h3>
+<p>In some cases you will need to specify an exact SQL type for your attribute. Any value set for the &#39;sqltype&#39; attribute will be used when inserting or updating the attribute in the database. It will also be used when you use the attribute in a &#39;where&#39; constraint.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;number&quot; sqltype=&quot;cf_sql_varchar&quot;;
+
+}</code></pre>
+<h3 id="casts">Casts</h3>
+<p>The &#39;casts&#39; attribute allows you to use a value in your CFML code as a certain type while being a different type in the database. A common example of this is a &#39;boolean&#39; which is usually represented as a &#39;BIT&#39; in the database.</p>
+<p>Two casters ship with Quick: &#39;BooleanCast@quick&#39; and &#39;JsonCast@quick`. You can add them using those mappings to any applicable columns.</p>
+<h4 id="custom-casts">Custom Casts</h4>
+<p>The &#39;casts&#39; attribute must point to a WireBox mapping that resolves to a component that implements the &#39;quick.models.Casts.CastsAttribute&#39; interface. (The &#39;implements&#39; keyword is optional.) This component defines how to &#39;get&#39; a value from the database in to the casted value and how to &#39;set&#39; a casted value back to the database. Below is an example of the built-in &#39;BooleanCast`, which comes bundled with Quick.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;active&quot; casts=&quot;BooleanCast@quick&quot;;
+
+}</code></pre>
+<pre><code class="language-javascript">// BooleanCast.cfc
+component implements=&quot;CastsAttribute&quot; {
+
+    /**
+     * Casts the given value from the database to the target cast type.
+     *
+     * @entity      The entity with the attribute being casted.
+     * @key         The attribute alias name.
+     * @value       The value of the attribute.
+     *
+     * @return      The casted attribute.
+     */
+    public any function get(
+        required any entity,
+        required string key,
+        any value
+    ) {
+        return isNull( arguments.value ) ? false : booleanFormat( arguments.value );
+    }
+
+    /**
+     * Returns the value to assign to the key before saving to the database.
+     *
+     * @entity      The entity with the attribute being casted.
+     * @key         The attribute alias name.
+     * @value       The value of the attribute.
+     *
+     * @return      The value to save to the database. A struct of values
+     *              can be returned if the cast value affects multiple attributes.
+     */
+    public any function set(
+        required any entity,
+        required string key,
+        any value
+    ) {
+        return arguments.value ? 1 : 0;
+    }
+
+}</code></pre>
+<p>Casted values are lazily loaded and cached for the lifecycle of the component. Only cast values that have been loaded will have &#39;set&#39; called on them when persisting to the database.</p>
+<p>Casts can be composed of multiple fields as well. Take this &#39;Address&#39; value object, for example:</p>
+<pre><code class="language-javascript">// Address.cfc
+component accessors=&quot;true&quot; {
+
+    property name=&quot;streetOne&quot;;
+    property name=&quot;streetTwo&quot;;
+    property name=&quot;city&quot;;
+    property name=&quot;state&quot;;
+    property name=&quot;zip&quot;;
+
+    function fullStreet() {
+        var street = [ getStreetOne(), getStreetTwo() ];
+        return street.filter( function( part ) {
+            return !isNull( part ) &amp;&amp; part != &quot;&quot;;
+        } ).toList( chr( 10 ) );
+    }
+
+    function formatted() {
+        return fullStreet() &amp; chr( 10 ) &amp; &quot;#getCity()#, #getState()# #getZip()#&quot;;
+    }
+
+}</code></pre>
+<p>This component is not a Quick entity. Instead it represents a combination of fields stored on our &#39;User&#39; entity:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;username&quot;;
+    property name=&quot;firstName&quot; column=&quot;first_name&quot;;
+    property name=&quot;lastName&quot; column=&quot;last_name&quot;;
+    property name=&quot;password&quot;;
+
+    property name=&quot;address&quot;
+        casts=&quot;AddressCast&quot;
+        persistent=&quot;false&quot;
+        getter=&quot;false&quot;
+        setter=&quot;false&quot;;
+    property name=&quot;streetOne&quot;;
+    property name=&quot;streetTwo&quot;;
+    property name=&quot;city&quot;;
+    property name=&quot;state&quot;;
+    property name=&quot;zip&quot;;
+
+}</code></pre>
+<p>Noticed that the casted &#39;address&#39; is neither &#39;persistent&#39; nor does it have a &#39;getter&#39; or &#39;setter&#39; created for it.</p>
+<p>The last piece of the puzzle is our &#39;AddressCast&#39; component that handles casting the value to and from the native database values:</p>
+<pre><code class="language-javascript">component implements=&quot;quick.models.Casts.CastsAttribute&quot; {
+
+    property name=&quot;wirebox&quot; inject=&quot;wirebox&quot;;
+
+    /**
+     * Casts the given value from the database to the target cast type.
+     *
+     * @entity      The entity with the attribute being casted.
+     * @key         The attribute alias name.
+     * @value       The value of the attribute.
+     * @attributes  The struct of attributes for the entity.
+     *
+     * @return      The casted attribute.
+     */
+    public any function get(
+        required any entity,
+        required string key,
+        any value
+    ) {
+        return wirebox.getInstance( dsl = &quot;Address&quot; )
+            .setStreetOne( entity.retrieveAttribute( &quot;streetOne&quot; ) )
+            .setStreetTwo( entity.retrieveAttribute( &quot;streetTwo&quot; ) )
+            .setCity( entity.retrieveAttribute( &quot;city&quot; ) )
+            .setState( entity.retrieveAttribute( &quot;state&quot; ) )
+            .setZip( entity.retrieveAttribute( &quot;zip&quot; ) );
+    }
+
+    /**
+     * Returns the value to assign to the key before saving to the database.
+     *
+     * @entity      The entity with the attribute being casted.
+     * @key         The attribute alias name.
+     * @value       The value of the attribute.
+     * @attributes  The struct of attributes for the entity.
+     *
+     * @return      The value to save to the database. A struct of values
+     *              can be returned if the cast value affects multiple attributes.
+     */
+    public any function set(
+        required any entity,
+        required string key,
+        any value
+    ) {
+        return {
+            &quot;streetOne&quot;: arguments.value.getStreetOne(),
+            &quot;streetTwo&quot;: arguments.value.getStreetTwo(),
+            &quot;city&quot;: arguments.value.getCity(),
+            &quot;state&quot;: arguments.value.getState(),
+            &quot;zip&quot;: arguments.value.getZip()
+        };
+    }
+
+}</code></pre>
+<p>You can see that returning a struct of values from the &#39;set&#39; function assigns multiple attributes from a single cast.</p>
+<h3 id="insert--update">Insert &amp; Update</h3>
+<p>You can prevent inserting and updating a property by setting the &#39;insert&#39; or &#39;update&#39; attribute to &#39;false`.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    property name=&quot;id&quot;;
+    property name=&quot;email&quot; column=&quot;email&quot; update=&quot;false&quot; insert=&quot;true&quot;;
+
+}</code></pre>
+<h2 id="formula-computed-or-subselect-properties">Formula, Computed, or Subselect properties</h2>
+<p>Quick handles formula, computed, or subselect properties using query scopes and the &#39;addSubselect&#39; helper method. <a href="../query-scopes-and-subselects.md#subselects">Check out the docs in query scopes to learn more.</a></p>
+<h2 id="multiple-datasource-support">Multiple datasource support</h2>
+<p>Quick uses a default datasource and default grammar, as described <a href="../">here</a>. If you are using multiple datasources you can override default datasource by specifying a &#39;datasource&#39; metadata attribute on the component. If your extra datasource has a different grammar you can override your grammar as well by specifying a &#39;grammar&#39; attribute.</p>
+<pre><code class="language-javascript">// User.cfc
+component
+    datasource=&quot;myOtherDatasource&quot;
+    grammar=&quot;PostgresGrammar@qb&quot;
+    extends=&quot;quick.models.BaseEntity&quot;
+    accessors=&quot;true&quot;
+{
+    // ....
+}</code></pre>
+<p>At the time of writing Valid grammar options are: &#39;MySQLGrammar@qb<code>, &#39;PostgresGrammar@qb</code>, &#39;SqlServerGrammar@qb&#39; and &#39;OracleGrammar@qb`. Please check the <a href="https://qb.ortusbooks.com/">qb docs</a> for additional options.</p>
+<h2 id="comparing-entities">Comparing Entities</h2>
+<p>You can compare entities using the &#39;isSameAs&#39; and &#39;isNotSameAs&#39; methods. Each method takes another entity and returns &#39;true&#39; if the two objects represent the same entity.</p>
+<pre><code class="language-javascript">var userOne = getInstance( &quot;User&quot; ).findOrFail( 1 );
+var userTwo = getInstance( &quot;User&quot; ).findOrFail( 1 );
+
+userOne.isSameAs( userTwo ); // true
+userOne.isNotSameAs( userTwo ); // false</code></pre>

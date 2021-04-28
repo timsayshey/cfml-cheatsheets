@@ -1,0 +1,42 @@
+<h1 id="collections">Collections</h1>
+<p>Collections are what are returned when calling &#39;get&#39; or &#39;all&#39; on an entity.  By default, it returns an array.  Every entity can override its &#39;newCollection&#39; method and return a custom collection.  This method accepts an array of entities and should return your custom collection.</p>
+<p><code>QuickCollection&#39; is a custom collection included in Quick as an extra component.  It is a specialized version of [&#39;CFCollection&#39;](https://www.forgebox.io/view/cfcollection). It smooths over the various CFML engines to provide an extendible, reliable array wrapper with functional programming methods. You may be familiar with methods like &#39;map&#39; \(&#39;ArrayMap&#39;\), &#39;filter&#39; \(&#39;ArrayFilter&#39;\), or &#39;reduce&#39; \(&#39;ArrayReduce&#39;\). These methods work in every CFML engine with &#39;CFCollection</code>.</p>
+<p>To use collections you need to install &#39;cfcollection&#39; and configure it as your as your &#39;newCollection`.</p>
+<p>Here&#39;s how you would configure an entity to return a &#39;QuickCollection`.</p>
+<pre><code class="language-javascript">component name=&quot;User&quot; {
+
+    function newCollection( array entities = [] ) {
+        return variables._wirebox.getInstance(
+            name = &quot;quick.extras.QuickCollection&quot;,
+            initArguments = {
+                &quot;collection&quot; = arguments.entities
+            }
+        );
+    }
+
+}</code></pre>
+<p>Collections are more powerful than plain arrays. There are many methods that can make your work easier. For instance, let&#39;s say you needed to group each active user by the first letter of their username in a list.</p>
+<pre><code class="language-javascript">var users = getInstance(&quot;User&quot;).all();
+
+users
+    .filter(function(user) {
+        return user.getActive();
+    })
+    .pluck(&quot;username&quot;)
+    .groupBy(function(username) {
+        return left(username, 1);
+    });</code></pre>
+<p>So powerful! We think you&#39;ll love it.</p>
+<h2 id="load">load</h2>
+<p>Additionally, &#39;QuickCollection&#39; includes a &#39;load&#39; method. &#39;load&#39; lets you eager load a relationship after executing the initial query.</p>
+<pre><code class="language-javascript">var posts = getInstance(&quot;Post&quot;).all();
+
+if (someCondition) {
+    posts.load(&quot;user&quot;);
+}</code></pre>
+<p>This is the same as if you had initially executed:</p>
+<pre><code class="language-javascript">getInstance(&quot;Post&quot;)
+    .with(&quot;user&quot;)
+    .all();</code></pre>
+<h2 id="renderdata">$renderData</h2>
+<p>`QuickCollection&#39; includes a &#39;$renderData&#39; method that lets you return a &#39;QuickCollection&#39; directly from your handler and translates the results and the entities within to a serialized version. Check out more about it in the <a href="serialization.md">Serialization</a> chapter.</p>

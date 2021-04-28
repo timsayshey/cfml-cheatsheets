@@ -1,0 +1,84 @@
+<h1 id="eager-loading">Eager Loading</h1>
+<h2 id="the-problem">The Problem</h2>
+<p>Let&#39;s imagine a scenario where you are displaying a list of posts. You fetch the posts:</p>
+<pre><code class="language-javascript">prc.posts = getInstance( &quot;Post&quot; ).limit( 25 ).get():</code></pre>
+<p>And start looping through them:</p>
+<pre><code class="language-markup">&lt;cfoutput&gt;
+    &lt;h1&gt;Posts&lt;/h1&gt;
+    &lt;ul&gt;
+        &lt;cfloop array=&quot;#prc.posts#&quot; item=&quot;post&quot;&gt;
+            &lt;li&gt;#post.getTitle()# by #post.getAuthor().getUsername()#&lt;/li&gt;
+        &lt;/cfloop&gt;
+    &lt;/ul&gt;
+&lt;/cfoutput&gt;</code></pre>
+<p>When you visit the page, though, you notice it takes a while to load. You take a look at your SQL console and you&#39;ve executed 26 queries for this one page! What?!?</p>
+<p>Turns out that each time you loop through a post to display its author&#39;s username you are executing a SQL query to retreive that author. With 25 posts this becomes 25 SQL queries plus one initial query to get the posts. This is where the <a href="https://stackoverflow.com/questions/97197/what-is-n1-select-query-issue">N+1 problem</a> gets its name.</p>
+<p>So what is the solution? <strong>Eager Loading.</strong></p>
+<p>Eager Loading means to load all the needed users for the posts in one query rather than separate queries and then stitch the relationships together. With Quick you can do this with one method call.</p>
+<h2 id="the-solution">The Solution</h2>
+<h3 id="with">with</h3>
+<p>You can eager load a relationship with the &#39;with&#39; method call.</p>
+<pre><code class="language-javascript">prc.posts = getInstance( &quot;Post&quot; )
+    .with( &quot;author&quot; )
+    .limit( 25 )
+    .get();</code></pre>
+<p>`with&#39; takes one parameter, the name of the relationship to load. Note that this is the name of the function, not the entity name. For example:</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function author() {
+        return belongsTo( &quot;User&quot; );
+    }
+
+}</code></pre>
+<p>To eager load the User in the snippet above you would call pass &#39;author&#39; to the &#39;with&#39; method.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).with( &quot;author&quot; ).get();</code></pre>
+<p>For this operation, only two queries will be executed:</p>
+<pre><code class="language-text">SELECT * FROM &#39;posts&#39; LIMIT 25
+
+SELECT * FROM &#39;users&#39; WHERE &#39;id&#39; IN (1, 2, 3, 4, 5, 6, ...)</code></pre>
+<p>Quick will then stitch these relationships together so when you call &#39;post.getAuthor()&#39; it will use the fetched relationship value instead of going to the database.</p>
+<h3 id="nested-relationships">Nested Relationships</h3>
+<p>You can eager load nested relationships using dot notation. Each segment must be a valid relationship name.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function country() {
+        return belongsTo( &quot;User&quot; );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).with( &quot;author.country&quot; );</code></pre>
+<p>You can eager load multiple relationships by passing an array of relation names to &#39;with&#39; or by calling &#39;with&#39; multiple times.</p>
+<pre><code class="language-javascript">getInstance( &quot;Post&quot; ).with( [ &quot;author.country&quot;, &quot;tags&quot; ] );</code></pre>
+<h3 id="constraining-eager-loaded-relationships">Constraining Eager Loaded Relationships</h3>
+<p>In most cases when you want to constrain an eager loaded relationship, the better approach is to create a new relationship.</p>
+<pre><code class="language-javascript">// User.cfc
+component {
+
+    function posts() {
+        return hasMany( &quot;Post&quot; );
+    }
+
+    function publishedPosts() {
+        return hasMany( &quot;Post&quot; ).published(); // published is a query scope on Post
+    }
+
+}</code></pre>
+<p>You can eager load either option.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).with( &quot;posts&quot; ).get();
+getInstance( &quot;User&quot; ).with( &quot;publishedPosts&quot; ).get();</code></pre>
+<p>Occassionally that decision needs to be dynamic. For example, maybe you only want to eager load the posts created within a timeframe defined by a user. To do this, pass a struct instead of a string to the &#39;with&#39; function. The key should be the name of the relationship and the value should be a function. This function will accept the related entity as its only argument. Here is an example:</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).with( { &quot;posts&quot; = function( query ) {
+
+} } ).latest().get();</code></pre>
+<p>If you need to load nested relationships with constraints you can call &#39;with&#39; in your constraint callback to continue eager loading relationships.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; ).with( { &quot;posts&quot; = function( q1 ) {
+    return query
+        .whereBetween( &quot;published_date&quot;, rc.startDate, rc.endDate )
+        .with( { &quot;comments&quot; = function( q2 ) {
+            return q2.where( &quot;body&quot;, &quot;like&quot;, rc.search );
+        } } );
+} } ).latest().get();</code></pre>
+<h3 id="load">load</h3>
+<p>Finally, you can postpone eager loading until needed by using the &#39;load&#39; method on &#39;QuickCollection<code>. &#39;load&#39; has the same function signature as &#39;with</code>. &#39;QuickCollection&#39; is the object returned for all Quick queries that return more than one record. Read more about it in <a href="../collections.md">Collections</a>.</p>

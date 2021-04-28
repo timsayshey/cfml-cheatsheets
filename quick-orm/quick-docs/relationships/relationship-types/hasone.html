@@ -1,0 +1,25 @@
+<h1 id="hasone">hasOne</h1>
+<h2 id="defining">Defining</h2>
+<p>A &#39;hasOne&#39; relationship is a &quot;one-to-one&quot; relationship. For instance, a &#39;User&#39; entity might have an &#39;UserProfile&#39; entity attached to it.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function profile() {
+       return hasOne( &quot;UserProfile&quot; );
+    }
+
+}</code></pre>
+<p>The first value passed to &#39;hasOne&#39; is a WireBox mapping to the related entity.</p>
+<p>Quick determines the foreign key of the relationship based on the entity name and key values. In this case, the &#39;UserProfile&#39; entity is assumed to have a &#39;userId&#39; foreign key. You can override this by passing a foreign key in as the second argument:</p>
+<pre><code class="language-javascript">return hasOne(&quot;UserProfile&quot;, &quot;FK_userID&quot;);</code></pre>
+<p>If your parent entity does not use &#39;id&#39; as its primary key, or you wish to join the child entity to a different column, you may pass a third argument to the &#39;belongsTo&#39; method specifying your parent table&#39;s custom key.</p>
+<pre><code class="language-javascript">return belongsTo(&quot;UserProfile&quot;, &quot;FK_userID&quot;, &quot;profile_id&quot;);</code></pre>
+<p>The inverse of &#39;hasOne&#39; is <a href="belongsto.md">&#39;belongsTo&#39;</a>. It is important to choose the right relationship for your database structure. &#39;hasOne&#39; assumes that the related model has the foreign key for the relationship.</p>
+<pre><code class="language-javascript">// UserProfile.cfc
+component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function user() {
+        return belongsTo( &quot;User&quot; );
+    }
+
+}</code></pre>

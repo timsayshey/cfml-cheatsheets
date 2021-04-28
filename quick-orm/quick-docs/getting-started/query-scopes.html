@@ -1,0 +1,68 @@
+<h1 id="query-scopes">Query Scopes</h1>
+<h2 id="definition">Definition</h2>
+<p>Query scopes are a way to encapsulate query constraints in your entities while giving them readable names .</p>
+<h2 id="a-practical-example">A Practical Example</h2>
+<p>For instance, let&#39;s say that you need to write a report for subscribers to your site. Maybe you track subscribers in a &#39;users&#39; table with a boolean flag in a &#39;subscribed&#39; column. Additionally, you want to see the oldest subscribers first. You keep track of when a user subscribed in a &#39;subscribedDate&#39; column. Your query might look as follows:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .where( &quot;subscribed&quot;, true )
+    .orderBy( &quot;subscribedDate&quot; )
+    .get();</code></pre>
+<p>Now nothing is wrong with this query. It retrieves the data correctly and you continue on with your day.</p>
+<p>Later, you need to retrieve a list of subscribed users for a different part of the site. So, you write a query like this:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .where( &quot;subscribed&quot;, true )
+    .get();</code></pre>
+<p>We&#39;ve duplicated the logic for how to retrieve active users now. If the database representation changed, we&#39;d have to change it in multiple places. For instance, what if instead of keeping track of a boolean flag in the database, we just checked that the &#39;subscribedDate&#39; column wasn&#39;t null?</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .whereNotNull( &quot;subscribedDate&quot; )
+    .get();</code></pre>
+<p>Now we see the problem. Let&#39;s look at the solution.</p>
+<p>The key here is that we are trying to retrieve subscribed users. Let&#39;s add a scope to our &#39;User&#39; entity for &#39;subscribed`:</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function scopeSubscribed( query ) {
+        return query.where( &quot;subscribed&quot;, true );
+    }
+
+}</code></pre>
+<p>Now, we can use this scope in our query:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .subscribed()
+    .get();</code></pre>
+<p>We can use this on our first example as well, for our report.</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .subscribed()
+    .orderBy( &quot;subscribedDate&quot; )
+    .get();</code></pre>
+<p>We&#39;ve successfully encapsulated our concept of a subscribed user!</p>
+<p>We can add as many scopes as we&#39;d like. Let&#39;s add one for &#39;longestSubscribers`.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function scopeLongestSubscribers( query ) {
+        return query.orderBy( &quot;subscribedDate&quot; );
+    }
+
+    function scopeSubscribed( query ) {
+        return query.where( &quot;subscribed&quot;, true );
+    }
+
+}</code></pre>
+<p>Now our query is as follows:</p>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .subscribed()
+    .longestSubscribers()
+    .get();</code></pre>
+<p>Best of all, we can reuse those scopes anywhere we see fit without duplicating logic.</p>
+<h2 id="usage">Usage</h2>
+<p>All query scopes are methods on an entity that begin with the &#39;scope&#39; keyword. You call these functions without the &#39;scope&#39; keyword (as shown above).</p>
+<p>Each scope is passed the &#39;query`, a reference to the current &#39;QueryBuilder&#39; instance, as the first argument. Any other arguments passed to the scope will be passed in order after that.</p>
+<pre><code class="language-javascript">component extends=&quot;quick.models.BaseEntity&quot; {
+
+    function scopeOfType( query, type ) {
+        return query.where( &quot;type&quot;, type );
+    }
+
+}</code></pre>
+<pre><code class="language-javascript">var subscribedUsers = getInstance( &quot;User&quot; )
+    .ofType( &quot;admin&quot; )
+    .get();</code></pre>

@@ -1,0 +1,128 @@
+<h1 id="belongsto">belongsTo</h1>
+<h2 id="usage">Usage</h2>
+<p>A &#39;belongsTo&#39; relationship is a &#39;many-to-one&#39; relationship. For instance, a &#39;Post&#39; may belong to a &#39;User`.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function user() {
+       return belongsTo( &quot;User&quot; );
+    }
+
+}</code></pre>
+<p>The first value passed to &#39;belongsTo&#39; is a WireBox mapping to the related entity.</p>
+<p>Quick determines the foreign key of the relationship based on the entity name and key values. In this case, the &#39;Post&#39; entity is assumed to have a &#39;userId&#39; foreign key. You can override this by passing a foreign key in as the second argument:</p>
+<pre><code class="language-javascript">return belongsTo( &quot;User&quot;, &quot;FK_userID&quot; );</code></pre>
+<p>If your parent entity does not use &#39;id&#39; as its primary key, or you wish to join the child entity to a different column, you may pass a third argument to the &#39;belongsTo&#39; method specifying your parent table&#39;s custom key.</p>
+<pre><code class="language-javascript">return belongsTo( &quot;User&quot;, &quot;FK_userID&quot;, &quot;relatedPostId&quot; );</code></pre>
+<p>The inverse of &#39;belongsTo&#39; is <a href="hasmany.md">&#39;hasMany&#39;</a> or <a href="hasone.md">&#39;hasOne&#39;</a>.</p>
+<pre><code class="language-javascript">// User.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function posts() {
+        return hasMany( &quot;Post&quot; );
+    }
+
+    function latestPost() {
+        // remember, relationships are just queries!
+        return hasOne( &quot;Post&quot; ).orderBy( &quot;createdDate&quot;, &quot;desc&quot; );
+    }
+
+}</code></pre>
+<h2 id="updating">Updating</h2>
+<p>To update a &#39;belongsTo&#39; relationship, use the &#39;associate&#39; method. &#39;associate&#39; takes the entity to associate as the only argument.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; ).findOrFail(1);
+var user = getInstance( &quot;User&quot; ).findOrFail(1);
+post.user().associate( user );
+post.save();</code></pre>
+<p>`associate&#39; does not automatically save the entity. Make sure to call &#39;save&#39; when you are ready to persist your changes to the database.</p>
+<h2 id="removing">Removing</h2>
+<p>To remove a &#39;belongsTo&#39; relationship, use the &#39;dissociate&#39; method.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; ).findOrFail(1);
+post.user().dissociate();
+post.save();</code></pre>
+<p>`dissociate&#39; does not automatically save the entity. Make sure to call &#39;save&#39; when you are ready to persist your changes to the database.</p>
+<h2 id="relationship-setter">Relationship Setter</h2>
+<p>You can also influence the associated entities by calling &#39;&quot;set&quot; &amp; relationshipName&#39; and passing in an entity or key value.</p>
+<pre><code class="language-javascript">var post = getInstance( &quot;Post&quot; ).first();
+post.setAuthor( 1 );</code></pre>
+<p>After executing this code, the post would be updated in the database to be associated with the user with an id of &#39;1`.</p>
+<h2 id="withdefault">withDefault</h2>
+<p>`BelongsTo&#39; relationships can be configured to return a default entity if no entity is found.  This is done by calling &#39;withDefault&#39; on the relationship object.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function user() {
+       return belongsTo( &quot;User&quot; ).withDefault();
+    }
+
+}</code></pre>
+<p>Called this way will return a new unloaded entity with no data.  You can also specify any default attributes data by passing in a struct of data to &#39;withDefault`.</p>
+<pre><code class="language-javascript">// Post.cfc
+component extends=&quot;quick.models.BaseEntity&quot; accessors=&quot;true&quot; {
+
+    function user() {
+       return belongsTo( &quot;User&quot; ).withDefault( {
+           &quot;firstName&quot;: &quot;Guest&quot;,
+           &quot;lastName&quot;: &quot;Author&quot;
+       } );
+    }
+
+}</code></pre>
+<h2 id="signature">Signature</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">Name</th>
+      <th style="text-align:left">Type</th>
+      <th style="text-align:left">Required</th>
+      <th style="text-align:left">Default</th>
+      <th style="text-align:left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left">relationName</td>
+      <td style="text-align:left">string</td>
+      <td style="text-align:left"><code>true</code>
+      </td>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">The WireBox mapping for the related entity.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">foreignKey</td>
+      <td style="text-align:left">String | [String]</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left"><code>entityName() &amp; keyNames()</code>
+      </td>
+      <td style="text-align:left">The foreign key on the parent entity.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">localKey</td>
+      <td style="text-align:left">String | [String]</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left"><code>keyNames()</code>
+      </td>
+      <td style="text-align:left">The local primary key on the parent entity.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left">relationMethodName</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left"><code>false</code>
+      </td>
+      <td style="text-align:left">The method name called on the entity to produce this relationship.</td>
+      <td
+      style="text-align:left">
+        <p>The method name called to retrieve this relationship. Uses a stack backtrace
+          to determine by default.</p>
+        <p>&lt;b&gt;&lt;/b&gt;</p>
+        <p><b>DO NOT PASS A VALUE HERE UNLESS YOU KNOW WHAT YOU ARE DOING.</b>
+        </p>
+        </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Returns a BelongsTo relationship between this entity and the entity defined by &#39;relationName`.</p>
+<h2 id="visualizer">Visualizer</h2>

@@ -1,0 +1,108 @@
+<h1 id="subclass-entities">Subclass Entities</h1>
+<p>By default, Quick supports basic component-level inheritance of entities, meaning that a child component inherits the properties ( and ability to overload ) its parent. A common, object-oriented relational database pattern, however is to provide additional definition on parent tables ( and classes ) within child tables which contain a foreign key.</p>
+<p>Quick supports two types of child classes: Discriminated and Subclassed child entities. In both cases, loading any child class will also deliver the data of its parent class.</p>
+<h2 id="subclass-entities-1">Subclass Entities</h2>
+<p>Let&#39;s say, for example, that I have a &#39;Media&#39; entity, which is used to catalog and organize all media items loaded in to my application.</p>
+<pre><code class="language-javascript">component
+    table=&quot;media&quot;
+    extends=&quot;quick.models.BaseEntity&quot;
+    accessors=&quot;true&quot;
+{
+
+    property name=&quot;id&quot;;
+    property name=&quot;uploadFileName&quot;;
+    property name=&quot;fileLocation&quot;;
+    property name=&quot;fileSizeBytes&quot;;
+
+}</code></pre>
+<p>My &#39;Media&#39; entity contains all of the properties which are common to every media item uploaded in to my application. Let&#39;s say, however, that I need to have specific attributes that are available on only media for my &#39;Book&#39; entity ( e.g. whether the image is the cover photo, for example ). I can create a child class of &#39;BookMedia&#39; which extends my &#39;Media&#39; entity. When loaded, all of the properties of &#39;Media&#39; will be loaded along with the custom attributes which apply to my &#39;BookMedia&#39; object:</p>
+<pre><code class="language-javascript">component
+    extends=&quot;Media&quot;
+    table=&quot;book_media&quot;
+    joinColumn=&quot;FK_media&quot;
+    accessors=&quot;true&quot;
+{
+    property name=&quot;displayOrder&quot;;
+    property name=&quot;designation&quot;;
+
+    function approvalStatus(){
+        return belongsTo( &quot;Book&quot;, &quot;FK_book&quot; );
+    }
+
+}</code></pre>
+<p>Note the additional component attribute &#39;joincolumn`. The presence of this attribute on a child class signifies that it is a child entity of the parent and that the parent&#39;s properties should be loaded whenever the &#39;BookMedia&#39; entity is loaded. In addition, the primary key of the entity is that of the parent.</p>
+<p>Note that a &#39;table&#39; attribute is required on a child entity if the parent entity has one.  This is because ColdBox will perform a deep merge on the entire inheritance chain for metadata properties.  If a parent class has a &#39;table&#39; attribute, it will show up as the child&#39;s &#39;table&#39; attribute.</p>
+<p>Child entities can be retrieved by queries specific to their own properties:</p>
+<pre><code class="language-javascript">var coverPhotos = getInstance( &quot;BookMedia&quot; )
+                    .where( &quot;designation&quot;, &quot;cover&quot; )
+                    .orderBy( &quot;displayOrder&quot;, &quot;ASC&quot; );</code></pre>
+<p>Or properties on the parent class can be used as first-class properties within the query:</p>
+<pre><code class="language-javascript">var smallCoverPhotos = getInstance( &quot;BookMedia&quot; )
+                    .where( &quot;designation&quot;, &quot;cover&quot; )
+                    .where( &quot;fileSizeBytes&quot;, &quot;&lt;&quot;, 40000 )
+                    .orderBy( &quot;displayOrder&quot;, &quot;ASC&quot; )
+                    .orderBy( &quot;uploadFileName&quot;, &quot;ASC&quot; );</code></pre>
+<p>Child entities can be retrieved, individually, using the value of the &#39;joinColumn`, which should be a foreign key to the parent identifier column:</p>
+<pre><code class="language-javascript">var myBookMediaItem = getInstance( &quot;BookMedia&quot; ).get( myId );</code></pre>
+<p>Now my &#39;Book&#39; entity can use its extended media class to retrieve media items which are specific to its own purpose:</p>
+<pre><code class="language-javascript">function media(){
+    return hasMany( &quot;BookMedia&quot;, &quot;FK_book&quot; ).orderBy( &quot;displayOrder&quot;, &quot;ASC&quot; );
+}</code></pre>
+<h2 id="discriminated-entities">Discriminated Entities</h2>
+<p>A discriminated child class functions, basically, in the same way as a subclassed entity, with one exception: The parent entity is aware of the discriminated child, due to a &#39;discriminatorValue&#39; attribute and will return that specific class when a retrieval is performed through the parent Entity. Let&#39;s take our &#39;BookMedia&#39; class, again, but this time defining it as a discriminated entity.</p>
+<p>The first step is to add the &#39;discriminatorColumn&#39; attribute to the &#39;Media&#39; entity:</p>
+<pre><code class="language-javascript">component
+    table=&quot;media&quot;
+    extends=&quot;quick.models.BaseEntity&quot;
+    accessors=&quot;true&quot;
+    discriminatorColumn=&quot;type&quot;
+{
+
+    property name=&quot;id&quot;;
+    property name=&quot;uploadFileName&quot;;
+    property name=&quot;fileLocation&quot;;
+    property name=&quot;fileSizeBytes&quot;;
+
+}</code></pre>
+<p>Then we set a &#39;discriminatorValue&#39; property on the child class, the value of which is stored in the parent entity table:</p>
+<pre><code class="language-javascript">component
+    extends=&quot;Media&quot;
+    table=&quot;book_media&quot;
+    joinColumn=&quot;FK_media&quot;
+    discriminatorValue=&quot;book&quot;
+    accessors=&quot;true&quot;
+{
+    property name=&quot;displayOrder&quot;;
+    property name=&quot;designation&quot;;
+
+    function approvalStatus(){
+        return belongsTo( &quot;Book&quot;, &quot;FK_book&quot; );
+    }
+
+}</code></pre>
+<p>Finally, we define an array of possible discriminated entities for the parent.  This is so we don&#39;t have to scan all Quick components just to determine if there are any discriminated entities.</p>
+<pre><code class="language-javascript">component
+    extends=&quot;Media&quot;
+    table=&quot;book_media&quot;
+    joinColumn=&quot;FK_media&quot;
+    discriminatorValue=&quot;book&quot;
+    accessors=&quot;true&quot;
+{
+    property name=&quot;displayOrder&quot;;
+    property name=&quot;designation&quot;;
+
+    variables._discriminators = [
+        &quot;BookMedia&quot;
+    ];
+
+    function approvalStatus(){
+        return belongsTo( &quot;Book&quot;, &quot;FK_book&quot; );
+    }
+
+}</code></pre>
+<p>Once this is defined, any new &#39;BookMedia&#39; entity will be saved with a &#39;type&#39; value of &#39;book&#39; in the &#39;media&#39; table. As such, the following query will result in only entities of &#39;BookMedia&#39; being returned:</p>
+<pre><code class="language-javascript">var bookMedia = getInstance( &quot;Media&quot; ).where( &quot;type&quot;, &quot;book&quot; ).get();</code></pre>
+<p>If our &#39;Media&#39; table contains a combination of non-book and book media, then the collection returned when querying all records will contain a mix of &#39;BookMedia&#39; and &#39;Media&#39; entities.</p>
+<p>Loading a collection of &#39;BookMedia&#39; entities, however, will always return a collection of &#39;BookMedia&#39; entities, because the &#39;type&#39; column value on the &#39;media&#39; must be equal to &#39;book`.</p>
+<h2 id="summary">Summary</h2>
+<p>Discriminated and child class entities, allow for a more Object oriented approach to entity-specific relationships by allowing you to eliminate pivot/join tables and extend the attributes of the base class.</p>

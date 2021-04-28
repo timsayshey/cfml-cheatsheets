@@ -1,0 +1,21 @@
+<h1 id="updating-existing-entities">Updating Existing Entities</h1>
+<h2 id="save">save</h2>
+<p>Updates are handled identically to inserts when using the &#39;save&#39; method. The only difference is that instead of starting with a new entity, we start with an existing entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.setPassword( &quot;newpassword&quot; );
+user.save();</code></pre>
+<h2 id="update">update</h2>
+<p>You can update multiple fields at once using the &#39;update&#39; method. This is similar to the &#39;create&#39; method for creating new entities.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.update( {
+   email = &quot;janedoe2@example.com&quot;,
+   password = &quot;newpassword&quot;
+} );</code></pre>
+<p>There is no need to call &#39;save&#39; when using the &#39;update&#39; method.</p>
+<h2 id="updateall">updateAll</h2>
+<p>Updates can be performed against any number of entities that match a given query.</p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .where( &quot;lastLoggedIn&quot;, &quot;&gt;&quot;, dateAdd( &quot;m&quot;, 3, now() ) )
+    .updateAll( {
+        &quot;active&quot; = 0
+    } );</code></pre>

@@ -1,0 +1,37 @@
+<h1 id="updating-existing-entities">Updating Existing Entities</h1>
+<h2 id="save">save</h2>
+<p>Updates are handled identically to inserts when using the &#39;save&#39; method. The only difference is that instead of starting with a new entity, we start with an existing entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.setPassword( &quot;newpassword&quot; );
+user.save();</code></pre>
+<h2 id="update">update</h2>
+<p>You can update multiple fields at once using the &#39;update&#39; method. This is similar to the &#39;create&#39; method for creating new entities.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.update( {
+   email = &quot;janedoe2@example.com&quot;,
+   password = &quot;newpassword&quot;
+} );</code></pre>
+<p>There is no need to call &#39;save&#39; when using the &#39;update&#39; method.</p>
+<p>By default, if you have a key in the struct that doesn&#39;t match a property in the entity the &#39;update&#39; method will fail. If you add the optional argument &#39;ignoreNonExistentAttributes&#39; set to &#39;true`, those missing keys are ignored. Now you can pass the &#39;rc&#39; scope from your submitted form directly into the &#39;update&#39; method and not worry about any other keys in the &#39;rc&#39; like &#39;event&#39; that would cause the method to fail.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).find( 1 );
+user.update( rc, true );</code></pre>
+<h2 id="updateorcreate">updateOrCreate</h2>
+<p>Updates an existing record or creates a new record with the given attributes.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).updateOrCreate( {
+    &quot;username&quot;: &quot;newuser&quot;
+} );</code></pre>
+<h2 id="updateall">updateAll</h2>
+<p>Updates matching entities with the given attributes according to the configured query. This is analagous to <a href="https://qb.ortusbooks.com/query-builder/executing-queries/inserts-updates-deletes#update">qb&#39;s update method.</a></p>
+<pre><code class="language-javascript">getInstance( &quot;User&quot; )
+    .where( &quot;lastLoggedIn&quot;, &quot;&gt;&quot;, dateAdd( &quot;m&quot;, 3, now() ) )
+    .updateAll( {
+        &quot;active&quot; = 0
+    } );</code></pre>
+<h2 id="fresh">fresh</h2>
+<p>Retrieves a new entity from the database with the same key value as the current entity. Useful for seeing any changes made to the record in the database. This function executes a query.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrFail( rc.userID );
+var sameUser = user.fresh();</code></pre>
+<h2 id="refresh">refresh</h2>
+<p>Refreshes the attributes data for the entity with data from the database. This differs from &#39;fresh&#39; in that it operates on the current entity instead of returning a new one. This function executes a query.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrFail( rc.userID );
+user.refresh(); // user now has updated data from the database</code></pre>

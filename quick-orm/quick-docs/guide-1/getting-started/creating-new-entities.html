@@ -1,0 +1,98 @@
+<h1 id="creating-new-entities">Creating New Entities</h1>
+<h2 id="save">save</h2>
+<p>New Quick entities can be created and persisted to the database by creating a new entity instance, setting the attributes on the entity, and then calling the &#39;save&#39; method.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; );
+user.setUsername( &quot;JaneDoe&quot; );
+user.setEmail( &quot;jane@example.com&quot; );
+user.setPassword( &quot;mypass1234&quot; );
+user.save();</code></pre>
+<p>When we call &#39;save`, the record is persisted from the database and the primary key is set to the auto-generated value (if any).</p>
+<p>We can shortcut the setters above using a &#39;fill&#39; method.</p>
+<h2 id="fill">fill</h2>
+<p>Finds the first matching record or creates a new entity.</p>
+<p>Sets attributes data from a struct of key / value pairs. This method does the following, in order:</p>
+<ol>
+<li>Guard against read-only attributes.</li>
+<li>Attempt to call a relationship setter.</li>
+<li>Calls custom attribute setters for attributes that exist.</li>
+<li>Throws an error if an attribute does not exist (if &#39;ignoreNonExistentAttributes&#39; is &#39;false&#39; which is the default).</li>
+</ol>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; );
+user.fill( {
+    &quot;username&quot;: &quot;JaneDoe&quot;,
+    &quot;email&quot;: &quot;jane@example.com&quot;,
+    &quot;password&quot;: &quot;mypass1234&quot;
+} );
+user.save();</code></pre>
+<h2 id="populate">populate</h2>
+<p>Populate is simply an alias for &#39;fill`. Use whichever one suits you best.</p>
+<h2 id="create">create</h2>
+<p>Creates a new entity with the given attributes and then saves the entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).create( {
+    &quot;username&quot;: &quot;JaneDoe&quot;,
+    &quot;email&quot;: &quot;jane@example.com&quot;,
+    &quot;password&quot;: &quot;mypass1234&quot;
+} );</code></pre>
+<p>There is no need to call &#39;save&#39; when using the &#39;create&#39; method.</p>
+<h2 id="firstornew">firstOrNew</h2>
+<p>Finds the first matching record or returns an unloaded new entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .firstOrNew( { &quot;username&quot;: rc.username } );</code></pre>
+<h2 id="firstorcreate">firstOrCreate</h2>
+<p>Finds the first matching record or creates a new entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; )
+    .firstOrCreate( { &quot;username&quot;: rc.username } );</code></pre>
+<h2 id="findornew">findOrNew</h2>
+<p>Returns the entity with the id value as the primary key. If no record is found, it returns a new unloaded entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrNew(
+    9999,
+      {
+              &quot;firstName&quot; : &quot;doesnt&quot;,
+              &quot;lastName&quot;  : &quot;exist&quot;
+      }
+);</code></pre>
+<h2 id="findorcreate">findOrCreate</h2>
+<p>Returns the entity with the id value as the primary key. If no record is found, it returns a newly created entity.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).findOrCreate(
+    9999,
+      {
+        &quot;username&quot;  : &quot;doesntexist&quot;,
+              &quot;firstName&quot; : &quot;doesnt&quot;,
+              &quot;lastName&quot;  : &quot;exist&quot;,
+              &quot;password&quot;  : &quot;secret&quot;
+      }
+);</code></pre>
+<h2 id="updateorcreate">updateOrCreate</h2>
+<p>Updates an existing record or creates a new record with the given attributes.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).updateOrCreate( {
+    &quot;username&quot;: &quot;newuser&quot;
+} );</code></pre>
+<h2 id="hydration-methods">Hydration Methods</h2>
+<p>Hydration is a term to describe filling an entity with a struct of data and then marking it as loaded, without doing any database queries. For example, this might be useful when hydrating a user from session data instead of doing a query every request.</p>
+<h3 id="hydrate">hydrate</h3>
+<p>Hyrdates an entity from a struct of data. Hydrating an entity fills the entity and then marks it as loaded.</p>
+<p>If the entity&#39;s keys are not included in the struct of data, a &#39;MissingHydrationKey&#39; is thrown.</p>
+<pre><code class="language-javascript">var user = getInstance( &quot;User&quot; ).hydrate( {
+    &quot;id&quot;: 4,
+    &quot;username&quot;: &quot;JaneDoe&quot;,
+    &quot;email&quot;: &quot;jane@example.com&quot;,
+    &quot;password&quot;: &quot;mypass1234&quot;
+} );
+
+user.isLoaded(); // true</code></pre>
+<h3 id="hydrateall">hydrateAll</h3>
+<p>Hydrates a new collection of entities from an array of structs.</p>
+<pre><code class="language-javascript">var users = getInstance( &quot;User&quot; ).hydrateAll( [
+    {
+        &quot;id&quot;: 3,
+        &quot;username&quot;: &quot;JohnDoe&quot;,
+        &quot;email&quot;: &quot;john@example.com&quot;,
+        &quot;password&quot;: &quot;mypass4321&quot;
+    },
+    {
+        &quot;id&quot;: 4,
+        &quot;username&quot;: &quot;JaneDoe&quot;,
+        &quot;email&quot;: &quot;jane@example.com&quot;,
+        &quot;password&quot;: &quot;mypass1234&quot;
+    }
+] );</code></pre>
