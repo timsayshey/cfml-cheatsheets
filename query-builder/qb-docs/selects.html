@@ -1,0 +1,32 @@
+<h1 id="selects">Selects</h1>
+<h2 id="select">select</h2>
+<p>If you pass no columns to this method, it will default to &quot;*&quot;.</p>
+<pre><code class="language-javascript">.select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] ).from( &quot;users&quot; )</code></pre>
+<h2 id="distinct">distinct</h2>
+<p>Calling distinct will cause the query to be executed with the DISTINCT keyword.</p>
+<pre><code class="language-javascript">.select( &quot;username&quot; ).distinct().from( &quot;users&quot; )</code></pre>
+<h2 id="addselect">addSelect</h2>
+<p>This method adds the columns passed to it to the currently selected columns.</p>
+<pre><code class="language-javascript">.addSelect( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] ).from( &quot;users&quot; )</code></pre>
+<h2 id="selectraw">selectRaw</h2>
+<p>A shortcut to use a raw expression in the select clause.</p>
+<pre><code class="language-javascript">.selectRaw( &quot;YEAR(birthdate) AS birth_year&quot; ).from( &quot;users&quot; )</code></pre>
+<h2 id="subselect">subSelect</h2>
+<p>The subselect is added to the other already selected columns.</p>
+<pre><code class="language-javascript">.subSelect( &quot;last_login_date&quot;, ( q ) =&gt; {
+  q.selectRaw( &quot;MAX(created_date)&quot; ).from( &quot;logins&quot; )
+} ) ).from( &quot;users&quot; )</code></pre>
+<h2 id="clearselect">clearSelect</h2>
+<p>Clears out the selected columns for a query along with any configured select bindings.</p>
+<pre><code class="language-javascript">.from( &quot;users&quot; )
+    .select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] )
+    .clearSelect()</code></pre>
+<h2 id="reselect">reselect</h2>
+<p>Clears out the selected columns for a query along with any configured select bindings.</p>
+<pre><code class="language-javascript">.from( &quot;users&quot; )
+    .select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] )
+    .reselect( &quot;username&quot; )</code></pre>
+<h2 id="reselectraw">reselectRaw</h2>
+<p>Clears out the selected columns.</p>
+<pre><code class="language-javascript">.from( &quot;users&quot; ).select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] )
+    .reselectRaw( &quot;YEAR(birthdate) AS birth_year&quot; )</code></pre>

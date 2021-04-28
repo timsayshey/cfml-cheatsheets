@@ -4,7 +4,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="../common.css">
     <link rel="stylesheet" href="../common/lib/atom-one-light.css">
-    <link rel="stylesheet" href="./quick-orm.css">
+    <link rel="stylesheet" href="./query-builder.css">
   </head>
   <body>
     <input type="checkbox" id="showPreview"/>
@@ -22,12 +22,12 @@
     </div>
     <div class="header-center">
         <div class="description-content">
-            <div class="title">Quick ORM cheat sheet</div>
-            <div class="sub-title">sous titre, une description.</div>
+            <div class="title">QB Query Builder Cheat Sheet</div>
+            <div class="sub-title">Library for Coldfusion / Lucee / CFML</div>
         </div>
 
         <div class="logo-container">
-            <img src="../assets/images/quick-orm.png">
+            <img src="../assets/images/qb.png">
         </div>
     </div>
     <div class="logo-category no-print">
@@ -147,27 +147,9 @@ query.from( &quot;orders&quot; )
     .whereLike( &quot;username&quot;, &quot;J%&quot; );</code></pre>
 <h3 id="wherein">whereIn</h3>
 <p>Adds a where in clause to the query.</p>
-<p>The values passed to whereIn can be a single value, a list of values, or an array of values.</p>
+<p>Pass single value, a list of values, or an array of values.</p>
 <pre><code class="language-javascript">query.from( &quot;orders&quot; )
     .whereIn( &quot;id&quot;, [ 1, 4, 66 ] );</code></pre>
-<p>Some database grammars have a hard limit on the number of parameters passed to a SQL statement.  Keep this in mind while writing your queries.</p>
-<p>If a list of values is passed in, it is converted to an array of values using a single comma  &quot;,&quot;  delimiter.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, &quot;1,4,66&quot; );</code></pre>
-<p>Any value in the list or array can also be passed using a <a href="https://qb.ortusbooks.com/query-builder/building-queries/parameters-and-bindings#custom-parameter-types">custom parameter type</a> to have more control over the parameter settings.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, [ 1, 4, { value = &quot;66&quot;, cfsqltype = &quot;CF_SQL_VARCHAR&quot; } ] );</code></pre>
-<p>`Expressions can be freely mixed in with other values.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, [ query.raw( &quot;MAX(id)&quot; ), 4, 66 ] );</code></pre>
-<p>A function or QueryBuilder instance can be passed to be used as a subquery expression instead of a list of values.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereIn( &quot;id&quot;, function( q ) {
-        q.select( &quot;id&quot; )
-            .from( &quot;users&quot; )
-            .where( &quot;age&quot;, &quot;&gt;&quot;, 25 );
-    } );</code></pre>
-<p>You may find a whereExists method performs better for you than a whereIn with a subquery.</p>
 <h3 id="wherenotin">whereNotIn</h3>
 <p>Adds a where not in clause to the query.</p>
 <h3 id="whereraw">whereRaw</h3>
@@ -198,6 +180,56 @@ query.from( &quot;orders&quot; )
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .whereUsername( &quot;like&quot;, &quot;j%&quot; )
     .whereActive( 1 );</code></pre>
+
+          <a id="when"></a>
+          <h1 id="when--conditionals">When / Conditionals</h1>
+<p>If you store the builder object in a variable, you can use if and else statements like you would expect.</p>
+<pre><code class="language-javascript">var q = query.from( &quot;posts&quot; );
+if ( someFlag ) {
+    q.orderBy( &quot;published_date&quot;, &quot;desc&quot; );
+}</code></pre>
+<p>This works, but breaks chainability. To keep chainability you can use the when helper method.</p>
+<h2 id="when">when</h2>
+<p>The when helper is used to allow conditional statements when defining queries without using if statements and having to store temporary variables.</p>
+<pre><code class="language-javascript">query.from( &quot;posts&quot; )
+    .when( someFlag, function( q ) {
+        q.orderBy( &quot;published_date&quot;, &quot;desc&quot; );
+    } )
+    .get();</code></pre>
+
+          <a id="selects"></a>
+          <h1 id="selects">Selects</h1>
+<h2 id="select">select</h2>
+<p>If you pass no columns to this method, it will default to &quot;*&quot;.</p>
+<pre><code class="language-javascript">.select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] ).from( &quot;users&quot; )</code></pre>
+<h2 id="distinct">distinct</h2>
+<p>Calling distinct will cause the query to be executed with the DISTINCT keyword.</p>
+<pre><code class="language-javascript">.select( &quot;username&quot; ).distinct().from( &quot;users&quot; )</code></pre>
+<h2 id="addselect">addSelect</h2>
+<p>This method adds the columns passed to it to the currently selected columns.</p>
+<pre><code class="language-javascript">.addSelect( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] ).from( &quot;users&quot; )</code></pre>
+<h2 id="selectraw">selectRaw</h2>
+<p>A shortcut to use a raw expression in the select clause.</p>
+<pre><code class="language-javascript">.selectRaw( &quot;YEAR(birthdate) AS birth_year&quot; ).from( &quot;users&quot; )</code></pre>
+<h2 id="subselect">subSelect</h2>
+<p>The subselect is added to the other already selected columns.</p>
+<pre><code class="language-javascript">.subSelect( &quot;last_login_date&quot;, ( q ) =&gt; {
+  q.selectRaw( &quot;MAX(created_date)&quot; ).from( &quot;logins&quot; )
+} ) ).from( &quot;users&quot; )</code></pre>
+<h2 id="clearselect">clearSelect</h2>
+<p>Clears out the selected columns for a query along with any configured select bindings.</p>
+<pre><code class="language-javascript">.from( &quot;users&quot; )
+    .select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] )
+    .clearSelect()</code></pre>
+<h2 id="reselect">reselect</h2>
+<p>Clears out the selected columns for a query along with any configured select bindings.</p>
+<pre><code class="language-javascript">.from( &quot;users&quot; )
+    .select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] )
+    .reselect( &quot;username&quot; )</code></pre>
+<h2 id="reselectraw">reselectRaw</h2>
+<p>Clears out the selected columns.</p>
+<pre><code class="language-javascript">.from( &quot;users&quot; ).select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] )
+    .reselectRaw( &quot;YEAR(birthdate) AS birth_year&quot; )</code></pre>
 
           <a id="by-and-having"></a>
           <h1 id="group-by-and-having">Group By and Having</h1>
@@ -249,111 +281,8 @@ query.from( &quot;orders&quot; )
 <h2 id="simplepaginate--paginate">simplePaginate &amp; paginate</h2>
 <p>This method combines forPage, count, and get to create a pagination struct alongside the results. Info on the simplePaginate or paginate methods, including custom pagination collectors, can be found in the <a href="https://qb.ortusbooks.com/query-builder/executing-queries/retrieving-results#paginate">Retreiving Results</a> section of the documentation.</p>
 
-          <a id="when"></a>
-          <h1 id="when--conditionals">When / Conditionals</h1>
-<p>If you store the builder object in a variable, you can use if and else statements like you would expect.</p>
-<pre><code class="language-javascript">var q = query.from( &quot;posts&quot; );
-if ( someFlag ) {
-    q.orderBy( &quot;published_date&quot;, &quot;desc&quot; );
-}</code></pre>
-<p>This works, but breaks chainability. To keep chainability you can use the when helper method.</p>
-<h2 id="when">when`</h2>
-<p>The when helper is used to allow conditional statements when defining queries without using if statements and having to store temporary variables.</p>
-<pre><code class="language-javascript">query.from( &quot;posts&quot; )
-    .when( someFlag, function( q ) {
-        q.orderBy( &quot;published_date&quot;, &quot;desc&quot; );
-    } )
-    .get();</code></pre>
-<p>You can pass a third argument to be called in the else case.</p>
-<pre><code class="language-javascript">query.from( &quot;posts&quot; )
-    .when(
-        someFlag,
-        function( q ) {
-            q.orderBy( &quot;published_date&quot;, &quot;desc&quot; );
-        },
-        function( q ) {
-            q.orderBy( &quot;modified_date&quot;, &quot;desc&quot; );
-        }
-    );</code></pre>
-<p>When callbacks are automatically scoped and grouped.</p>
-<pre><code class="language-javascript">qb.from( &quot;users&quot; )
-    .where( &quot;active&quot;, 1 )
-    .when( len( url.q ), function( q ) {
-        q.where( &quot;username&quot;, &quot;LIKE&quot;, q &amp; &quot;%&quot; )
-            .orWhere( &quot;email&quot;, &quot;LIKE&quot;, q &amp; &quot;%&quot; );
-    } );</code></pre>
-
-          <a id="selects"></a>
-          <h1 id="selects">Selects</h1>
-<h2 id="select">select</h2>
-<p>If you pass no columns to this method, it will default to &quot;*&quot;.</p>
-<pre><code class="language-javascript">.select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] ).from( &quot;users&quot; )</code></pre>
-<h2 id="distinct">distinct</h2>
-<p>Calling distinct will cause the query to be executed with the DISTINCT keyword.</p>
-<pre><code class="language-javascript">.select( &quot;username&quot; ).distinct().from( &quot;users&quot; )</code></pre>
-<h2 id="addselect">addSelect</h2>
-<p>This method adds the columns passed to it to the currently selected columns.</p>
-<pre><code class="language-javascript">.addSelect( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] ).from( &quot;users&quot; )</code></pre>
-<h2 id="selectraw">selectRaw</h2>
-<p>A shortcut to use a raw expression in the select clause.</p>
-<pre><code class="language-javascript">.selectRaw( &quot;YEAR(birthdate) AS birth_year&quot; ).from( &quot;users&quot; )</code></pre>
-<h2 id="subselect">subSelect</h2>
-<p>The subselect is added to the other already selected columns.</p>
-<pre><code class="language-javascript">.subSelect( &quot;last_login_date&quot;, ( q ) =&gt; {
-  q.selectRaw( &quot;MAX(created_date)&quot; ).from( &quot;logins&quot; )
-} ) ).from( &quot;users&quot; )</code></pre>
-<h2 id="clearselect">clearSelect</h2>
-<p>Clears out the selected columns for a query along with any configured select bindings.</p>
-<pre><code class="language-javascript">.from( &quot;users&quot; )
-    .select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] )
-    .clearSelect()</code></pre>
-<h2 id="reselect">reselect</h2>
-<p>Clears out the selected columns for a query along with any configured select bindings.</p>
-<pre><code class="language-javascript">.from( &quot;users&quot; )
-    .select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] )
-    .reselect( &quot;username&quot; )</code></pre>
-<h2 id="reselectraw">reselectRaw</h2>
-<p>Clears out the selected columns.</p>
-<pre><code class="language-javascript">.from( &quot;users&quot; ).select( [ &quot;fname AS firstName&quot;, &quot;age&quot; ] )
-    .reselectRaw( &quot;YEAR(birthdate) AS birth_year&quot; )</code></pre>
-
         </div>
         <div class="column2">
-          <a id="common-table-expressions"></a>
-          <h1 id="common-table-expressions-ie-ctes">Common Table Expressions (i.e. CTEs)</h1>
-<p>Common Table Expressions (CTEs) allow you to create re-usable temporal result sets.</p>
-<h2 id="with">with</h2>
-<p>You can build a CTE using a function:</p>
-<pre><code class="language-javascript">// qb
-query.with( &quot;UserCTE&quot;, function ( q ) {
-        q
-            .select( [ &quot;fName as firstName&quot;, &quot;lName as lastName&quot; ] )
-            .from( &quot;users&quot; )
-            .where( &quot;disabled&quot;, 0 );
-    } )
-    .from( &quot;UserCTE&quot; )
-    .get();</code></pre>
-<h2 id="withrecursive">withRecursive</h2>
-<pre><code class="language-javascript">query
-.withRecursive( &quot;Hierarchy&quot;, function ( q ) {
-    q.select( [ &quot;Id&quot;, &quot;ParentId&quot;, &quot;Name&quot;, q.raw( &quot;0 AS [Generation]&quot; ) ] )
-        .from( &quot;Sample&quot; )
-        .whereNull( &quot;ParentId&quot; )
-        // use recursion to join the child rows to their parents
-        .unionAll( function ( q ) {
-            q.select( [
-                    &quot;child.Id&quot;,
-                    &quot;child.ParentId&quot;,
-                    &quot;child.Name&quot;,
-                    q.raw( &quot;[parent].[Generation] + 1&quot; )
-                ] )
-                .from( &quot;Sample as child&quot; )
-                .join( &quot;Hierarchy as parent&quot;, &quot;child.ParentId&quot;, &quot;parent.Id&quot; );
-        } );
-    }, [ &quot;Id&quot;, &quot;ParentId&quot;, &quot;Name&quot;, &quot;Generation&quot; ] )
-    .from( &quot;Hierarchy&quot; )
-    .get();</code></pre>
-
           <a id="from"></a>
           <h1 id="from">From</h1>
 <h2 id="from-1">from</h2>
@@ -425,6 +354,41 @@ query.with( &quot;UserCTE&quot;, function ( q ) {
     .orderBy( &quot;email&quot; )
     .reorder( &quot;username&quot; );</code></pre>
 
+          <a id="common-table-expressions"></a>
+          <h1 id="common-table-expressions-ie-ctes">Common Table Expressions (i.e. CTEs)</h1>
+<p>Common Table Expressions (CTEs) allow you to create re-usable temporal result sets.</p>
+<h2 id="with">with</h2>
+<p>You can build a CTE using a function:</p>
+<pre><code class="language-javascript">// qb
+query.with( &quot;UserCTE&quot;, function ( q ) {
+        q
+            .select( [ &quot;fName as firstName&quot;, &quot;lName as lastName&quot; ] )
+            .from( &quot;users&quot; )
+            .where( &quot;disabled&quot;, 0 );
+    } )
+    .from( &quot;UserCTE&quot; )
+    .get();</code></pre>
+<h2 id="withrecursive">withRecursive</h2>
+<pre><code class="language-javascript">query
+.withRecursive( &quot;Hierarchy&quot;, function ( q ) {
+    q.select( [ &quot;Id&quot;, &quot;ParentId&quot;, &quot;Name&quot;, q.raw( &quot;0 AS [Generation]&quot; ) ] )
+        .from( &quot;Sample&quot; )
+        .whereNull( &quot;ParentId&quot; )
+        // use recursion to join the child rows to their parents
+        .unionAll( function ( q ) {
+            q.select( [
+                    &quot;child.Id&quot;,
+                    &quot;child.ParentId&quot;,
+                    &quot;child.Name&quot;,
+                    q.raw( &quot;[parent].[Generation] + 1&quot; )
+                ] )
+                .from( &quot;Sample as child&quot; )
+                .join( &quot;Hierarchy as parent&quot;, &quot;child.ParentId&quot;, &quot;parent.Id&quot; );
+        } );
+    }, [ &quot;Id&quot;, &quot;ParentId&quot;, &quot;Name&quot;, &quot;Generation&quot; ] )
+    .from( &quot;Hierarchy&quot; )
+    .get();</code></pre>
+
           <a id="unions"></a>
           <h1 id="unions">Unions</h1>
 <p>The query builder also lets you create union statements on your queries using either UNION or UNION ALL strategies.</p>
@@ -438,36 +402,6 @@ query.with( &quot;UserCTE&quot;, function ( q ) {
             .select( &quot;name&quot; )
             .where( &quot;id&quot;, 2 );
     } );</code></pre>
-<p>Adding multiple union statements will append it to the query.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .select( &quot;name&quot; )
-    .where( &quot;id&quot;, 1 )
-    .union( function ( q ) {
-        q.from( &quot;users&quot; )
-            .select( &quot;name&quot; )
-            .where( &quot;id&quot;, 2 );
-    } )
-    .union( function ( q ) {
-        q.from( &quot;users&quot; )
-            .select(&quot;name&quot;)
-            .where( &quot;id&quot;, 3 );
-    } );</code></pre>
-<p>It can also add union queries as QueryBuilder instances.</p>
-<pre><code class="language-javascript">var q1 = query.newQuery()
-    .from( &quot;users&quot; )
-    .select( &quot;name&quot; )
-    .where( &quot;id&quot;, 2 );
-
-var q2 = query.newQuery()
-    .from( &quot;users&quot; )
-    .select( &quot;name&quot; )
-    .where( &quot;id&quot;, 3 );
-
-query.from( &quot;users&quot; )
-    .select( &quot;name&quot; )
-    .where( &quot;id&quot;, 1 )
-    .union( q1 )
-    .union( q2 );</code></pre>
 <h2 id="unionall">unionAll</h2>
 <p>Adds a UNION ALL statement to the query.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
@@ -478,36 +412,6 @@ query.from( &quot;users&quot; )
             .select( &quot;name&quot; )
             .where( &quot;id&quot;, 2 );
      } );</code></pre>
-<p>Adding multiple unionAll statements will append it to the query.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .select( &quot;name&quot; )
-    .where( &quot;id&quot;, 1 )
-    .unionAll( function( q ) {
-        q.from( &quot;users&quot; )
-            .select( &quot;name&quot; )
-            .where( &quot;id&quot;, 2 );
-     } )
-    .unionAll( function( q ) {
-        q.from( &quot;users&quot; )
-            .select( &quot;name&quot; )
-            .where( &quot;id&quot;, 3 );
-     } );</code></pre>
-<p>It can also add union queries as QueryBuilder instances.</p>
-<pre><code class="language-javascript">var q1 = query.newQuery()
-    .from( &quot;users&quot; )
-    .select( &quot;name&quot; )
-    .where( &quot;id&quot;, 2 );
-
-var q2 = query.newQuery()
-    .from( &quot;users&quot; )
-    .select( &quot;name&quot; )
-    .where( &quot;id&quot;, 3 );
-
-query.from( &quot;users&quot; )
-    .select( &quot;name&quot; )
-    .where( &quot;id&quot;, 1 )
-    .unionAll( q1 )
-    .unionAll( q2 );</code></pre>
 
           <a id="joins"></a>
           <h1 id="joins">Joins</h1>
@@ -519,35 +423,6 @@ query.from( &quot;users&quot; )
 <p>When doing a simple join using = as the operator, you can omit it and pass just the column names:</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .join( &quot;posts&quot;, &quot;users.id&quot;, &quot;posts.author_id&quot; );</code></pre>
-<p>Expressions are also supported as the table argument:</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .join( query.raw( &quot;posts (nolock)&quot; ), &quot;users.id&quot;, &quot;=&quot;, &quot;posts.author_id&quot; );</code></pre>
-<p>Using raw will most likely tie your code to a specific database, so think carefully before using the raw method if you want your project to be database agnostic.</p>
-<p>When you need to specify more clauses to join, you can pass a function as the second argument:</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .join( &quot;posts&quot;, function( j ) {
-        j.on( &quot;users.id&quot;, &quot;=&quot;, &quot;posts.author_id&quot; );
-        j.on( &quot;users.prefix&quot;, &quot;=&quot;, &quot;posts.prefix&quot; );
-    } );</code></pre>
-<p>You can specify where clauses in your joins as well.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .join( &quot;posts&quot;, function( j ) {
-        j.on( &quot;users.id&quot;, &quot;=&quot;, &quot;posts.author_id&quot; );
-        j.whereNotNull( &quot;posts.published_date&quot; );
-    } );</code></pre>
-<p>Conditions inside a join clause can be grouped using a function.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .join( &quot;posts&quot;, function( j ) {
-        j.on( function( j1 ) {
-            j1.on( &quot;users.id&quot;, &quot;posts.author_id&quot; )
-                .orOn( &quot;users.id&quot;, &quot;posts.reviewer_id&quot; );
-        } );
-        j.whereNotNull( &quot;posts.published_date&quot; );
-    } );</code></pre>
-<p>A preconfigured JoinClause can also be passed to the join function.</p>
-<pre><code class="language-javascript">var j = query.newJoin( &quot;contacts&quot; )
-    .on( &quot;users.id&quot;, &quot;posts.author_id&quot; );
-    query.from( &quot;users&quot; ).join( j );</code></pre>
 <h2 id="joinwhere">joinWhere</h2>
 <p>Adds a join to another table based on a WHERE clause instead of an ON clause.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
@@ -566,23 +441,6 @@ query.from( &quot;users&quot; )
     .whereNotIn( &quot;id&quot;, [ 1, 2, 3 ] );
     query.from( &quot;users as u&quot; )
     .joinSub( &quot;c&quot;, sub, &quot;u.id&quot;, &quot;=&quot;, &quot;c.id&quot; );</code></pre>
-<p>Alternatively, a function may be used to define the derived table:</p>
-<pre><code class="language-javascript">query.from( &quot;users as u&quot; )
-    .joinSub( &quot;c&quot;, function ( q ) {
-        q.select( &quot;id&quot; )
-            .from( &quot;contacts&quot; )
-            .whereNotIn( &quot;id&quot;, [ 1, 2, 3 ] );
-    }, &quot;u.id&quot;, &quot;=&quot;, &quot;c.id&quot; );</code></pre>
-<p>Complex join conditions are also possible by passing a function as the third parameter:</p>
-<pre><code class="language-javascript">query.from( &quot;users as u&quot; )
-    .joinSub( &quot;c&quot;, function ( q ) {
-        q.select( &quot;id&quot; )
-            .from( &quot;contacts&quot; )
-            .whereNotIn( &quot;id&quot;, [ 1, 2, 3 ] );
-    }, function( j ) {
-        j.on( &quot;u.id&quot;, &quot;c.id&quot; );
-        j.on( &quot;u.type&quot;, &quot;c.type&quot; );
-    } );</code></pre>
 <h2 id="leftjoin">leftJoin</h2>
 <pre><code class="language-javascript">query.from( &quot;posts&quot; )
     .leftJoin( &quot;users&quot;, &quot;users.id&quot;, &quot;posts.author_id&quot; );</code></pre>
@@ -619,9 +477,8 @@ query.from( &quot;users&quot; )
 <h2 id="crossjoinraw">crossJoinRaw</h2>
 <p>Uses the raw SQL provided to as the table for the cross join clause. Cross joins cannot be further constrained with on or where clauses.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).crossJoinRaw( &quot;posts (nolock)&quot; );</code></pre>
-<p>Using crossJoinRaw will most likely tie your code to a specific database, so think carefully before using the crossJoinRaw method if you want your project to be database agnostic.</p>
 <h2 id="crossjoinsub">crossJoinSub</h2>
-<p>Adds a cross join to a derived table. The derived table can be defined using a QueryBuilder instance or a function just as with <a href="https://qb.ortusbooks.com/query-builder/building-queries/joins#joinsub">joinSub</a>. Cross joins cannot be constrained, however.</p>
+<p>Adds a cross join to a derived table. The derived table can be defined using a QueryBuilder instance or a function just as with <a href="https://qb.ortusbooks.com/query-builder/building-queries/joins#joinsub">joinSub</a>.</p>
 <pre><code class="language-javascript">var sub = query.newQuery()
     .select( &quot;id&quot; )
     .from( &quot;contacts&quot; )
@@ -659,42 +516,23 @@ var j = query.newJoin( &quot;contacts&quot;, &quot;inner&quot; )
 
         </div>
         <div class="column2">
-          <a id="aggregates"></a>
-          <h1 id="aggregates">Aggregates</h1>
-<p>The query builder also provides a variety of aggregate methods such as count, max, min, and sum.</p>
-<h2 id="exists">exists</h2>
-<p>Returns true if the query returns any rows.  Returns false otherwise.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; ).where( &quot;username&quot;, &quot;like&quot;, &quot;jon%&quot; ).exists();</code></pre>
-<h2 id="count">count</h2>
-<p>Returns an integer number of rows returned by the query.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; ).count();</code></pre>
-<h2 id="max">max</h2>
-<p>Returns the maximum value for the given column.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; ).max( &quot;age&quot; );</code></pre>
-<h2 id="min">min</h2>
-<p>Returns the minimum value for the given column.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; ).min( &quot;age&quot; );</code></pre>
-<h2 id="sum">sum</h2>
-<p>Returns the sum of all returned rows for the given column.</p>
-<pre><code class="language-javascript">query.from( &quot;employees&quot; ).sum( &quot;salary&quot; );</code></pre>
-
           <a id="retrieving-results"></a>
           <h1 id="retrieving-results">Retrieving Results</h1>
 <h2 id="get">get</h2>
-<p>The get method is the most common method used for retrieving results. It executes using the configured QueryBuilder and returns the results.</p>
+<p>The get method is the most common method used for retrieving results.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).get();</code></pre>
-<p>`get can also take a list or array of columns to use as a shortcut. If any are passed, those columns will be used instead of any columns previously set on the QueryBuilder.</p>
+<p>`get can also take a list or array of columns to use as a shortcut.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).get( [ &quot;id&quot;, &quot;name&quot; ] );</code></pre>
 <h2 id="first">first</h2>
-<p>If you just need to retrieve a single row from the database table, you may use the first method. This method will return a single record (a Struct by default). If no row is found an empty Struct will be returned by default.</p>
+<p>If you just need to retrieve a single row from the database table, you may use the first method.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).first();</code></pre>
 <h2 id="values">values</h2>
-<p>If you don&#39;t even need an entire row, you may extract a single value from each record using the values method. The values method will return the column of your choosing as a simple array.</p>
+<p>If you don&#39;t even need an entire row, you may extract a single value from each record using the values method.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).values( &quot;firstName&quot; );</code></pre>
 <pre><code class="language-text">[ &quot;jon&quot;, &quot;jane&quot;, &quot;jill&quot;, ...
 ]</code></pre>
 <h2 id="value">value</h2>
-<p>This method is similar to values except it only returns a single, simple value. Where values calls get under the hood, this method calls first.</p>
+<p>This method is similar to values except it only returns a single, simple value.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).value( &quot;firstName&quot; );</code></pre>
 <pre><code class="language-text">&quot;jon&quot;</code></pre>
 <p>If no records are returned from the query, one of two things will happen.</p>
@@ -849,6 +687,25 @@ var j = query.newJoin( &quot;contacts&quot;, &quot;inner&quot; )
 <pre><code class="language-javascript">query.from( &quot;users&quot; )
     .delete( 1 );</code></pre>
 
+          <a id="aggregates"></a>
+          <h1 id="aggregates">Aggregates</h1>
+<p>The query builder also provides a variety of aggregate methods such as count, max, min, and sum.</p>
+<h2 id="exists">exists</h2>
+<p>Returns true if the query returns any rows.  Returns false otherwise.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).where( &quot;username&quot;, &quot;like&quot;, &quot;jon%&quot; ).exists();</code></pre>
+<h2 id="count">count</h2>
+<p>Returns an integer number of rows returned by the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).count();</code></pre>
+<h2 id="max">max</h2>
+<p>Returns the maximum value for the given column.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).max( &quot;age&quot; );</code></pre>
+<h2 id="min">min</h2>
+<p>Returns the minimum value for the given column.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).min( &quot;age&quot; );</code></pre>
+<h2 id="sum">sum</h2>
+<p>Returns the sum of all returned rows for the given column.</p>
+<pre><code class="language-javascript">query.from( &quot;employees&quot; ).sum( &quot;salary&quot; );</code></pre>
+
           <a id="parameters-and-bindings"></a>
           <h1 id="query-parameters-and-bindings">Query Parameters and Bindings</h1>
 <h2 id="custom-parameter-types">Custom Parameter Types</h2>
@@ -922,10 +779,10 @@ var j = query.newJoin( &quot;contacts&quot;, &quot;inner&quot; )
       <header class="print-only">
     <div class="header-center">
         <div class="description-content">
-            <div class="title">quick-orm cheat sheet</div>
+            <div class="title"> query-builder cheat sheet</div>
         </div>
         <div class="logo-container">
-            <img src="../assets/images/quick-orm.png" >
+            <img src="../assets/images/query-builder.png" >
         </div>
     </div>
 </header>

@@ -2,13 +2,21 @@
 /* you must not change other scss files */
 body {
   --currentColor: var(--blue); }
+  body h2 {
+    font-size: 1.17em; }
+  body h3 {
+    font-size: 1em; }
   body .menu {
     background: var(--grey);
     padding: 10px; }
     body .menu a {
       color: white;
+      line-height: 22px;
       font-size: 14px;
-      text-transform: uppercase; }
+      text-transform: uppercase;
+      padding-right: 28px;
+      font-weight: unset;
+      text-decoration: none; }
   body main div {
     width: 33.3%; }
     body main div img {

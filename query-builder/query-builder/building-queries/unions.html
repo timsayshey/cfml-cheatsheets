@@ -1,0 +1,22 @@
+<h1 id="unions">Unions</h1>
+<p>The query builder also lets you create union statements on your queries using either UNION or UNION ALL strategies.</p>
+<h2 id="union">union</h2>
+<p>Adds a UNION statement to the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 1 )
+    .union( function ( q ) {
+        q.from( &quot;users&quot; )
+            .select( &quot;name&quot; )
+            .where( &quot;id&quot;, 2 );
+    } );</code></pre>
+<h2 id="unionall">unionAll</h2>
+<p>Adds a UNION ALL statement to the query.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; )
+    .select( &quot;name&quot; )
+    .where( &quot;id&quot;, 1 )
+    .unionAll( function( q ) {
+        q.from( &quot;users&quot; )
+            .select( &quot;name&quot; )
+            .where( &quot;id&quot;, 2 );
+     } );</code></pre>

@@ -23,7 +23,7 @@ if ( someFlag ) {
             q.orderBy( &quot;modified_date&quot;, &quot;desc&quot; );
         }
     );</code></pre>
-<p>`when callbacks are automatically scoped and grouped.  That means that if a where clause is added inside the callback with an OR combinator the clauses will automatically be grouped (have parenthesis put around them.)  You can disable this feature by passing withoutScoping = true to the when callback.</p>
+<p>When callbacks are automatically scoped and grouped.</p>
 <pre><code class="language-javascript">qb.from( &quot;users&quot; )
     .where( &quot;active&quot;, 1 )
     .when( len( url.q ), function( q ) {

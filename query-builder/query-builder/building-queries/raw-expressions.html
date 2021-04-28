@@ -1,0 +1,5 @@
+<h1 id="raw-expressions">Raw Expressions</h1>
+<p>Raw expressions are the qb escape hatch.</p>
+<h2 id="raw">raw</h2>
+<p>The sql snippet passed to raw is not processed by qb at all.</p>
+<pre><code class="language-javascript">query.from( &quot;users&quot; ).select( query.raw( &quot;MAX(created_date)&quot; ) );</code></pre>

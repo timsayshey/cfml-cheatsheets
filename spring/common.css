@@ -136,8 +136,6 @@ body {
     body #showPreview:checked ~ .reverse .print-only,
     body #showPreview:checked ~ .first-side .print-only {
       display: flex !important; }
-  body .first-side main {
-    height: 944px; }
   body .reverse main {
     height: 981px; }
   body .reverse header {

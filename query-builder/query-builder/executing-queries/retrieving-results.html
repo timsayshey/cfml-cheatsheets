@@ -1,19 +1,19 @@
 <h1 id="retrieving-results">Retrieving Results</h1>
 <h2 id="get">get</h2>
-<p>The get method is the most common method used for retrieving results. It executes using the configured QueryBuilder and returns the results.</p>
+<p>The get method is the most common method used for retrieving results.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).get();</code></pre>
-<p>`get can also take a list or array of columns to use as a shortcut. If any are passed, those columns will be used instead of any columns previously set on the QueryBuilder.</p>
+<p>`get can also take a list or array of columns to use as a shortcut.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).get( [ &quot;id&quot;, &quot;name&quot; ] );</code></pre>
 <h2 id="first">first</h2>
-<p>If you just need to retrieve a single row from the database table, you may use the first method. This method will return a single record (a Struct by default). If no row is found an empty Struct will be returned by default.</p>
+<p>If you just need to retrieve a single row from the database table, you may use the first method.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).first();</code></pre>
 <h2 id="values">values</h2>
-<p>If you don&#39;t even need an entire row, you may extract a single value from each record using the values method. The values method will return the column of your choosing as a simple array.</p>
+<p>If you don&#39;t even need an entire row, you may extract a single value from each record using the values method.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).values( &quot;firstName&quot; );</code></pre>
 <pre><code class="language-text">[ &quot;jon&quot;, &quot;jane&quot;, &quot;jill&quot;, ...
 ]</code></pre>
 <h2 id="value">value</h2>
-<p>This method is similar to values except it only returns a single, simple value. Where values calls get under the hood, this method calls first.</p>
+<p>This method is similar to values except it only returns a single, simple value.</p>
 <pre><code class="language-javascript">query.from( &quot;users&quot; ).value( &quot;firstName&quot; );</code></pre>
 <pre><code class="language-text">&quot;jon&quot;</code></pre>
 <p>If no records are returned from the query, one of two things will happen.</p>

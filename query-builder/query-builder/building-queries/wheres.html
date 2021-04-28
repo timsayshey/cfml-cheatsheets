@@ -87,27 +87,9 @@ query.from( &quot;orders&quot; )
     .whereLike( &quot;username&quot;, &quot;J%&quot; );</code></pre>
 <h3 id="wherein">whereIn</h3>
 <p>Adds a where in clause to the query.</p>
-<p>The values passed to whereIn can be a single value, a list of values, or an array of values.</p>
+<p>Pass single value, a list of values, or an array of values.</p>
 <pre><code class="language-javascript">query.from( &quot;orders&quot; )
     .whereIn( &quot;id&quot;, [ 1, 4, 66 ] );</code></pre>
-<p>Some database grammars have a hard limit on the number of parameters passed to a SQL statement.  Keep this in mind while writing your queries.</p>
-<p>If a list of values is passed in, it is converted to an array of values using a single comma  &quot;,&quot;  delimiter.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, &quot;1,4,66&quot; );</code></pre>
-<p>Any value in the list or array can also be passed using a <a href="https://qb.ortusbooks.com/query-builder/building-queries/parameters-and-bindings#custom-parameter-types">custom parameter type</a> to have more control over the parameter settings.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, [ 1, 4, { value = &quot;66&quot;, cfsqltype = &quot;CF_SQL_VARCHAR&quot; } ] );</code></pre>
-<p>`Expressions can be freely mixed in with other values.</p>
-<pre><code class="language-javascript">query.from( &quot;orders&quot; )
-    .whereIn( &quot;id&quot;, [ query.raw( &quot;MAX(id)&quot; ), 4, 66 ] );</code></pre>
-<p>A function or QueryBuilder instance can be passed to be used as a subquery expression instead of a list of values.</p>
-<pre><code class="language-javascript">query.from( &quot;users&quot; )
-    .whereIn( &quot;id&quot;, function( q ) {
-        q.select( &quot;id&quot; )
-            .from( &quot;users&quot; )
-            .where( &quot;age&quot;, &quot;&gt;&quot;, 25 );
-    } );</code></pre>
-<p>You may find a whereExists method performs better for you than a whereIn with a subquery.</p>
 <h3 id="wherenotin">whereNotIn</h3>
 <p>Adds a where not in clause to the query.</p>
 <h3 id="whereraw">whereRaw</h3>
