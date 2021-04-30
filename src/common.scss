@@ -11,7 +11,7 @@
         display: none !important;
     }
     .print-only {
-        display: none !important;
+        display: flex !important;
     }
 
     .first-side,
@@ -41,7 +41,7 @@
 }
 
 .print-only {
-    display: none;
+    display: flex;
 }
 
 
@@ -131,28 +131,6 @@
 
 /* Large sheet print */
 
-.print-large {
-    background-color: var(--currentColor);
-    .reverse,
-    .first-side{
-        margin: 4mm 0 !important;
-        height: 297mm !important;
-        background-color: white;
-
-        main {
-            width: calc(100% - 10mm);
-            margin: auto;
-        }
-
-        header, footer {
-            padding: 0 4mm;
-        }
-
-        footer {
-            height: 72px;
-        }
-    }
-}
 
 /* Normal sheet print */
 
@@ -198,7 +176,7 @@ body {
             }
             & ~ .reverse .print-only,
             & ~ .first-side .print-only {
-                display: none !important;
+                display: flex !important;
             }
         }
     }
