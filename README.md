@@ -48,11 +48,3 @@ Build and reload server:
 
 - Hit `Ctrl+P` to generate the PDF version, using `Save as PDF`
 - Disable margins
-
-## Screenshots
-
-![menu](./assets/images/menu.png)
-
-![web version](./assets/images/webVersion.png)
-
-![pdf version](./assets/images/pdfVersion.png)
