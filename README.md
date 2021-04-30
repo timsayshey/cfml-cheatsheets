@@ -2,7 +2,7 @@
 
 ## Hosted on github pages
 
-Cheat sheets are hosted on github pages : [https://groupe-sii.github.io/cheat-sheets/](https://groupe-sii.github.io/cheat-sheets/)
+Cheat sheets are hosted on github pages : [https://timsayshey.github.io/cheat-sheets/](https://timsayshey.github.io/cheat-sheets/)
 
 ## Browsers support <sub><sup><sub><sub>made by </sub></sub></sup></sub>
 

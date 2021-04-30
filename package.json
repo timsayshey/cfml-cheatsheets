@@ -2,7 +2,7 @@
   "name": "cheat-sheet-markdown",
   "version": "0.1.0",
   "main": "index.js",
-  "author": "Kevin Grandemange <kgrandemange@sii.fr>",
+  "author": "Tim <timsayshey@gmail.com>",
   "scripts": {
     "build": "gulp build",
     "deploy": "node deploy.js",
@@ -36,6 +36,6 @@
     "npm": ">= 3.0.0"
   },
   "dependencies": {
-    "highlight.js": "git+https://github.com/groupe-sii/highlight.js.git"
+    "highlight.js": "git+https://github.com/timsayshey/highlight.js.git"
   }
 }

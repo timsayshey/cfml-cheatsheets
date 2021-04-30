@@ -6,13 +6,13 @@ var exec = require('child_process').exec,
 var gitCommands = {
   currentBranch: "git branch | grep \\* | cut -d ' ' -f2",
   clone:
-    'git clone -b gh-pages https://github.com/groupe-sii/cheatSheets.git gh-pages',
+    'git clone -b gh-pages https://github.com/timsayshey/cheatSheets.git gh-pages',
   configUser: 'git config user.name "Travis-CI"',
-  configEmail: 'git config user.email "mbrechet@sii.fr"',
+  configEmail: 'git config user.email "timsayshey@gmail.com"',
   add: 'git add --all',
   commit: 'git commit -am "Automatic build from Travis-CI"',
   push:
-    'git push "https://${GH_TOKEN}@github.com/groupe-sii/cheatSheets.git" gh-pages:gh-pages'
+    'git push "https://${GH_TOKEN}@github.com/timsayshey/cheatSheets.git" gh-pages:gh-pages'
 };
 
 var DEPLOY_BRANCH = 'master';
