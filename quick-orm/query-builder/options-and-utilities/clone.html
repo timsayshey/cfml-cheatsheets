@@ -1,5 +1,0 @@
-<h1 id="clone">Clone</h1>
-<p>At times you may need to duplicate a query.  Using <code>clone</code> you have a performant way to duplicate a query without using the <code>duplicate</code> method.</p>
-<pre><code class="language-javascript">var q1 = query.from( &quot;users&quot; ).where( &quot;firstName&quot;, &quot;like&quot;, &quot;Jo%&quot; );
-var q2 = q1.clone();
-q2.getFrom(); // &quot;users&quot;</code></pre>

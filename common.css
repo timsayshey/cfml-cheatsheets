@@ -27,7 +27,7 @@
   display: none; }
 
 .print-only {
-  display: none; }
+  display: flex; }
 
 /* Cut tag */
 .cut {
@@ -81,25 +81,6 @@
     margin-left: 1mm; }
 
 /* Large sheet print */
-.print-large {
-  background-color: var(--currentColor); }
-  .print-large .reverse,
-  .print-large .first-side {
-    margin: 4mm 0 !important;
-    height: 297mm !important;
-    background-color: white; }
-    .print-large .reverse main,
-    .print-large .first-side main {
-      width: calc(100% - 10mm);
-      margin: auto; }
-    .print-large .reverse header, .print-large .reverse footer,
-    .print-large .first-side header,
-    .print-large .first-side footer {
-      padding: 0 4mm; }
-    .print-large .reverse footer,
-    .print-large .first-side footer {
-      height: 72px; }
-
 /* Normal sheet print */
 @page {
   size: 210mm 297mm;
