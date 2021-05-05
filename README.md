@@ -1,4 +1,6 @@
-# Cheat Sheet Generator
+# CFML Cheatsheets
+
+## Currently includes cheatsheets for Quick ORM and QB Query Builder but more cheatsheets can be easily added. Pull requests welcome.
 
 ## Hosted on github pages
 
